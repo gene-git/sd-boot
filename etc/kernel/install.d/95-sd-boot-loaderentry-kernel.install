@@ -1,0 +1,159 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later 
+# /etc/kernel/install.d/95-loaderentry-title.install
+# Run after /usr/lib/kernel/install.d/90-loaderentry.install
+#
+# by default kernel-install creates loader entries with "title" taken from /etc/os-release.
+# This means every kernel has the same title - and that is what shows in boot menu, making
+# different kernels not distinguishable.
+#
+# This plugin runs after  90-loaderentry.install (which creates the loader entry)
+# and modifies the title.
+# 
+# For our kernels, the title will be the Arch package name for that kernel.
+# Since kernel-install puts a 'version' item in the entry the boot menu should 
+# then display as:
+#
+# - if title is unique:  "title"
+# - if title is not unique: "title (version)"
+#
+# Arguments passed by kernel-install:
+# $1: command (add/remove)
+# $2: kernel version
+# $3: boot loader entry directory
+# $4: kernel image (not used here)
+#
+set -e
+
+COMMAND="${1:?}"
+# KERNEL_VERSION="${2:?}"
+ENTRY_DIR_ABS="${3:?}"
+KERNEL_IMAGE="$4"
+# INITRD_OPTIONS_SHIFT=4
+#
+
+#
+# Load support functions
+# - packges = list of kernel packages using kernel-install tools
+# - config = config settings.
+#            - verb: -1, 0, 1, 2
+#
+function_dir="/usr/lib/sd-boot/functions"
+
+# shellcheck source=./lib/functions/load-kernel-packages.sh
+source "$function_dir/load-kernel-packages.sh"
+
+# shellcheck source=./lib/functions/load-config.sh
+source "$function_dir/load-config.sh"
+
+declare -a packages
+declare -A config
+root="/"
+sd_boot_load_config conf "$root"
+sd_boot_load_kernel_packages packages "$root"
+
+if [[ -v config["verb"] ]]; then
+    verb="${config[verb]}"    
+else
+    verb=0
+fi
+
+# 
+# Run only when adding new kernel
+# 
+if [ "$COMMAND" != "add" ]; then
+    exit 0
+fi
+
+find_load_entry_conf() {
+    #
+    # Find loader entry conf file
+    # ENTRY_DIR_ABS ~ <efi>/<machine-id>/<kern_vers>
+    #   -> <efi>/loader/entries/<machine-id>-<kern_vers>.conf
+    #
+    IFS='/' read -ra parts <<< "$ENTRY_DIR_ABS"
+
+    efi="${parts[1]}"
+    machine_id="${parts[2]}"
+    kern_vers="${parts[3]}"
+    entries_dir="/${efi}"/loader/entries
+    conf_file="${entries_dir}/${machine_id}-${kern_vers}".conf
+
+    echo "$conf_file"
+}
+
+#
+# pkgbase file
+# - KERNEL_IMAGE ~ /usr/lib/modules/<kern-vers>/vmlinuz
+#
+kern_mod_dir="${KERNEL_IMAGE%/*}"
+pkgbase_file="${kern_mod_dir}/gc-pkgbase"
+if [[ ! -f ${pkgbase_file} ]] ; then
+    echo "    Missing file : ${pkgbase_file}"
+    exit 0
+fi
+
+
+#
+# read pkgbase file to get package name
+#
+pkgbase=$(< "${pkgbase_file}")
+echo "  Loader entry title update: ${pkgbase}"
+
+if [[ -z ${pkgbase} ]] ; then
+    echo "    pkgbase fle empty : ${pkgbase_file}"
+    exit 0
+fi
+
+#
+# Locate the loader entry .conf file
+# Should be named: MACHINE_ID-KERNEL_VERSION.conf
+#
+entry_conf_file=$(find_load_entry_conf)
+
+if [[ ! -f "$entry_conf_file" ]] ; then
+    echo "    Loader entry file missing: ${entry_conf_file}"
+    exit 0
+else
+    if (( verb > 0 )) ; then
+        echo "    Loader entry file: $entry_conf_file"
+    fi
+fi
+
+#
+# Create title
+#
+# entry_title="$pkgbase ($KERNEL_VERSION)"
+# version is added whenever title is used in more than 1 entry
+# So we use package name
+# 
+entry_title="$pkgbase"
+if (( verb > 0 )) ; then
+    echo " Updating loader entry Title: $entry_title"
+fi
+
+#
+# Check if one of our kernels
+#
+do_action='n'
+for pkg in "${packages[@]}"
+do
+    if [[ "$pkg" == "$pkgbase" ]] ; then
+        do_action='yes'
+        break
+    fi 
+done
+
+if [[ "$do_action" != "yes" ]] ; then
+    if (( verb > 0 )) ; then
+        echo " $pkgbase skipped"
+    fi
+    exit 0
+fi
+
+#
+# Update the loader entry title
+#
+sed -i "s/^title .*/title      $entry_title/" "$entry_conf_file"
+
+exit 0

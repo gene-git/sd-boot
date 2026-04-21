@@ -1,0 +1,16 @@
+#
+# 70-sd-boot-efi-tool-remove.hook
+#   When efi tool is updated copy to EFI
+#
+[Trigger]
+Type = Package
+Operation = Remove
+Target = edk2-shell
+Target = memtest86_64-git
+
+[Action]
+Description = sd-boot: Removing efi tool from ESP
+When = PreTransaction
+Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update remove
+NeedsTargets
+ 

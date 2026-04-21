@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later 
+# Find where XBOOTLODR is for mounted in current boot
+# May be empty of no XBOOTLDR partition in use.
+#
+/usr/bin/bootctl | /usr/bin/grep 'XBOOTLDR: ' \
+    | /usr/bin/tail -1 | sed 's/^[[:blank:]]*//' | cut -d' ' -f 2
+

@@ -1,0 +1,21 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later 
+# If there is no /etc/kernel/cmdline, then create it using current kernel command line
+# 
+#
+cmdline_file="/etc/kernel/cmdline"
+if [ -f $cmdline_file ] ; then
+    # echo "Kernel command line already exists: $cmdline_file"
+    exit 0
+fi
+cmdline=$(< /proc/cmdline)
+cmdline="${cmdline#* }"
+
+if (( EUID == 0 )); then
+    echo "sd-boot: creating $cmdline_file"
+    echo "$cmdline" > $cmdline_file
+else
+    echo "# Need root to install to: $cmdline_file"
+    echo "$cmdline"
+fi
+exit 0

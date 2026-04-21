@@ -1,0 +1,282 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later 
+# Install, Upgrade or remove a kernel
+# Called from alpm hooks:
+# - 90-sd-boot-kernel-install.hook
+# - 60-sd-boot-kernel-remove.hook
+#
+# First (and only) argument is "install" or "remove"
+# "install" applies for upgrades and new installs.
+#
+# Todo: add config to pass "-v" to kernel-install
+#
+
+# exit on error
+set -e
+
+#
+# Operation
+#
+if [[ -z "$1" ]] ; then
+    exit 0
+fi
+
+case "$1" in
+    "install" | "add") oper="add" ;;
+     "remove") oper="remove" ;;
+     *) exit 0
+esac
+
+
+#
+# Load support functions
+# - sd_boot_load_kernel_packages()
+#   list of kernel packages using kernel-install tools
+# - sd_boot_load_config()
+#   config settings.
+#            - verb: -1, 0, 1, 2
+# - sd_boot_load_package_versions()
+#
+function_dir="/usr/lib/sd-boot/functions"
+
+# shellcheck source=./lib/functions/load-kernel-packages.sh
+source "$function_dir/load-kernel-packages.sh"
+
+# shellcheck source=./lib/functions/load-package-version.sh
+source "$function_dir/load-package-version.sh"
+
+# shellcheck source=./lib/functions/kernel-version-to-package.sh
+source "$function_dir/kernel-version-to-package.sh"
+
+# shellcheck source=./lib/functions/load-config.sh
+source "$function_dir/load-config.sh"
+
+declare -a packages
+declare -A config
+root="/"
+sd_boot_load_config config "$root"
+sd_boot_load_kernel_packages packages "$root"
+
+if [[ -v config["verb"] ]]; then
+    verb="${config[verb]}"
+else
+    verb=0
+fi
+
+kern_vers_prev=''
+kern_vers=''
+pkgbase=''
+
+kernel_mod_info() {
+    #
+    # Find kernel package name and version
+    # Input : kernel dir (/usr/lib/modules/<kernel-version>)
+    # Args:
+    #   "$1" = kernel module directory
+    #   "$2" = nameref var will be filled with kernel version
+    #   "$3" = nameref var will be filled with kernel package taken
+    #          from <kern_mod>/<pgbase-file>
+    # 
+    # <pkgbase-file> checked in order:
+    #   - pkgbase-sdb
+    #   - pkgbase-gc
+    #   - pkgbase
+    #
+    # Method:
+    # - kernel version taken from the module directory
+    # - package name taken from "pkgbase" file in the kernel module directory
+    #
+    local kern_dir="$1"
+    local -n _kern_vers="$2"
+    local -n _kern_pkg="$3"
+
+    #
+    # Current kernel version
+    # 
+    # - from kernel module path: ~ /usr/lib/modules/<kern_vers>
+    #
+    IFS='/' read -ra parts <<< "$kern_dir"
+    _kern_vers="${parts[4]}"
+
+    #
+    # Package Name
+    # kern_dir/"pkgbase" file 
+    #
+    _kern_pkg=''
+    pkgbase_files=(gc-pkgbase pkgbase-sdb pkgbase)
+    for filename in "${pkgbase_files[@]}"
+    do
+        pkgbase_file="$kdir/$filename"
+        if [[ -f "$pkgbase_file" ]] ; then
+            _kern_pkg=$(< "$pkgbase_file")
+            break
+        fi
+    done
+
+    if [[ -z "$_kern_pkg" ]] ; then
+        echo "  sd-boot: Error finding a package name for kernel version $kern_vers"
+        echo "           Missing ${$kdir}/pkgbase-sdb (or pkgbase)" 
+    fi
+}
+
+#
+# Track kernels that get updated 
+# - avoid duplication
+# TODO: Change to make a list of all kernels to update
+# Then update them
+#
+kernels_updated=()
+update_one_kernel() {
+    local oper="$1"
+    local kdir="$2"
+
+    # 
+    # kern_dir updates -> kern_vers, pkgbase
+    # 
+    kern_vers=''
+    pkgbase=''
+    kernel_mod_info "$kdir" kern_vers pkgbase
+
+    echo "  sd-boot: updating: $oper $pkgbase $kern_vers"
+
+    if [[ -z "$kern_vers" || -z "$pkgbase" ]] ; then
+        echo "  sd-boot: Skipped due to Missing kernel info"
+        return
+    fi
+
+    #
+    # Check if kernel package is marked for kernel-install
+    #
+    do_action="no"
+    for pkg in "${packages[@]}"
+    do
+        if [[ "$pkg" == "$pkgbase" ]] ; then
+            do_action='yes'
+            break
+        fi
+    done
+
+    if [[ "$do_action" != "yes" ]] ; then
+        if (( verb > 0 )) ; then
+            echo "  sd-boot: skipped $pkgbase"
+        fi
+        return
+    fi
+
+    #
+    # Check if already updated
+    # - we have separate hooks for add / remove so "oper" can only be one or the other
+    #
+    for pkg in "${kernels_updated[@]}"
+    do
+        if [[ "$pkg" == "$pkgbase" ]] ; then
+            if (( verb > 1 )) ; then
+                echo "  sd-boot: $pkgbase already updated"
+                return
+            fi
+        fi
+    done
+
+    #
+    # Install this kernel
+    # - add    => install current version 
+    #          => remove previous version
+    # - remove => current version 
+    #
+    # remove means remove : kernel, initrd and loader entry
+    #
+
+    if (( verb > 0 )) ; then
+        echo "    sd-boot: kernel-install" "$oper" "${kern_vers}"
+    fi
+    case "$oper" in
+        "add")
+            kern_image="/usr/lib/modules/$kern_vers/vmlinuz"
+            /usr/lib/sd-boot/sd-boot-package-version-update add "$pkgbase" "$kern_vers"
+
+            # shellcheck disable=SC2034
+            curr_vers=''
+            sd_boot_load_package_versions "$pkgbase" curr_vers kern_vers_prev
+
+            if [[ "${kern_vers_prev}" != "" && "${kern_vers_prev}" != "${kern_vers}" ]] ; then
+                if (( verb > 0 )) ; then
+                    echo "    sd-boot: kernel-install remove ${kern_vers_prev}"
+                fi
+                /usr/bin/kernel-install remove "${kern_vers_prev}"
+            fi
+            /usr/bin/kernel-install add "${kern_vers}" "$kern_image"
+            ;;
+
+        "remove")
+            /usr/bin/kernel-install remove "${kern_vers}"
+            /usr/lib/sd-boot/sd-boot-package-version-update remove "$pkgbase"
+            ;;
+    esac
+    kernels_updated+=("$pkgbase")
+    echo "  sd-boot: done ${pkgbase}"
+}
+
+
+#
+# Read all triggers from stdin.
+#
+# - If trigger is  usr/lib/modules/<kern_vers>/vmlinuz
+#   then kernel <kern_vers> is updated
+# - otherwise trigger is non-kernel and we update all (our) kernels.
+#
+# (a) Kernel package itself : 
+#     - our kernel
+#       add/remove - work on that kernel
+#
+#     - not our kernel
+#       skip
+#
+# (b) Any other trigger
+#     If add - then update all our kernels
+#
+non_kernel_triggers=()
+while read -r trigger 
+do
+    #
+    # Look for kernel trigger ~ usr/lib/modules/<kern_vers>/vmlinuz
+    # kdir-> /usr/lib/modules/<kern_vers>
+    #
+    if (( verb > 1)) ; then
+        echo "sd-boot: kernel change trigger: $trigger"
+    fi
+    mod_dir="usr/lib/modules"
+    if [[ "$trigger" == "$mod_dir"/* ]] ; then
+        #
+        # (a) kernel change
+        #
+        echo "sd-boot: kernel update"
+        kdir="${trigger%/*}"
+        kdir="/${kdir}"
+
+        update_one_kernel "$oper" "$kdir"
+    else
+        non_kernel_triggers+=("$trigger")
+    fi
+done
+
+#
+# (b) Non-kernel triggers are "add" only
+#
+if [[ "$oper" != "add" ]] ; then
+    if (( verb > 0 )) ; then
+        echo "  sd-boot: Skipping: Non-kernel trigger with remove"
+    fi
+    exit 0
+fi
+
+#
+# Do any non-kernel triggers => update all (our) other (not yet updated) kernels
+#
+num_other_triggers="${#non_kernel_triggers[@]}"
+if (( num_other_triggers > 0)) ; then
+    kdirs=(/usr/lib/modules/*)
+    for kdir in "${kdirs[@]}"
+    do
+        update_one_kernel "$oper" "$kdir"
+    done
+fi

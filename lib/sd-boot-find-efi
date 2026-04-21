@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later 
+# Find where ESP is for current boot is mounted. 
+# NB each disk may have and ESP partition - this finds the one on the current booted disk.
+#
+/usr/bin/bootctl | /usr/bin/grep -A1 'Available Boot Loaders on ESP:' \
+    | /usr/bin/tail -1 | sed 's/^[[:blank:]]*//' | cut -d' ' -f 2

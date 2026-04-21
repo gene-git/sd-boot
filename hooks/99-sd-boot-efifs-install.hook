@@ -1,0 +1,15 @@
+#
+# 99-sd-boot-efifs-install.hook
+#   When efi fs drivers updated copy to /efi/EFI/systemd/drivers/
+#
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/efifs-x64/*
+
+[Action]
+Description = sd-boot: Install EFI filesystem drivers to EFI
+When = PostTransaction
+Exec = /usr/lib/sd-boot/sd-boot-efifs-update add
+ 
