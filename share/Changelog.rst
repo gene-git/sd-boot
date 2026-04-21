@@ -6,12 +6,19 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 3.6.5 (2026-04-21)
-	8 commits.
+	3.6.2 (2026-04-21) -> 3.6.6 (2026-04-21)
+	10 commits.
 
 Commits
 =======
 
+
+* 2026-04-21  : **3.6.6**
+
+.. code-block:: text
+
+              - PKGBUILD : tweak the description
+              - update Changelog
 
 * 2026-04-21  : **3.6.5**
 
