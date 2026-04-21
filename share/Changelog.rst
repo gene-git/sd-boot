@@ -6,12 +6,19 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 3.6.4 (2026-04-21)
-	6 commits.
+	3.6.2 (2026-04-21) -> 3.6.5 (2026-04-21)
+	8 commits.
 
 Commits
 =======
 
+
+* 2026-04-21  : **3.6.5**
+
+.. code-block:: text
+
+              - Drop our memtest package from optdepends until we release it
+              - update Changelog
 
 * 2026-04-21  : **3.6.4**
 
