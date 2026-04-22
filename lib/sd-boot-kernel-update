@@ -115,7 +115,7 @@ kernel_mod_info() {
 
     if [[ -z "$_kern_pkg" ]] ; then
         echo "  sd-boot: Error finding a package name for kernel version $kern_vers"
-        echo "           Missing ${$kdir}/pkgbase-sdb (or pkgbase)" 
+        echo "           Missing ${kdir}/pkgbase-sdb (or pkgbase)" 
     fi
 }
 

@@ -53,6 +53,7 @@ sd_boot_load_package_versions() {
     while read -r row; do
         [[ "$row" =~ ^#.*$ ]] || [[ -z "$row" ]] && continue
 
+        # strip whitespace
         row=$(echo "$row" | /usr/bin/xargs)
         rows+=("$row")
     done < "$file"

@@ -22,6 +22,7 @@ read_file_row() {
         # Trim whitespace
         _row=$(echo "$row" | /usr/bin/xargs)
         break
+
     done < "$_file"
 }
 
