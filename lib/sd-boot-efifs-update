@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 # SPDX-License-Identifier: GPL-2.0-or-later 
 # Copy the EFI filesytem drivers to <esp>/EFI/systemd/drivers/
 #
@@ -6,11 +6,27 @@
 #
 # EFI mount point is located by calling sd-boot-find-efi.
 # 
-oper="$1"
-if [[ -z "$oper" || "$oper" != "add" || "$oper" != "remove" ]] ; then
-    echo "sd-boot-efifs-update: missing add/remove argument"
+set -e
+
+#
+# Operation
+#
+if [[ -z "$1" ]]; then
+    echo "sd-boot-efi-tool-update: missing add/remove argument"
     exit 0
 fi
+
+case "$1" in
+    "install" | "add")
+        oper="add"
+        ;;
+     "remove")
+         oper="remove"
+         ;;
+     *)
+         echo "sd-boot-efi-tool-update: bad option $oper"
+         exit 0
+esac
 
 #
 # locate efi 
