@@ -6,12 +6,23 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 3.7.0 (2026-04-22)
-	12 commits.
+	3.6.2 (2026-04-21) -> 3.8.0 (2026-04-24)
+	14 commits.
 
 Commits
 =======
 
+
+* 2026-04-24  : **3.8.0**
+
+.. code-block:: text
+
+              - Tidy up sd-boot-efifs-update a bit
+ 2026-04-22   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-04-22  : **3.7.0**
 
