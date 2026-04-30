@@ -6,12 +6,24 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 3.8.0 (2026-04-24)
-	14 commits.
+	3.6.2 (2026-04-21) -> 3.9.0 (2026-04-30)
+	16 commits.
 
 Commits
 =======
 
+
+* 2026-04-30  : **3.9.0**
+
+.. code-block:: text
+
+              - Plugins - simplify getting the loader entry file location
+                Fix efi-tool package remove buglet getting package vers (only impacts memtest86 removal)
+ 2026-04-24   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-04-24  : **3.8.0**
 
