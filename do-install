@@ -53,7 +53,6 @@ sdb_progs=(
     sd-boot-install-cmdline
     sd-boot-kernel-update
     sd-boot-package-version-update
-    sd-boot-package-version-migrate
 )
 usr_lib_dir="/usr/lib/sd-boot"
 for prog in "${sdb_progs[@]}"

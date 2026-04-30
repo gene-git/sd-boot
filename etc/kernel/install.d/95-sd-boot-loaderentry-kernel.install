@@ -26,7 +26,7 @@
 set -e
 
 COMMAND="${1:?}"
-# KERNEL_VERSION="${2:?}"
+KERNEL_VERSION="${2:?}"
 ENTRY_DIR_ABS="${3:?}"
 KERNEL_IMAGE="$4"
 # INITRD_OPTIONS_SHIFT=4
@@ -67,17 +67,15 @@ fi
 
 find_load_entry_conf() {
     #
-    # Find loader entry conf file
-    # ENTRY_DIR_ABS ~ <efi>/<machine-id>/<kern_vers>
-    #   -> <efi>/loader/entries/<machine-id>-<kern_vers>.conf
+    # loader entry conf file
+    #   -> <boot_root>/loader/entries/<machine-id>-<kern_vers>.conf
     #
-    IFS='/' read -ra parts <<< "$ENTRY_DIR_ABS"
-
-    efi="${parts[1]}"
-    machine_id="${parts[2]}"
-    kern_vers="${parts[3]}"
-    entries_dir="/${efi}"/loader/entries
-    conf_file="${entries_dir}/${machine_id}-${kern_vers}".conf
+    local entry_token="$KERNEL_INSTALL_ENTRY_TOKEN"
+    local boot_root="$KERNEL_INSTALL_BOOT_ROOT"
+    local kern_vers="$KERNEL_VERSION"
+    local entries_dir="$boot_root/loader/entries"
+    local conf="${KERNEL_INSTALL_ENTRY_TOKEN}-${kern_vers}.conf"
+    local conf_file="${entries_dir}/$conf"
 
     echo "$conf_file"
 }

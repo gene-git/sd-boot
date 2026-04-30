@@ -143,7 +143,11 @@ do
             ;;
 
         "remove")
-            echo "sd-boot: Removing efi-shell from EFI : $pkg $version"
+            echo "sd-boot: Removing efi tool from EFI : $pkg $version"
+
+            sd_boot_load_package_versions "$pkg" curr_vers prev_vers
+            version="$pkg-$curr_vers"
+
             /usr/bin/kernel-install remove "$version"
             /usr/lib/sd-boot/sd-boot-package-version-update remove "$pkg"
             ;;
