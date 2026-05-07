@@ -4,9 +4,9 @@
  * Read Triggers from stdin
  * Parse them
  */
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 #include "sd-boot.h"
 
@@ -25,7 +25,7 @@ static bool have_image(const char *image, Triggers *trigs) {
     }
 
     for (size_t i = 0; i < trigs->num_info; i++) {
-        if (strcmp(image, (const char *)trigs->info[0].image) == 0) {
+        if (strcmp(image, (const char *)trigs->info[i].image) == 0) {
             have_it = true;
             break;
         }
@@ -34,7 +34,7 @@ static bool have_image(const char *image, Triggers *trigs) {
     return have_it;
 }
 
-static int add_kern_to_list(char **trig_p, Triggers *trigs) {
+static int add_kern_to_list(char *trig, Triggers *trigs) {
     /*
      * Add kernel item to list
      */
@@ -47,7 +47,7 @@ static int add_kern_to_list(char **trig_p, Triggers *trigs) {
     /*
      * skip duplicates
      */
-    if (! have_image(*trig_p, trigs)) {
+    if (! have_image(trig, trigs)) {
 
         count = trigs->num_info++;
 
@@ -62,8 +62,14 @@ static int add_kern_to_list(char **trig_p, Triggers *trigs) {
             trigs->info = (KernelInfo *)tmp_ptr;
         }
 
-        trigs->info[count].image = *trig_p;
-        *trig_p = nullptr;
+        /*
+         * trigger paths lack leading "/"
+         */
+        ret = path_add_slash(trig, & (trigs->info[count].image));
+        if (ret != 0) {
+            msg(MSG_ERR, "  sd-boot error adding slash to kernel path %s\n", trig);
+            goto exit;
+        }
     }
 
 exit:
@@ -125,29 +131,39 @@ exit:
  * 2 kinds of triggers:
  * a) kernel specific triggers (/usr/lib/modules/<kern-vers>/vmlinuz
  *    gather relevant kernel info for these
- * b) any other trigger - these affact all kernels - keep a count 
- *    how many.
+ * b) any other trigger - these affact all kernels 
+ *    For these keep a count how many not the trigger itself..
+ *
+ * Returns
+ *  trigs->num_info
+ *  trigs->info
+ *  trigs->num_other
+ *
+ * Each info in the array is a KernelInfo:
+ *  info->image
+ *  info->mod_dir
+ *  info->package
+ *  info->vers
  */
 int get_kernel_triggers(Triggers *trigs) {
-    int ret = 0;
-
     /*
      * Read all triggers from stdin.
      */
-    Array_str trigs_arr = {};
-    if (read_triggers(&trigs_arr) != 0) {
-        msg(MSG_ERR, "sd-boot: error reading kernel triggers\n");
+    int ret = 0;
+
+    Array_str trigs_all = {};
+    if (read_triggers(&trigs_all) != 0) {
+        msg(MSG_ERR, "  sd-boot: error reading kernel triggers\n");
         ret = -1;
         goto exit;
     }
-
     /*
      * Parse them
      */
     trigs->num_info = 0;
 
-    if (trigs_arr.num_rows == 0) {
-        msg(MSG_ERR, "sd-boot: No kernel triggers passed in!\n");
+    if (trigs_all.num_rows == 0 || trigs_all.rows == nullptr) {
+        msg(MSG_ERR, "  sd-boot: No kernel triggers passed in!\n");
         goto exit;
     }
 
@@ -167,15 +183,31 @@ int get_kernel_triggers(Triggers *trigs) {
      * - any other - affects all kernels
      *   we only keep a count of these (ignore the trigger string)
      */
-    const char *kern_key = "/usr/lib/modules/";
-    const size_t key_len = strlen(kern_key);
+    bool is_kernel = false;
 
-    for (size_t i = 0; i < trigs_arr.num_rows; i++) {
+    for (size_t i = 0; i < trigs_all.num_rows; i++) {
+
+        if (trigs_all.rows[i] == nullptr || trigs_all.rows[i][0] == '\0') {
+            continue;
+        }
+
+        is_kernel = false;
+        ret = is_kernel_image_path(trigs_all.rows[i], &is_kernel);
+        if (ret != 0) {
+            /*
+             * Should never happen - keep going.
+             */
+            ret = 0;
+            continue;
+        }
+
         /*
-         * add_kern_to_list takes pointer trigs_arr.rows[i]
+         * Develop testing - non production use.
+         * msg(MSG_ERR, " trigger: %s (%d)\n", trigs_all.rows[i], is_kernel);
          */
-        if (strncmp(trigs_arr.rows[i], kern_key, key_len) == 0) {
-            ret = add_kern_to_list(&trigs_arr.rows[i], trigs);
+
+        if (is_kernel) {
+            ret = add_kern_to_list(trigs_all.rows[i], trigs);
             if (ret != 0) {
                 ret = -1;
                 goto exit;
@@ -205,7 +237,7 @@ int get_kernel_triggers(Triggers *trigs) {
 
 
 exit:
-    array_str_free(&trigs_arr);
+    array_str_free(&trigs_all);
     if (ret != 0) {
         free_triggers(trigs);
     }

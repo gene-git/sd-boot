@@ -212,8 +212,9 @@ sd-boot provides a default dracut config file:
 
    /etc/dracut.conf.d/010-dracut.conf
 
-These options may be changed to suit your preference. This file is marked as a *backup* in the 
-pacman PKGBUILD.
+This file can be modifued, since it is listed in the PKGBUILD backup() array, or add a new file.
+The last file read by dracut define the options that it uses. For example a file called 020-dracut.conf
+will over-ride any settings in the one provided by sd-boot.
 
 Efi Filesystem Drivers
 ----------------------

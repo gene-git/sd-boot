@@ -14,6 +14,28 @@
 #include "sd-boot.h"
 
 
+/**
+ * Check if efi tool managed by sd-boot
+ */
+static bool is_sd_boot_managed(Array_str *pkgs_arr, char *pkg) {
+    bool is_managed = false;
+
+    if (pkg == nullptr || pkg[0] == '\0') {
+        goto exit;
+    }
+
+    for (size_t i = 0; i < pkgs_arr->num_rows; i++) {
+        if (strcmp(pkg, pkgs_arr->rows[i]) == 0) {
+            is_managed = true;
+            break;
+        }
+    }
+exit:
+    return is_managed;
+}
+
+
+
 static int efi_tool_add(SdBoot *conf, char *pkg) {
     /*
      * Add one package
@@ -217,6 +239,7 @@ int main(int argc, char *argv[]) {
 
     int ret = 0;
     SdBoot conf = {};
+    Array_str pkgs_arr = {};
 
     if (argc < 2) {
         msg(MSG_ERR, "sd-boot: missing add or remove\n");
@@ -253,9 +276,25 @@ int main(int argc, char *argv[]) {
         goto exit;
     }
 
+    /*
+     * Get efi tools managed by sd-boot (if any)
+     */
+    ret = load_efi_tool_packages(&conf, &pkgs_arr);
+    if (ret != 0) {
+        ret = 0;
+        goto exit;
+    }
+
+    /*
+     * Triggers are efi tool package name
+     */
     for (size_t i = 0; i < trigs_arr.num_rows; i++) {
         char pkg[MAX_VAL_LEN] = {'\0'} ;
         strncpy(pkg, trigs_arr.rows[i], MAX_VAL_LEN-1);
+
+        if (!is_sd_boot_managed(&pkgs_arr, pkg)) {
+            continue;
+        }
 
         switch (oper) {
             case ADD:
@@ -283,6 +322,7 @@ int main(int argc, char *argv[]) {
         }
 exit:
     array_str_free(&trigs_arr);
+    array_str_free(&pkgs_arr);
     clean_config(&conf);
     return ret;
 }

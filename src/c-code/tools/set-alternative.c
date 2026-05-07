@@ -188,7 +188,7 @@ exit:
  * set-alternative <choice> [<root>]
  * - <choice> is "binary" or "bash"
  * - if <root> specified it is used. 
- *   If not the testing "root" triggered by SDB_DEV_TEST
+ *   If not the testing "root" activated by SDB_DEV_TEST
  *   If not then "/"
  *
  * The PKGBUILD uses <root> option to set the default alternative into $pkgdir

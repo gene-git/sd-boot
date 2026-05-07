@@ -30,7 +30,6 @@
  *
  */
 #include <linux/limits.h>
-#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,34 +47,6 @@ enum Constants {
 
 };
 
-
-/*
- * Determine if the image path is a kernel
- */
-static int image_type(char *kernel_image, bool *is_kernel) {
-    int ret = 0;
-    regex_t regex = {};
-    char *pat = "^.*/usr/lib/modules/[^/]+/vmlinuz$";
-
-    *is_kernel = false;
-    if (kernel_image == nullptr || kernel_image[0] == '\0') {
-        goto exit;
-    }
-
-    ret = regcomp(&regex, pat, REG_EXTENDED);
-    if (ret != 0) {
-        ret = -1;
-        goto exit;
-    }
-    int check = regexec(&regex, kernel_image, 0, nullptr, 0);
-    if (check == 0) {
-        *is_kernel = true;
-    }
-
-exit:
-    regfree(&regex);
-    return ret;
-}
 
 static int copy_argv_item(int idx, int argc, const char **argv, char **ptr) {
     /*
@@ -267,7 +238,7 @@ int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
     /*
      * Determine if the image is a kernel source 
      */
-    ret = image_type(plugin->kernel_image, &plugin->is_kernel);
+    ret = is_kernel_image_path(plugin->kernel_image, &plugin->is_kernel);
     
     /*
      * dev debug

@@ -65,5 +65,5 @@ exit:
     clean_config(&conf);
     plugin_free(&plugin);
 
-    return 0;
+    return ret;
 }

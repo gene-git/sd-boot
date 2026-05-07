@@ -269,6 +269,9 @@ int find_efi_xbootldr_mounts(MountPoints *mounts);
 // get_one_line.c
 char *get_one_line(char **state_p); 
 
+// is_kernel_image.c
+int is_kernel_image_path(char *image, bool *is_kernel);
+
 // kernel_info.c
 int kernel_image_path_to_info(KernelInfo *info);
 void kernel_info_free(KernelInfo *info);
@@ -340,6 +343,9 @@ int remove_package_versions(SdBoot *conf, const char *pkg);
 
 // package_version_installed.c
 int package_version_installed(const char *pkg, size_t len_vers, char *vers);
+
+// path_add_slash.c
+int path_add_slash(char *path, char **path_p);
 
 // read_triggers.c
 int read_triggers(Array_str *arr);

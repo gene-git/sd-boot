@@ -22,7 +22,7 @@
 static bool is_sd_boot_managed(Array_str *pkgs_arr, KernelInfo *info) {
     bool good_kernel = false;
 
-    if (info == nullptr || info->package[0] == '\0') {
+    if (info == nullptr || info->package == nullptr || info->package[0] == '\0') {
         goto exit;
     }
     for (size_t i = 0; i < pkgs_arr->num_rows; i++) {
@@ -258,10 +258,10 @@ int main(int argc, char *argv[]) {
      * 1) kernel specific triggers (/usr/lib/modules/<kvers>/vmlinuz
      *    install the specific kernel 
      *
-     * 2) any-kernel triggers (path or package)
-     *    install every kernel only when operation is "add"
+     * 2) other triggers (path or package)
+     *    update every kernel if operation is "add"
      * 
-     * Kernels are insalled only if they are in the list of 
+     * Kernels are updated only if they are in the list of 
      * kernel packages managed by sd-boot.
      *
      * Do any kernel once only, regardless of number of triggers.
@@ -272,7 +272,7 @@ int main(int argc, char *argv[]) {
      * - applies to a specific kernel.
      * - kernel triggers (/usr/lib/modules/<kern-vers>/vmlinuz
      *   => kernel package names
-     * - number of non-kernel triggers.
+     * - number of non-kernel triggers = any other triggers (apply to every kernel).
      */
     for (size_t i = 0; i < trigs.num_info; i++) {
         if (!is_sd_boot_managed(&pkgs_arr, &trigs.info[i])) {

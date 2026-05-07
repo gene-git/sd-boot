@@ -63,6 +63,7 @@ add_library(sd_boot_objs
     lib/file_list_glob.c
     lib/find_boot_mounts.c
     lib/get_one_line.c
+    lib/is_kernel_image.c
     lib/kernel_info_all.c
     lib/kernel_info.c
     lib/kernel_install_oper.c
@@ -81,6 +82,7 @@ add_library(sd_boot_objs
     lib/msg.c
     lib/package_version_installed.c
     lib/package_versions.c
+    lib/path_add_slash.c
     lib/read_file.c
     lib/read_one_line.c
     lib/read_triggers.c

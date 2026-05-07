@@ -10,7 +10,6 @@
  *  - options          => remove (these are kenel options)
  */
 #include <stddef.h>
-#include <string.h>
 
 #include "sd-boot.h"
 
