@@ -6,12 +6,20 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.2.1 (2026-05-07)
-	21 commits.
+	3.6.2 (2026-04-21) -> 4.2.2 (2026-05-07)
+	24 commits.
 
 Commits
 =======
 
+
+* 2026-05-07  : **4.2.2**
+
+.. code-block:: text
+
+              - Small code comment clean ups - no functional change
+              - delete old now unused directories
+              - update Changelog
 
 * 2026-05-07  : **4.2.1**
 
