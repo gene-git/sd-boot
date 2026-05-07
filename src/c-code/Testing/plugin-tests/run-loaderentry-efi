@@ -1,0 +1,57 @@
+#!/usr/bin/bash
+#
+# Test efi loaderentry plugin
+#
+
+do_valgrind="no"
+do_valgrind="yes"
+
+export SDB_DEV_TEST=true
+oper=add
+machine_id=$(</etc/machine-id)
+kernel_vers=edk2-shell-202602-3
+boot_dir="__root__/boot/$machine_id/$kernel_vers"
+kernel_image=/usr/share/edk2-shell/x64/Shell_Full.efi
+initrd=
+
+
+export KERNEL_INSTALL_LAYOUT="bls"
+export KERNEL_INSTALL_VERBOSE=""
+export KERNEL_INSTALL_MACHINE_ID="$machine_id"
+export KERNEL_INSTALL_ENTRY_TOKEN="$machine_id"
+export KERNEL_INSTALL_BOOT_ROOT="__root__/boot"
+
+#
+# Make a raw loader entry 
+#
+entry_path="__root__/boot/loader/entries/${machine_id}-${kernel_vers}.conf"
+
+echo "****"
+echo "Loader entry path: $entry_path"
+echo "****"
+
+cat > "$entry_path" << _EOE_
+title      Arch Linux
+version    $kernel_vers
+machine-id $machine_id
+sort-key   arch
+options    root="UUID=xxxx" rw systemd.machine_id=$machine_id
+linux      /$machine_id/$kernel_vers/linux
+_EOE_
+
+#
+# Run plugin
+#
+plugin="__root__/etc/kernel/install.d/95-sd-boot-loaderentry-modify.install"
+
+if [[ "$do_valgrind" == "yes" ]] ; then
+    opt="--leak-check=full"
+    valgrind $opt $plugin $oper $kernel_vers $boot_dir $kernel_image $initrd
+else
+    echo " *********"
+    echo " Run with :"
+    echo "   run $oper $kernel_vers $boot_dir $kernel_image $initrd"
+    echo " *********"
+    gdb $plugin
+fi
+

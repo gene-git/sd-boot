@@ -1,0 +1,7 @@
+#
+# memtest86_64-git.info
+#
+# Which efi program file to install
+#
+/usr/share/memtest86_64/memtest.efi
+

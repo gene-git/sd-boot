@@ -1,0 +1,127 @@
+#!/bin/bash
+#
+# ./src/do-install <destdir>
+# Installs the files common to bash and binary alternatives.
+#
+# Called from PKGBUILD.
+# See also do-install-scripts, do-install-bin
+#
+
+echo "  Installing common"
+
+dest="$1"
+if [ -z "${dest}" ] ; then
+    echo "Missing dest dir"
+    exit 1
+fi
+
+#
+# funcs
+#
+install_file() {
+    local _perms="$1"
+    local _source_file="$2"
+    local _dest="$3"
+    local _dest_file="$4"
+
+    #dev_print /usr/bin/install -D -m"$_perms" "$_source_file" "$_dest_file"
+    echo "   ... $_dest_file"
+    /usr/bin/install -D -m"$_perms" "$_source_file" "$_dest/$_dest_file"
+}
+
+#
+# Create Directories: 
+#
+directories=(
+    etc/sd-boot
+    etc/dracut.conf.d
+    etc/kernel
+    etc/kernel/install.d
+    usr/lib/sd-boot
+    usr/share/sd-boot
+    usr/share/libalpm/hooks
+    )
+for dir in "${directories[@]}"
+do
+    /usr/bin/install -d -m755 "${dest}/$dir"
+done
+
+#
+# /etc/kernel
+#
+sdir="src/etc/kernel"
+ddir="etc/kernel"
+confs=(
+    install.conf
+    ukify.conf
+)
+for file in "${confs[@]}"
+do
+    install_file 644 "$sdir/$file" "$dest" "$ddir/$file" 
+done
+
+#
+# /etc/sd-boot
+#
+sdir="src/etc/sd-boot"
+ddir="etc/sd-boot"
+files=(
+    config
+    kernel.packages
+    efi-tool.packages
+    edk2-shell.image
+    memtest86_64-git.image
+)
+for file in "${files[@]}"
+do
+    install_file 644 "${sdir}/$file" "${dest}" "${ddir}/$file"
+done
+
+#
+# alpm hooks
+#
+hooks=(
+    90-sd-boot-kernel-install.hook
+    60-sd-boot-kernel-remove.hook
+    99-sd-boot-efifs-install.hook
+    69-sd-boot-efifs-remove.hook
+    99-sd-boot-efi-tool-install.hook
+    70-sd-boot-efi-tool-remove.hook
+)
+sdir="src/hooks"
+ddir='/usr/share/libalpm/hooks'
+for hook in "${hooks[@]}"
+do
+    install_file 644 "$sdir/${hook}" "${dest}" "${ddir}/${hook}"
+done
+
+#
+# /etc/dracut.conf.d:
+# - dracut default config
+#
+sdir="src/etc/dracut.conf.d"
+ddir="etc/dracut.conf.d"
+file="010-dracut.conf"
+install_file 644 "$sdir/$file" "${dest}" "$ddir/$file"
+
+
+#
+# share
+#
+files=(
+    loader.conf 
+    Changelog.rst
+    Readme.rst
+)
+sdir="share"
+ddir="usr/share/sd-boot"
+for file in "${files[@]}"
+do
+    install_file 644 "$sdir/${file}" "${dest}" "${ddir}/$file"
+done
+
+sdir="share/License"
+ddir="usr/share/licenses/sd-boot"
+license="License.rst"
+install_file 644 "$sdir/$license"  "${dest}" "${ddir}/${license}"
+

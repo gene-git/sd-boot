@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# ./src/do-install <destdir>
+# Use in PKGBUILD
+# Bash tools go into /usr/lib/sd-boot/bash
+# 
+echo "  Installing alternative: binary"
+
+dest="$1"
+if [ -z "${dest}" ] ; then
+    echo "Missing dest dir"
+    exit 1
+fi
+
+cd src/c-code/
+DESTDIR="$dest" cmake --install build/none
+
+# dont need the static lib in production
+/usr/bin/rm -f "$dest"/usr/lib/libsd_boot.a

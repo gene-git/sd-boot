@@ -1,0 +1,179 @@
+#!/usr/bin/bash
+#
+# Some checks on our c-code
+# - cppcheck
+# - clang-tidy
+# - valgrind
+# Run from c-code directory
+#
+# Note that the "debug" code run during tests is built with "-fsanitizer=address,undefined"
+# If there is any output from the AddressSanitizer it will be in the Log file(s).
+#
+echo "-----------------------------"
+echo "C-code checker:"
+
+cwd=$(/usr/bin/pwd)
+
+echo "  Check Testing tree available and code is compiled"
+  /usr/bin/rsync -a Testing/Template/__root__ ./Testing/
+  cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build/debug
+
+echo "Output written to Testing/Log-Checks/..."
+logdir="$cwd"/Testing/Log-Checks
+/usr/bin/mkdir -p "$logdir"
+
+# ----------------------------------
+echo "-----------------------------"
+echo "Static analysis:"
+
+echo "  Updating compile_commands.json for clang-tidy"
+/usr/bin/cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+
+
+progs=(
+    cppcheck
+    clang-tidy
+)
+for prog in "${progs[@]}"
+do
+    echo "   $prog"
+    _LogDir="$logdir/$prog"
+    /usr/bin/mkdir -p "$_LogDir"
+
+    Lout="$_LogDir"/stdout
+    Lerr="$_LogDir"/stderr
+
+    /usr/bin/"$prog" lib/*.c tools/*.c plugins/*.c > "$Lout" 2> "$Lerr"
+
+    if [[ ! -s "$Lout" ]] ; then
+        /usr/bin/rm "$Lout"
+    fi
+    if [[ ! -s "$Lerr" ]] ; then
+        /usr/bin/rm "$Lerr"
+    fi
+done
+
+# ----------------------------------
+echo "-----------------------------"
+echo "Valgrind:"
+echo "  test root ~ Testing/__root__"
+echo "  also see .valgridrc"
+echo "  pass/fail refers to our tools - for valgrind reports see:"
+echo "  valg log file for each tool"
+echo ""
+
+init_test_kernel_update() {
+    local _pkg="$1"
+
+    echo "Prepping triggers for kernel-update test package: $_pkg"
+
+    # get kernel version from module (not package version)
+    local x=($(/usr/bin/pacman -Ql "$_pkg" | grep -E "/usr/lib/modules/.*/vmlinuz"))
+    local y=="${x[1]%*/vmlinuz}"
+    local _vers="${y##*/}"
+
+    kimage="/usr/lib/modules/$_vers/vmlinuz" 
+    echo "$kimage" > Testing/Triggers/"$_pkg"
+
+    # make all-kernels have one specific kernel as well
+    if [[ "$_pkg" == "linux" ]] ; then
+        echo "$kimage" > Testing/Triggers/all-kernels
+        cat Testing/Template/Triggers/all-kernels >> Testing/Triggers/all-kernels
+    fi
+    echo ""
+}
+
+#
+# track errors
+#
+declare -i pass
+declare -i fail
+pass=0
+fail=0
+
+report_exit_result() {
+
+    result="$1"
+    if (( result == 0)) ; then
+        /usr/bin/printf "\e[1;32m%s\e[0m\n" " : *pass*"
+    else
+        /usr/bin/printf "\e[1;31m%s\e[0m\n" " : *fail*"
+    fi
+
+    # update totals
+    if ((result == 0)) ; then
+        ((pass++))
+    else
+        ((fail++))
+    fi
+}
+
+run_tool() {
+    local name="$1"
+    local tool="$2"
+    local arg="$3"
+    local lt="$4"
+    local trigger="$5"
+
+    local logd="$logdir/$name-$tool"
+
+    /usr/bin/printf "%5s %30s"  "$name" "$tool"
+
+    /usr/bin/mkdir -p "$logd"
+
+    Lout="$logd"/stdout
+    Lerr="$logd"/stderr
+    Vout="$logd"/valg
+    Exit="$logd"/Exit
+
+    libdir="$cwd/Testing/__root__/usr/lib/sd-boot"
+
+    # no quotes so arguments are passed to tool
+    if [[ "$trigger" == "" ]] ;then 
+        /usr/bin/valgrind --log-file="$Vout" "$libdir/$tool" "$arg" > "$Lout" 2> "$Lerr"
+    else
+        /usr/bin/valgrind --log-file="$Vout" "$libdir/$tool" "$arg" < "$trigger" > "$Lout" 2> "$Lerr"
+    fi
+    result="$?"
+    echo "$result" > "$Exit"
+    report_exit_result "$result"
+
+    if [[ ! -s "$Lerr" ]] ; then
+        /usr/bin/rm "$Lerr"
+    fi
+}
+
+export SDB_DEV_TEST=true
+
+# Get current installed versions of these.
+init_test_kernel_update linux
+#init_test_kernel_update linux-custom
+
+tools_args=(
+    "t1 sd-boot-find-boot-mounts"
+    "t2 sd-boot-efifs-update add"
+    "t3 sd-boot-efi-tool-update add < Testing/Triggers/efi-tool-update"
+    #"t4 sd-boot-kernel-update add < Testing/Triggers/linux-custom"
+    "t5 sd-boot-kernel-update add < Testing/Triggers/linux"
+    "t6 sd-boot-kernel-update add < Testing/Triggers/all-kernels"
+    #"t7 sd-boot-kernel-update remove < Testing/Triggers/linux-custom"
+    #"t8 sd-boot-kernel-update add < Testing/Triggers/linux-custom"
+    "t9 sd-boot-set-alternative binary"
+    "t10 sd-boot-kernel-update remove < Testing/Triggers/linux"
+    "t11 sd-boot-kernel-update add < Testing/Triggers/linux"
+    )
+
+for tool_args in "${tools_args[@]}"
+do
+    run_tool $tool_args
+done
+
+/usr/bin/printf "Results: \n"
+/usr/bin/printf "%10s : \e[1;32m%d\e[0m\n" "Pass" "$pass"
+/usr/bin/printf "%10s : \e[1;32m%d\e[0m\n" "Fail" "$fail"
+
+echo "Valgrind Summary:"
+cd "$logdir"
+grep ERROR t*/valg
+

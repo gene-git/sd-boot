@@ -1,0 +1,14 @@
+#
+# 69-sd-boot-efifs-remove.hook
+#   When efi fs drivers updated copy to /efi/EFI/systemd/drivers/
+#
+[Trigger]
+Type = Path
+Operation = Remove
+Target = usr/lib/efifs-x64/*
+
+[Action]
+Description = sd-boot: Installing EFI Filesystem drivers to EFI
+When = PostTransaction
+Exec = /usr/lib/sd-boot/sd-boot-efifs-update remove
+ 

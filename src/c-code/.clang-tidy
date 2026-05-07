@@ -1,0 +1,28 @@
+#
+# .clang-tidy file
+#
+# -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+#  Since linux glibc does not include strncpy_s(), fprintf_s() etc we silence this warning.
+#
+Checks: '*,
+  bugprone-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  misc-include-cleaner,
+  clang-diagnostic-unused-variable,
+  clang-diagnostic-format,
+  -misc-use-internal-linkage,
+  -llvmlibc-restrict-system-libc-headers,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  -android-cloexec-fopen,
+  -altera-unroll-loops,
+  -altera-id-dependent-backward-branch,
+  -altera-struct-pack-align,
+  -bugprone-suspicious-realloc-usage,
+  -bugprone-easily-swappable-parameters, #,-warnings-as-errors,
+  '
+WarningsAsErrors: 'bugprone-*'
+
+
+

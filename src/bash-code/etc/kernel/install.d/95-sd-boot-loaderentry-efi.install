@@ -1,0 +1,136 @@
+#!/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later 
+# /etc/kernel/install.d/95-loaderentry-efi.install
+#
+# "Fix up" efi program boot loader entry
+# - linux foo.efi -> efi foo.efi
+# - title xxx     -> title <efi-package-name>
+#
+# Must run after /usr/lib/kernel/install.d/90-loaderentry.install
+#
+# by default kernel-install creates loader entries with "title" taken from /etc/os-release.
+# This means every kernel has the same title - and that is what shows in boot menu, making
+# different kernels not distinguishable.
+#
+# This plugin runs after  90-loaderentry.install (which creates the loader entry)
+# and modifies the title.
+# 
+# Since kernel-install puts a 'version' item in the entry the boot menu should 
+# then display as:
+#
+# - if title is unique:  "title"
+# - if title is not unique: "title (version)"
+#
+# Arguments passed by kernel-install:
+# $1: command (add/remove)
+# $2: kernel version
+# $3: boot loader entry directory
+# $4: kernel image (not used here)
+#
+set -e
+
+COMMAND="${1:?}"
+KERNEL_VERSION="${2:?}"
+ENTRY_DIR_ABS="${3:?}"
+KERNEL_IMAGE="$4"
+# INITRD_OPTIONS_SHIFT=4
+#
+
+# 
+# Only applicable when "add"ing new program
+# 
+if [ "$COMMAND" != "add" ]; then
+    exit 0
+fi
+
+#
+# Load support functions
+# - packges = list of kernel packages using kernel-install tools
+# - config = config settings.
+#            - verb: -1, 0, 1, 2
+#
+function_dir="/usr/lib/sd-boot/bash/functions"
+
+# shellcheck source=./functions/load-efi-image_file.sh
+source "$function_dir/load-efi-image_file.sh"
+
+#
+# Check if this is a known EFI package
+#
+pkgbase=''
+sd_boot_efi_image_to_package "$KERNEL_IMAGE" pkgbase
+
+# echo "95-loaderentry-efi: IMAGE=$KERNEL_IMAGE pkgbase=$KERNEL_IMAGE"
+
+if [[ -z "$pkgbase" ]] ; then
+    # not efi image
+    exit 0
+fi
+
+echo "  Loader entry update: $pkgbase"
+
+# shellcheck source=./functions/load-config.sh
+source "$function_dir/load-config.sh"
+
+declare -A config
+sd_boot_load_config conf
+
+if [[ -v config["verb"] ]]; then
+    verb="${config[verb]}"    
+else
+    verb=0
+fi
+
+find_load_entry_conf() {
+    #
+    # loader entry conf file
+    #   -> <boot_root>/loader/entries/<machine-id>-<kern_vers>.conf
+    #
+    # work back from file - robust even when root is not "/"
+    local entry_token="$KERNEL_INSTALL_ENTRY_TOKEN"
+    local boot_root="$KERNEL_INSTALL_BOOT_ROOT"
+    local kern_vers="$KERNEL_VERSION"
+    local entries_dir="$boot_root/loader/entries"
+    local conf="${KERNEL_INSTALL_ENTRY_TOKEN}-${kern_vers}.conf"
+    local conf_file="${entries_dir}/$conf"
+
+    echo "$conf_file"
+}
+
+#
+# Locate the loader entry .conf file
+# Should be named: MACHINE_ID-KERNEL_VERSION.conf
+#
+entry_conf_file=$(find_load_entry_conf)
+
+if [[ ! -f "$entry_conf_file" ]] ; then
+    echo "    Loader entry file missing: ${entry_conf_file}"
+    exit 0
+else
+    if (( verb > 0 )) ; then
+        echo "    Loader entry file: $entry_conf_file"
+    fi
+fi
+
+#
+# Create title
+#
+# entry_title="$pkgbase ($KERNEL_VERSION)"
+# version is added whenever title is used in more than 1 entry
+# So we use package name
+# 
+entry_title="$pkgbase"
+if (( verb > 0 )) ; then
+    echo " Updating loader entry Title: $entry_title"
+fi
+
+#
+# Update the loader entry title
+#
+sed -i -e "s/^title .*/title      $entry_title/" \
+       -e "s/^linux /efi   /" \
+       -e "/^options /d" \
+       "$entry_conf_file"
+
+
+exit 0

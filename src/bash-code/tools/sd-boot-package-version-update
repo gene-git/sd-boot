@@ -1,0 +1,142 @@
+#!/usr/bin/bash
+# SPDX-License-Identifier: GPL-2.0-or-later 
+# Save package version to file:
+#
+#   /var/lib/sd-boot/<pkgbase>.version
+#
+# Content:
+#   current = <curr_vers>
+#   previous = <prev_vers>
+#
+# Older versions simply had
+#   <curr_version>
+#
+# Args:
+#   arg1 = add/remove
+#   arg2 = package-name
+#   arg3 = package version for "add" only (optional). 
+#          If not provided, then uses pacman -Q to find it (must be post intall to get the new version)
+#                           
+#
+# Writes / Removes the file: /var/lib/sd-boot/<package>.version
+#
+# Called by 
+# - sd-boot-efi-tool-update 
+# - sd-boot-kernel-update
+#
+#
+
+#
+# Arg 1
+#
+if [[ -z "$1" ]] ; then
+    echo "sd-boot-package-version-save : missing arg: add/remove"
+    exit 0
+fi
+
+case "$1" in
+    "add") 
+        oper="add" 
+        ;;
+    "remove") 
+        oper="remove" 
+        ;;
+     *) exit 0
+esac
+
+#
+# Arg 2
+#
+if [[ -z "$2" ]] ; then
+    echo "sd-boot-package-version-save : missing arg: package name"
+    exit 0
+fi
+
+pkg="$2"
+
+#
+# Arg 3
+#
+pkg_vers=''
+if [[ ! -z "$3" ]] ; then
+    pkg_vers="$3"
+fi
+
+
+#
+# Load support functions
+# - sd_boot_load_package_version()
+#
+function_dir="/usr/lib/sd-boot/bash/functions"
+
+# shellcheck source=./functions/load-package-version.sh
+source "$function_dir/load-package-version.sh"
+
+#
+# get trigger package(s)
+# - trigger is the package name (NB must NOT be path)
+#
+dest_dir=/var/lib/sd-boot
+
+#
+# 1) Read the file to get any existing version info
+#
+
+# shellcheck disable=SC2034
+prev_vers=''
+curr_vers=''
+sd_boot_load_package_versions "$pkg" curr_vers prev_vers
+
+#
+# 2) Save the new package version info to file
+# 
+# - add upgrade - we have a new version
+# - add install - we have a new version
+# - add re-install - new version is same as the current version.
+#                    Confirm they are the same and leave alone.
+#
+file="$dest_dir/$pkg".version
+
+case "$oper" in
+    "add")
+        # could make this verbose print
+        # echo "  sd-boot: updating package version file : $pkg"
+
+        if [[ -z "$pkg_vers" ]] ; then
+            pkg_vers=$(/usr/bin/pacman -Q "$pkg" 2>/dev/null | /usr/bin/grep "$pkg" | cut -d' ' -f2)
+        fi
+
+        if [[ -z "$pkg_vers" ]] ; then
+            echo "sd-boot-package-version-update: Failed to get version of package: $pkg"
+            exit 0
+        fi
+
+        if [[ ! -d "$dest_dir" ]] ; then
+            /usr/bin/mkdir -p "$dest_dir"
+        fi
+
+        #
+        # handle re-install without losing the previous version
+        # i.e version being installed same as current 
+        # dont update the file.
+        #
+        if [[ ! -z "$curr_vers" && "$curr_vers" == "$pkg_vers" ]] ; then
+            # echo "    sd-boot: skipped since same version $pkg_vers"
+            exit 0
+        fi
+
+        #
+        # installed / updated version is beomes the new current version
+        # prior current becomes the new previous
+        #
+        echo "current = $pkg_vers" > "$file"
+        echo "previous = $curr_vers" >> "$file"
+        ;;
+
+    "remove")
+        echo "  sd-boot: removing package version file for : $pkg"
+        if [[ -f "$file" ]] ; then
+            /usr/bin/rm -f "$file"
+        fi
+esac
+

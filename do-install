@@ -9,157 +9,19 @@ if [ -z "${dest}" ] ; then
     exit 1
 fi
 
-#
-# support func
-#
-install_file() {
-    local _perms="$1"
-    local _source_file="$2"
-    local _dest_file="$3"
-
-    #echo /usr/bin/install -D -m"$_perms" "$_source_file" "$_dest_file"
-    /usr/bin/install -D -m"$_perms" "$_source_file" "$_dest_file"
-}
+dest=$(/usr/bin/realpath "$dest")
 
 #
-# dracut default config
+# Installing
 #
-dracut_conf="etc/dracut.conf.d/010-dracut.conf"
-install_file 644 "$dracut_conf" "${dest}/$dracut_conf"
+./src/do-install-common "$dest"
+./src/do-install-binary "$dest"
+./src/do-install-bash "$dest"
 
 #
-# /usr/lib/sd-boot
+# Set default alternative
 #
+unset SDB_DEV_TEST
+build="src/c-code/build/none"
+LD_PRELOAD="" LD_LIBRARY_PATH="$build" "$build"/sd-boot-set-alternative binary "$dest"
 
-#
-# Directories: 
-# /etc/sd-boot
-# /usr/lib/sd-boot
-# /var/lib/sd-boot
-#
-/usr/bin/install -d -m755 "${dest}/var/lib/sd-boot"
-/usr/bin/install -d -m755 "${dest}/usr/lib/sd-boot"
-/usr/bin/install -d -m755 "${dest}/etc/sd-boot"
-/usr/bin/install -d -m755 "${dest}/etc/dracut.conf.d"
-
-# 
-# <use_lib_dir>/<progs>
-#
-sdb_progs=(
-    sd-boot-efifs-update
-    sd-boot-efi-tool-update
-    sd-boot-find-efi
-    sd-boot-find-xbootldr
-    sd-boot-install-cmdline
-    sd-boot-kernel-update
-    sd-boot-package-version-update
-)
-usr_lib_dir="/usr/lib/sd-boot"
-for prog in "${sdb_progs[@]}"
-do
-    install_file 755 lib/"$prog" "${dest}/${usr_lib_dir}/$prog"
-done
-
-#
-# <usr_lib_dir>/functions
-#
-sdb_functions=(
-    load-config.sh 
-    load-efi-image_file.sh
-    load-kernel-packages.sh
-    load-package-version.sh
-    kernel-version-to-package.sh
-)
-
-for func in "${sdb_functions[@]}"
-do
-    install_file 644 lib/functions/"$func" "${dest}/${usr_lib_dir}/functions/$func"
-done
-
-# ------------
-# /etc/kernel
-#
-kernel_confs=(
-    install.conf 
-    ukify.conf
-)
-kdir="etc/kernel"
-for conf in "${kernel_confs[@]}"
-do
-    install_file 644 "$kdir/$conf" "${dest}/$kdir/$conf"
-done
-
-kernel_installs=(
-    95-sd-boot-loaderentry-efi.install
-    95-sd-boot-loaderentry-kernel.install
-)
-kdir="etc/kernel/install.d"
-for conf in "${kernel_installs[@]}"
-do
-    install_file 755 "${kdir}/$conf" "${dest}/${kdir}/$conf"
-done
-
-#
-# /etc/sd-boot
-#
-etc_dir="etc/sd-boot"
-mkdir -p "${dest}/${etc_dir}"
-files=(
-    config
-    kernel.packages
-    edk2-shell.image
-    memtest86_64-git.image
-)
-for file in "${files[@]}"
-do
-    install_file 644 "${etc_dir}/$file" "${dest}/${etc_dir}/$file"
-done
-
-#
-# alpm hooks
-#
-hooks=(
-    90-sd-boot-kernel-install.hook
-    60-sd-boot-kernel-remove.hook
-    99-sd-boot-efifs-install.hook
-    69-sd-boot-efifs-remove.hook
-    99-sd-boot-efi-tool-install.hook
-    70-sd-boot-efi-tool-remove.hook
-)
-alpmdir='/usr/share/libalpm/hooks'
-for hook in "${hooks[@]}"
-do
-    install_file 644 hooks/"${hook}" "${dest}/${alpmdir}/${hook}"
-done
-
-#
-# /usr/bin
-# legacy for old kernal packages - linux-stable is last one
-# Removed in sd-boot version 3.5.0
-#
-progs=(
-    # sd-boot-install-initrd
-    # sd-boot-refresh-initrd
-)
-for prog in "${progs[@]}"
-do
-    install_file 755 bin/"$prog" "${dest}/usr/bin/$prog"
-done
-
-#
-# share
-#
-share="/usr/share/sd-boot"
-mkdir -p "${dest}/${share}"
-src=(
-    loader.conf 
-    Changelog.rst
-    Readme.rst
-)
-for file in "${src[@]}"
-do
-    install_file 644 share/"${file}" "${dest}/${share}/"
-done
-
-license="License.rst"
-install_file 644 share/License/"$license"  "${dest}/${share}/${license}"

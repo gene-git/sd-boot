@@ -1,0 +1,131 @@
+#!/usr/bin/bash
+#
+# Run test suite
+# - run from the "c-code" directory
+# - build (static debug) 
+# - intall into __root__
+# 
+# Tools called via ALPM hooks read triggers from stdin. 
+# Input data for these is in Triggers/
+# In gdb run using:  run add < Triggers/xxx
+#
+# Note the kernel used for testing is the arch kernel 
+# Arch kernel is not managed by sd-boot by default.
+# See: /etc/sd-boot/kernel.packages
+# The test tree is created from he template tree : Testing/template
+# To test other kernels, add them to file: 
+#     Testing/template/__root__/etc/sd-boot/kernels.packages
+#
+
+echo "sd-boot test suite."
+
+test_root="Testing/__root__"
+
+echo "Initializee Testing Directory: $test_root"
+    /usr/bin/rsync -a Testing/Template/__root__ ./Testing/
+
+echo "  Results in Testing/Log-Test-Suite"
+
+echo "  - Building static executables"
+  cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
+  cmake --build build/debug
+
+  DESTDIR="$test_root" cmake --install build/debug
+
+#
+# Activate test environ
+#
+echo "  - Set testing env SDB_DEV_TEST"
+  export SDB_DEV_TEST=true
+
+  cwd=$(/usr/bin/pwd)
+  logd="$cwd"/Testing/Log-Test-Suite
+  /usr/bin/mkdir -p "$logd"
+
+  cd ./Testing
+
+declare -i pass
+declare -i fail
+pass=0
+fail=0
+
+init_test_kernel_update() {
+    local _pkg="$1"
+
+    echo "Prepping trigger for kernel-update test package: $_pkg"
+
+    # get kernel version from module (not package version)
+    local x=($(/usr/bin/pacman -Ql "$_pkg" | grep -E "/usr/lib/modules/.*/vmlinuz"))
+    local y=="${x[1]%*/vmlinuz}"
+    local _vers="${y##*/}"
+
+    echo "/usr/lib/modules/$_vers/vmlinuz" > Triggers/"$_pkg"
+}
+
+rm_empty() {
+    file="$1"
+    if [[ ! -s "$file" ]] ; then
+        /usr/bin/rm "$file"
+    fi
+}
+
+run_one_test() {
+    local tname="$1"
+    local tool="$2"
+    local arg="$3"
+    local trigger="$4"
+
+    /usr/bin/printf "%30s"  " $tool"
+
+    local rdl="./__root__/usr/lib/sd-boot"
+
+    ToolLog="$logd/$tname-$tool"
+    /usr/bin/mkdir -p "$ToolLog"
+
+    Lout="$ToolLog"/stdout
+    Lerr="$ToolLog"/stderr
+
+    if [[ "$trigger" != "" ]] ; then
+        "$rdl/$tool" $arg < "$trigger" > "$Lout" 2> "$Lerr"
+    else
+        "$rdl/$tool" $arg > "$Lout" 2> "$Lerr"
+    fi
+    result="$?"
+
+    if ((result == 0)) ; then
+        ((pass++))
+    else
+        ((fail++))
+    fi
+
+    echo "$result" > "$ToolLog"/Exit
+
+    if (( result == 0)) ; then
+        /usr/bin/printf "\e[1;32m%s\e[0m\n" " : *pass*" 
+    else
+        /usr/bin/printf "\e[1;31m%s\e[0m\n" " : *fail*" 
+    fi
+
+    rm_empty "$Lout"
+    rm_empty "$Lerr"
+}
+
+# 
+# Run tests
+#
+init_test_kernel_update "linux"
+#init_test_kernel_update "linux-custom"
+
+run_one_test "t1" "sd-boot-find-boot-mounts" add
+run_one_test "t2" "sd-boot-efifs-update" add
+run_one_test "t3" "sd-boot-efi-tool-update" add "Triggers/efi-tool-update"
+#run_one_test "t4" "sd-boot-kernel-update" add "Triggers/linux-custom"
+run_one_test "t5" "sd-boot-kernel-update" add "Triggers/linux"
+run_one_test "t6" "sd-boot-set-alternative" "binary"
+
+/usr/bin/printf "Results: \n"
+/usr/bin/printf "%10s : \e[1;32m%d\e[0m\n" "Pass" "$pass"
+/usr/bin/printf "%10s : \e[1;32m%d\e[0m\n" "Fail" "$fail"
+
+exit 0
+

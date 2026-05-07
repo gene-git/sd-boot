@@ -6,11 +6,30 @@
 sd-boot
 #######
 
+Recent Changes
+==============
+
+**4.0.0**
+
+* New C-code alternative to bash tools..
+
+  Activate: /usr/lib/sd-boot/set-alternative binary
+  Bash:     /usr/lib/sd-boot/set-alternative bash
+
+  Bash version remains available for now, and can be re-activated 
+  using *set-alternative*.
+
+**3.9.1**
+
+* Add missing backup() in PKGBUILD
+
+
 Overview
 ========
 
 Provide tools to install linux kernels and efi programs using systemd's *kernel-install*.
-This provides a systematic way to install bootable software. 
+This provides a systematic way to install and remove bootable software from the *boot* partition.. 
+Following *kernel-install* this is referred to as *$BOOT* and is usually one of */boot* or */efi*.
 
 The boot process requires access to the ESP partition
 and there are two distinct recommendations where the ESP should be mounted:
@@ -32,20 +51,49 @@ then they refer to those (obviously).
 sd-boot provides:
 
 - pacman alpm hooks
-- kernel-install plugins
-- suite of bash scripts
+- kernel-install plugin(s)
+- suite of tools that do the real work.
 
-kernels and bootable efi tools can be installed by sd-boot. A config files lists the package names
-of those kernels sd-boot is permitted to install. By default the Arch kernel is excluded.
+Both kernels and bootable efi tools can be installed by sd-boot. 
 
-On initial install it creates */etc/kernel/cmdline* (if not present) and populates it with the 
-current kernel cmdline options taken from */proc/cmdline*. It also installs 
+The file */etc/sd-boot/kernel.packages* lists the package names
+of kernels sd-boot is permitted to install. By default the Arch kernel is excluded.
+
+Similarlyh, */etc/sd-boot/efi-tools.packages* lists the efi tool packages that
+sd-boot is permitted to install. 
+
+The package names here are the standard Arch package names.
+
+Please ensure any package to be managed by sd-boot is listed appropriately.
+
+By default kernel-install sets kernel boot options using in order:
+
+.. code-block:: bash
+
+    /etc/kernel/cmdline
+    /usr/lib/kernel/cmdline
+    /proc/cmdline
+
+Putting kernel command line options into /etc/kernel/cmdline will then over-ride the
+default. The default is to use /proc/cmdline.
+
+On initial install sd-boot installs 
 */etc/kernel/install.conf* which sets the layout to *bls* and the initrd generator to *dracut*.
 
 The `RFC 66 Discussion <https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/66#note_452083>`_
 about changing to use *kernel-install* triggered me to migrate my own kernels and
 see how it works in practice. I found it works really well and am sharing this 
 with the community in case its helpful to others.
+
+As of version 4.x there are two alternative implementations provided. The original bash code and
+a newer version written in C. You can set which version to use with:
+
+.. code-block:: text
+
+   /usr/lib/sd-boot/set-alternate binary
+   /usr/lib/sd-boot/set-alternate bash
+
+The default with version *4.1* is/will be the C-code.
 
 Getting Started
 ===============
@@ -61,21 +109,23 @@ The requirements on a kernel package are that it is installed, as usual, in:
 Package must **NOT** install the kernel or any initrd into */efi* or */boot*.
 It should not even create an initrd.
 
-Once the package is installed, set the kernels to be managed by sd-boot by
+Once the package is installed, set the kernels / efi-toolsto be managed by sd-boot by
 editing and listing them in the file:
 
 .. code-block:: text
 
    /etc/sd-boot/kernel.packages
+   /etc/sd-boot/efi-tools.packages
 
-On the next (re)install of a managed kernel sd-boot will install it. 
+On the next update (or re-install or remove) if the kernel / efi-tool is listed 
+then sd-boot will handle installing it into $BOOT.
+
 You can trigger a refresh by :
 
 .. code-block:: bash
 
     touch /usr/lib/modules/<kernel-version>/vmlinuz
     pacman -Syu
-
 
 sd-boot relies on each kernel package providing a file in the kernel module
 directory that contains that kernel package name:
@@ -98,10 +148,29 @@ handling *pkgbase-sdb* may be used.
 Loader Entries
 --------------
 
-Since sd-boot uses *kernel-install* to do the real work, systemd-boot loader entries are
+Since sd-boot uses *kernel-install* to do the hard work, systemd-boot loader entries are
 automatically created. It creates one new entry for each kernel version.
 
 This means you should remove any old (fixed) loader entries from */boot/loader/entries* (or
+
+sd-boot provides a kernel-install plugin that modifies the raw loader entries it creates.
+
+Kernel entries have the title changed from the default *Arch Linux* taken from */etc/os-release*
+to be the Arch package name.
+
+efi-tools additionally remove the kernel boot command line options from the entry
+and change the line:
+
+.. code-block:: text
+
+   linux <tool>.efi
+
+to
+
+.. code-block:: text
+
+   efi <tool>.efi
+
 */efi/loader/entries* if that's where they are) for the same kernel package.
 
 It also means that the systemd-boot *loader.conf* file located in the *EFI* should be changed
@@ -126,7 +195,7 @@ We would match this entry in *loader.conf* as the default kernel using perhaps:
     timeout 5
     editor  yes
 
-
+The wildcards are standard shell file globbing used to match the loader entry file.
 With this change its helpful to verify things are seen correctly by running:
 
 .. code-block:: bash
@@ -164,10 +233,12 @@ where systemd-boot expects to find them.
 Bootable efi tools
 ==================
 
+Please ensure the Arch package name is listed in /etc/sd-boot/efi-tools to let sd-boot
+know it is permitted to install it.
+
 sd-boot supports bootable efi tools such as *efi-shell* provided by the *edk2-shell* package.
 The alpm hook *99-sd-boot-efi-tool-install.hook* provides the trigger based on package name
 and the location of the efi file itself is found in 
-
 
 .. code-block:: text
 
@@ -250,3 +321,79 @@ Note that the latest open source version from memtest.org is 8.x. There is
 also a commercial (non open source version) 11.x in the AUR which does install to /usr/share.
 The latest open source version is v8.00 at this time.
 
+C-code Version
+==============
+
+While I was tempted to do this in python, especially since systemd chose to use it for 
+*/usr/lib/kernel/install.d/60-ukify.install*, I decided on C. 
+
+It's important to be able to do initial testing and validation as non-root user
+and of course without touching any important files in any real root directory.
+
+While the the C-code version is a bit more work and a little more complicated to create,
+the benefit, in my view, is that the c-code is much easier to test and debug
+and keep organized code. 
+
+Testing and development are done using a *Testing* directory that is writable by non-root user.
+This is where kernels will be installed, loader entries updated and so on. The tools 
+are installed into this tree and are statically linked. Since dracut requires *PATH* 
+to be set in the environ it is availble. Otherwise the environment is kept clean.
+
+This allows for all programs to be tested by leveraging kernel-install's ability to work
+with such a test set up. 
+
+The environment variable *SDB_DEV_TEST* activates this and allows testing and debugging.
+
+There are two test sets provided under *src/c-code/scripts*. Both test sets
+should be run in the *src/c-code* directory.
+
+* ./scripts/run-test-suite
+
+  This runs the the tools with *root* set to *Testing/__root__*.
+  This is run as part of the build check process.
+  The outputs of this are in Testing/Log-Test-Suite/
+
+* ./scripts/check-c-code:
+  
+  This is a developer test set. It runs static code analysis using cppcheck and
+  clang-tidy.
+
+  It then runs the tools under valgrind.
+
+  All results are saved to Testing/Log-Checks directory.
+
+    Note that kernel-install always runs *chown* and since all tests are run as ordinary
+    (non-root) user this leads to some error messages landing in the testing logs. 
+    These are benign as kernel-install
+    ignores them. They dont happen in production where kernel-install is running as root.
+
+    For each of these tests, the logs save stdout, stderr and the exit status of the tool
+    along with the output from valgrind.
+
+The image and initrd files will be installed in:
+
+.. code-block:: text
+
+    Testing/__root__/boot/<machine-id>/<kernel-version>/
+
+while the loader entry files will be in 
+
+.. code-block:: text
+
+    Testing/__root__/boot/loader/entries/<machine-id>-<kernel-version>.conf 
+
+You may notice that the loader entries have a longer path to the kernel image and initrd. 
+
+This is normal.
+
+When run in a test tree, kernel-install identifies the *mount* point and removes it from
+the front of the path. In test mode where the test directory is not actually a mount point
+(such as /boot) the pathname written to the loader entry will include more elements.
+This is fine and when run in producion the image file will simply be *linux* instead of
+*/long/path/to/linux*. The same is true for the initrd file as well.
+
+* ./plugin-tests/run-loaderentry-efi plugin-tests/run-loaderentry-kernel
+
+  Standalone tests of the plugin that modify the raw loader entry files.
+  The scripts run the tests under valgrind, but there is an option
+  to run in the debugger as well.

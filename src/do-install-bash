@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# ./src/do-install <destdir>
+# Use in PKGBUILD
+# Bash tools go into /usr/lib/sd-boot/bash/
+# 
+echo "  Installing alternative: bash"
+
+dest="$1"
+if [ -z "${dest}" ] ; then
+    echo "Missing dest dir"
+    exit 1
+fi
+
+#
+# funcs
+#
+install_file() {
+    local _perms="$1"
+    local _source_file="$2"
+    local _dest_dir="$3"
+    local _dest_file="$4"
+     
+    echo "   ... $_dest_file"
+    /usr/bin/install -D -m"$_perms" "$_source_file" "$_dest_dir/$_dest_file"
+}
+#
+#
+# Create Directories:
+#
+directories=(
+    usr/lib/sd-boot/bash/
+    usr/lib/sd-boot/bash/functions
+    etc/kernel/install.d/bash
+)
+for dir in "${directories[@]}"
+do
+    /usr/bin/install -d -m755 "${dest}/$dir"
+done
+
+# 
+# Tools in usr/lib/sd-boot/bash
+#
+tools=(
+    sd-boot-efifs-update
+    sd-boot-efi-tool-update
+    sd-boot-find-boot-mounts
+    sd-boot-install-cmdline
+    sd-boot-kernel-update
+    sd-boot-package-version-update
+)
+
+sdir="src/bash-code/tools"
+ddir="usr/lib/sd-boot/bash"
+for tool in "${tools[@]}"
+do
+    install_file 755 "$sdir/$tool" "${dest}" "${ddir}/$tool"
+done
+
+# Support functions
+sdb_functions=(
+    load-config.sh 
+    load-efi-image_file.sh
+    load-kernel-packages.sh
+    load-package-version.sh
+    kernel-version-to-package.sh
+)
+
+sdir="src/bash-code/functions"
+ddir="usr/lib/sd-boot/bash/functions"
+for func in "${sdb_functions[@]}"
+do
+    install_file 644 "$sdir/$func" "${dest}" "${ddir}/$func"
+done
+
+# 
+# /etc/kernel/install.d
+#
+plugins=(
+    95-sd-boot-loaderentry-efi.install
+    95-sd-boot-loaderentry-kernel.install
+)
+sdir="src/bash-code/etc/kernel/install.d"
+ddir="etc/kernel/install.d/bash"
+for plugin in "${plugins[@]}"
+do
+    install_file 755 "${sdir}/$plugin" "${dest}" "${ddir}/$plugin"
+done

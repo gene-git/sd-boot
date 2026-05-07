@@ -1,0 +1,60 @@
+#!/usr/bin/bash
+#
+
+do_valgrind="yes"
+
+export SDB_DEV_TEST=true
+
+machine_id=$(</etc/machine-id)
+
+mod_dir=$(/usr/bin/ls -1d /usr/lib/modules/*arch*/)
+kernel_vers=$(basename $mod_dir)
+kernel_image=/usr/lib/modules/"$kernel_vers"/vmlinuz
+
+#boot_dir=$(realpath __root__/boot/$machine_id/$kernel_vers/)
+boot_dir="__root__/boot/$machine_id/$kernel_vers"
+initrd=
+
+oper=add
+
+export KERNEL_INSTALL_LAYOUT="bls"
+export KERNEL_INSTALL_VERBOSE=""
+export KERNEL_INSTALL_MACHINE_ID="$machine_id"
+export KERNEL_INSTALL_ENTRY_TOKEN="$machine_id"
+export KERNEL_INSTALL_BOOT_ROOT="__root__/boot"
+
+#
+# Make a raw loader entry 
+#
+entry_path="__root__/boot/loader/entries/${machine_id}-${kernel_vers}.conf"
+
+echo "****"
+echo "Loader entry path: $entry_path"
+echo "****"
+
+cat > "$entry_path" << _EOE_
+title      Arch Linux
+version    $kernel_vers
+machine-id $machine_id
+sort-key   arch
+options    root="UUID=xxxx" rw systemd.machine_id=$machine_id
+linux      /$machine_id/$kernel_vers/linux
+initrd     /$machine_id/$kernel_vers/initrd
+_EOE_
+
+#
+# Run plugin
+#
+plugin="__root__/etc/kernel/install.d/95-sd-boot-loaderentry-modify.install"
+
+if [[ "$do_valgrind" == "yes" ]] ; then
+    opt="--leak-check=full"
+    valgrind $opt $plugin $oper $kernel_vers $boot_dir $kernel_image $initrd
+else
+    echo " *********"
+    echo " Run with :"
+    echo "   run $oper $kernel_vers $boot_dir $kernel_image $initrd"
+    echo " *********"
+    gdb $plugin
+fi
+

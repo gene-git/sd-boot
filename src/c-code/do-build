@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+#
+# Developer test builds
+# 
+
+echo "Debug :"
+cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build build/debug
+
+echo "None (arch) :"
+cmake -S . -B build/none -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr
+cmake --build build/none
+
+#
+# install - debug has static linking
+# Since LD_LIBRARY_PATH are not passed down to
+# kernel-install plugins to minimize risk.
+#
+echo "Installing:"
+test_root="Testing/__root__"
+DESTDIR="$test_root" cmake --install build/debug 
+#DESTDIR="$test_root" cmake --install build/none 

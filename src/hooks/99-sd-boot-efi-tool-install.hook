@@ -1,0 +1,17 @@
+#
+# 99-sd-boot-efi-tool-install.hook
+#   When efi tool is updated copy to EFI
+#
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = edk2-shell
+Target = memtest86_64-git
+
+[Action]
+Description = sd-boot: installing an efi tool to EFI
+When = PostTransaction
+Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update add
+NeedsTargets
+ 

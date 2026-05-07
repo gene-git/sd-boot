@@ -1,0 +1,12 @@
+#
+# /etc/sd-boot/kernel.packages
+#
+# list of kernel packages to be managed by sd-boot.
+# Any other kernel package will be skipped
+# List each package on a separate line
+#
+linux-custom
+linux-next
+linux-test
+linux-stable
+#linux

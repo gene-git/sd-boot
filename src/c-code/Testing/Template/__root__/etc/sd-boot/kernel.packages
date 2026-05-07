@@ -1,0 +1,13 @@
+#
+# /etc/sd-boot/kernel-install.packages
+#
+# list of kernel packages using sd-boot tools
+# All other kernel packages will be skipped
+# List each package on a separate line
+# 
+#
+linux
+#linux-custom
+#linux-next
+#linux-test
+#linux-stable
