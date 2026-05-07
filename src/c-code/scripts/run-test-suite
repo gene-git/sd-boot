@@ -31,6 +31,7 @@ echo "  - Building static executables"
   cmake --build build/debug
 
   DESTDIR="$test_root" cmake --install build/debug
+  ./build/debug/sd-boot-set-alternative binary Testing/__root__/
 
 #
 # Activate test environ
