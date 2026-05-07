@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 
 /**
- * Use pacman to determine current version of a package
+ * Invoke pacman to determine currently installed version of a package
  */
 #include <stdbool.h>
 #include <stdlib.h>

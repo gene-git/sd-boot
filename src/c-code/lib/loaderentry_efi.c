@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  *
- * Change one loader entry for efi tool:
+ * Change a loader entry file for an efi tool:
  *
- * For kernel images this updates:
+ * This updates:
  *  - title xxx        => kernel package name
  *  - linux <efi-file> => efi <efi-file>
  *  - options          => remove (these are kenel options)
@@ -65,7 +65,7 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
     entry.loader_entry_file = plugin->loader_entry_file;
     entry.title = info.package;
 
-    msg(MSG_NORMAL, "  sd-boot: updating kernel loader entry %s\n", info.package);
+    msg(MSG_NORMAL, "  sd-boot: updating efi tool loader entry %s\n", info.package);
 
     ret = loaderentry_modify_file(&entry);
     if (ret != 0) {

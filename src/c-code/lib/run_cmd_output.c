@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Locate the EFI (the mount point where ESP is mounted)
- * Uses systemd's bootctl to get it.
+ * Run executable with standard execve() arguments.
+ * Child stdout is captured and returned to caller.
  */
 #include <fcntl.h>
 #include <spawn.h>

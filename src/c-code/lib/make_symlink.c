@@ -5,7 +5,7 @@
  *
  * linkname -> target
  *
- * Replace any existing linkname
+ * Replaces any existing linkname if the target is not the same.
  */
 #include <linux/limits.h>
 #include <stdio.h>

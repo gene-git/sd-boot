@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * From buffer of text characters
- * return one "line" by over-writing newline in buffer with null
+ * From a buffer of text characters
+ * Return one "line" by over-writing newline in buffer with null
  */
 #include <string.h>
 

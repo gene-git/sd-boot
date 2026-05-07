@@ -4,6 +4,8 @@
  * Trigger paths come without a leading "/"
  *
  * This makes a copy and adds the "/" 
+ *
+ * Caller must free the memory.
  */
 #include <stdlib.h>
 #include <string.h>

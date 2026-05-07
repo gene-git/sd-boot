@@ -1,0 +1,14 @@
+src/c-code/build
+src/c-code/Log-Checks
+src/c-code/Unused
+src/c-code/tests
+#
+src/c-code/Testing/__root__
+src/c-code/Testing/Log-Checks
+src/c-code/Testing/Log-Test-Suite
+src/c-code/Makefile
+src/c-code/cmake_install.cmake
+src/c-code/compile_commands.json
+src/c-code/CMakeFiles
+src/c-code/CMakeCache.txt
+

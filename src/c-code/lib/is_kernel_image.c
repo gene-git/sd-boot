@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Check if an image path is for any kernel.
+ * Check if an image path is for some kernel.
  *
- * If image ~ "/usr/lib/modules/<kern-vers>/vmlinux
+ * i.e. whether image ~ "/usr/lib/modules/<kern-vers>/vmlinux
  */
 #include <regex.h>
 #include <stdbool.h>

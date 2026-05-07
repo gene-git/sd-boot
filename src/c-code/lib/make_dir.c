@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Make direcrory
- * - convenience wrapper handling errors
- * mode_t (see man 7 inode)
- *  If mode is 0 the default mode is 0755
- *  same as : S_IRWXU | S_IRGRP | S_IXGRP |S_IROTH | S_IXOTH
+ * makedir:
+ *      Make direcrory
+ *      - convenience wrapper handling errors
+ *      mode_t (see man 7 inode)
+ *      If mode is 0 the default mode is 0755
+ *      same as : S_IRWXU | S_IRGRP | S_IXGRP |S_IROTH | S_IXOTH
+ * makepath:
+ *      Makes all the directories in the provided path.
  */
 #include <asm-generic/errno-base.h>
 #include <errno.h>

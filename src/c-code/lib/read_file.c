@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * read config file
- * Contents are comments (# ...)
- * key = value pairs
+ * Read a text file  containing:
+ * - Contents, empty lines are skipped (comment = # ...)
+ * - key = value pairs
+ *
+ * - read_file():
+ *   returns all data 
+ *
+ * - read_file_first_row()
+ *   returns the first data row.
  */
 #include <errno.h>
 #include <linux/limits.h>

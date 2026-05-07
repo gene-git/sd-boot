@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Run rsync to copy from src to dst
+ * Run executable - standard execve() argyments and 
+ * child output ignored.
  */
 #include <sched.h>
 #include <spawn.h>

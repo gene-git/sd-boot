@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * ALPM Hooks write a list of triggers - one per line to our stdin
- * Read the triggers 
+ * pacman's ALPM Hooks contain lists of triggers. When a trigger changes then
+ * pacman writes it to the stdin of the "Action" executable (that's us) one trigger per line.
+ *
+ * Read and return the list of all triggers from stdin. 
  * Thay are either a path or a package name.
  * Return the list of triggers 
  */

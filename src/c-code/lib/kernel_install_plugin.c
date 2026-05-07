@@ -4,8 +4,9 @@
  *
  * Kernel Install Plugins
  *
- * plugins called from kernel-install get passed information via command line and
- * via environment variables
+ * plugins called from kernel-install get passed information via 
+ * - command line and
+ * - environment variables
  *
  * Command line in order:
  * - COMMAND
@@ -15,11 +16,11 @@
  * - INITRD_1 INITRD_2 ..
  *
  * Env variables:
- * KERNEL_INSTALL_LAYOUT
- * KERNEL_INSTALL_VERBOSE
- * KERNEL_INSTALL_MACHINE_ID
- * KERNEL_INSTALL_ENTRY_TOKEN
- * KERNEL_INSTALL_BOOT_ROOT
+ * - KERNEL_INSTALL_LAYOUT
+ * - KERNEL_INSTALL_VERBOSE
+ * - KERNEL_INSTALL_MACHINE_ID
+ * - KERNEL_INSTALL_ENTRY_TOKEN
+ * - KERNEL_INSTALL_BOOT_ROOT
  *
  * =>
  * loader_entries_dir = BOOT_ROOT/loader/entries

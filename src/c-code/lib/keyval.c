@@ -2,8 +2,9 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  * read config file
- * Contents are comments (# ...)
- * key = value pairs
+ * Contents can be 
+ * - comments (# ...)
+ * - key = value 
  */
 #include <stdio.h>
 #include <stdlib.h>

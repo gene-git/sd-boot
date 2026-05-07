@@ -3,6 +3,9 @@
 /**
  * Read Triggers from stdin
  * Parse them
+ *
+ * pacman's ALPM hooks contain list of triggers - when a trigger "changes" then
+ * pacman writes each changed trigger to the invoked action (Exec) program's stdin.
  */
 #include <stdbool.h>
 #include <stdlib.h>

@@ -1,22 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * @file loader_entry_title.c
- * @brief Loader entry boot file title edit.
- * @author Gene C
+ * The final phase of modifying the loader entry happens here.
  *
- * @copyright SPDX-License-Identifier: GPL-2.0-or-later
- * @copyright SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
- *
- * @loader_entry_title Modifies the title in a loader entry file
- *
- * kernel-install sets the default title (primarily) to PPRETTY_NAME from /etc/os-release
- * We change it the package name.
- * Uses a temp. file and renames when all is good and ready.
- *
- * @dir The directory in which the entry file resides.
- * @file The filename of the loader entry.
- * @title The new title to use (typically the package name)
+ * Read the existing entry file and write the new one with
+ * the requested change provided by LoaderEntry structure.
  *
  * @return 0 = success, -1 = error
  */

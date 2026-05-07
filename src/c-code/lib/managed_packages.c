@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Reads file
- *  /etc/sd-boot/kernel.packages
- *  /etc/sd-boot/efi-tool.packages
+ *
+ * Returns a list of packages managed by sd-boot taken from the files:
+ *
+ *  kernel packages:        /etc/sd-boot/kernel.packages
+ *  efi tool packages:      /etc/sd-boot/efi-tool.packages
  *
  * Return list of kernel package names using sd-boot to install
  * e.g.

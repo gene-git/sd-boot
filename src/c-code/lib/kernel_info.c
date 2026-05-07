@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Kernel installers (must) install a file into the module directory:
+ * Kernel package installers (must) install a specific file into the module directory:
  *
  *   /usr/lib/modules/<kern-vers>/
  *

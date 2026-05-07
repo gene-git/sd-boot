@@ -2,11 +2,10 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  *
- * Wrapper to call kernel-install
+ * Wrapper to run kernel-install
  *
- * - Checks for development mode where it uses "fake" kernel install
- *   to allow for code path to be tested.
- * - dev mode is active whenever euid is non-root
+ * - In development mode, the outputs go to the testing root (conf->info.root)
+ * - dev mode is active whenev euid is non-root and the env SBD_DEV_TEST is set.
  */
 #include <stdio.h>
 #include <stdlib.h>

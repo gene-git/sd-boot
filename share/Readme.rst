@@ -9,15 +9,20 @@ sd-boot
 Recent Changes
 ==============
 
+**4.2.2**
+
+* little clean ups - fix comments etc.
+  No functional change.
+
 **4.0.0**
 
 * New C-code alternative to bash tools..
 
-  Activate: /usr/lib/sd-boot/set-alternative binary
-  Bash:     /usr/lib/sd-boot/set-alternative bash
+  Activate: /usr/lib/sd-boot/sd-boot-set-alternative binary
+  Bash:     /usr/lib/sd-boot/sd-boot-set-alternative bash
 
   Bash version remains available for now, and can be re-activated 
-  using *set-alternative*.
+  using *sd-boot-set-alternative*.
 
 **3.9.1**
 
@@ -90,8 +95,8 @@ a newer version written in C. You can set which version to use with:
 
 .. code-block:: text
 
-   /usr/lib/sd-boot/set-alternate binary
-   /usr/lib/sd-boot/set-alternate bash
+   /usr/lib/sd-boot/sd-boot-set-alternate binary
+   /usr/lib/sd-boot/sd-boot-set-alternate bash
 
 The default with version *4.1* is/will be the C-code.
 

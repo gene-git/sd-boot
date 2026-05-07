@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Change one loader entry for kernel:
+ * Change a loader entry for kernel:
  *
- * For kernel images this updates:
+ * This updates:
  *  - title xxx        => kernel package name
  */
 #include <stddef.h>
