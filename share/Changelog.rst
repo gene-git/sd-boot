@@ -6,12 +6,19 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.2.0 (2026-05-07)
-	19 commits.
+	3.6.2 (2026-04-21) -> 4.2.1 (2026-05-07)
+	21 commits.
 
 Commits
 =======
 
+
+* 2026-05-07  : **4.2.1**
+
+.. code-block:: text
+
+              - Make sure test suite runs in fresh set up - fixed
+              - update Changelog
 
 * 2026-05-07  : **4.2.0**
 
