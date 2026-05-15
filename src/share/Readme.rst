@@ -9,6 +9,16 @@ sd-boot
 Recent Changes
 ==============
 
+**4.3.0**
+
+* Drop the bash code version and sd-boot-set-alternative since its no longer needed.
+* Simplify installation.
+* When adding a new kernel version, check if previous version still there before 
+  calling *kernel-install remove* to remove the previous version since it may have 
+  already been removed by pacman. No functional impact other than avoiding one 
+  unnecessary fork/exec.
+* Remove one unnecessary trigger from kernel update alpm hook.
+
 **4.2.2**
 
 * little clean ups - fix comments etc.
@@ -156,11 +166,13 @@ Loader Entries
 Since sd-boot uses *kernel-install* to do the hard work, systemd-boot loader entries are
 automatically created. It creates one new entry for each kernel version.
 
-This means you should remove any old (fixed) loader entries from */boot/loader/entries* (or
+This means you should remove any old (fixed) loader entries from */boot/loader/entries*
+*/efi/loader/entries* if that's where they are) for any kernel package managed by 
+sd-boot.
 
 sd-boot provides a kernel-install plugin that modifies the raw loader entries it creates.
 
-Kernel entries have the title changed from the default *Arch Linux* taken from */etc/os-release*
+Kernel loader entries have the title changed from the default *Arch Linux* taken from */etc/os-release*
 to be the Arch package name.
 
 efi-tools additionally remove the kernel boot command line options from the entry
@@ -176,10 +188,8 @@ to
 
    efi <tool>.efi
 
-*/efi/loader/entries* if that's where they are) for the same kernel package.
-
-It also means that the systemd-boot *loader.conf* file located in the *EFI* should be changed
-if the default kernel to boot is one of those managed by sd-boot.
+It also means that the systemd-boot *loader.conf* file located in the *EFI* 
+probably needs to be changed as well if the default kernel is one of those managed by sd-boot.
 
 The loader entries are located in:
 

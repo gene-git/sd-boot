@@ -1,7 +1,0 @@
-#
-# edk2-shell 
-#
-# Which efi program file to install
-#
-/usr/share/edk2-shell/x64/Shell_Full.efi
-

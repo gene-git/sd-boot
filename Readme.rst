@@ -1,1 +1,1 @@
-share/Readme.rst
+src/share/Readme.rst

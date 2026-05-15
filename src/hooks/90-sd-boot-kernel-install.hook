@@ -36,7 +36,6 @@ Target = coreutils
 Target = cryptsetup
 Target = dosfstools
 Target = e2fsprogs
-Target = efibootmgr
 Target = filesystem
 Target = gptfdisk
 Target = gzip

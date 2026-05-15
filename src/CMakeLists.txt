@@ -1,9 +1,16 @@
 #
 # sd-boot tools
-# - cmake -G Ninja -B build
+# mkdir build
+# cd build
+# - cmake -S ../ -G Ninja -B .
 # - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
-# - cmake --build build
+# - cmake -S .. -B debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
+#   cmake --build debug
 #
+# cmake -S .. -B none -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr
+#   cmake --build none
+#
+# DESTDIR=xxx cmake --install debug
 
 cmake_minimum_required(VERSION 4.3)
 
@@ -11,7 +18,7 @@ cmake_minimum_required(VERSION 4.3)
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
 #project(sd-boot VERSION 3.9.9 LANGUAGES C)
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/../version.txt" RAW_VERSION)
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" RAW_VERSION)
 string(STRIP "${RAW_VERSION}" PROJ_VERSION)
 project(sd-boot VERSION ${PROJ_VERSION} LANGUAGES C)
 
@@ -112,14 +119,6 @@ include_directories(lib/include)
 target_include_directories(sd_boot_shared PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/include)
 target_include_directories(sd_boot_static PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/include)
 
-# link all against the sd-boot library
-#link_libraries(sd-boot)
-#^^^
-
-#link_libraries(/usr/lib/sd-boot/lib/libsd-boot.so)
-#set(CMAKE_INSTALL_RPATH "/usr/lib/sd-boot/lib")
-#set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-
 # tools and plugins
 add_executable(sd-boot-find-boot-mounts tools/find-boot-mounts.c)
 add_executable(sd-boot-efifs-update tools/efifs-update.c)
@@ -127,9 +126,8 @@ add_executable(sd-boot-efi-tool-update tools/efi-tool-update.c)
 add_executable(sd-boot-kernel-update tools/kernel-update.c)
 
 add_executable(95-sd-boot-loaderentry-modify.install plugins/loaderentry-modify.c)
-#add_executable(95-sd-boot-loaderentry-kernel.install plugins/loaderentry-kernel.c)
 
-add_executable(sd-boot-set-alternative tools/set-alternative.c)
+#add_executable(sd-boot-set-alternative tools/set-alternative.c)
 
 #
 # Linking: 
@@ -161,10 +159,10 @@ target_link_libraries(sd-boot-kernel-update PRIVATE
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
 )
 
-target_link_libraries(sd-boot-set-alternative PRIVATE 
-    $<$<CONFIG:Debug>:sd_boot_static>
-    $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
-)
+#target_link_libraries(sd-boot-set-alternative PRIVATE 
+#    $<$<CONFIG:Debug>:sd_boot_static>
+#    $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
+#)
 
 #
 # plugins
@@ -187,16 +185,16 @@ install(TARGETS
     sd-boot-efifs-update
     sd-boot-efi-tool-update
     sd-boot-kernel-update
-    DESTINATION /usr/lib/sd-boot/binary
-)
-install(TARGETS 
-    sd-boot-set-alternative
     DESTINATION /usr/lib/sd-boot
 )
+#install(TARGETS 
+#    sd-boot-set-alternative
+#    DESTINATION /usr/lib/sd-boot
+#)
 
 install(TARGETS 
     95-sd-boot-loaderentry-modify.install
-    DESTINATION /etc/kernel/install.d/binary
+    DESTINATION /etc/kernel/install.d
 )
 
 install(TARGETS sd_boot_shared
@@ -206,6 +204,14 @@ install(TARGETS sd_boot_shared
 install(TARGETS sd_boot_static
     LIBRARY DESTINATION lib
 )
+
+#
+# Configs / Hooks 
+#
+install(DIRECTORY etc/ DESTINATION /etc/)
+install(DIRECTORY hooks DESTINATION /usr/share/libalpm/)
+install(DIRECTORY share/ DESTINATION /usr/share/sd-boot/)
+install(FILES share/License/License.rst DESTINATION /usr/share/licenses/sd-boot/)
 
 
 if(CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -227,6 +233,4 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
         -Wshadow 
     )
 endif()
-
-# target_link_libraries(${PROJECT_NAME} PRIVATE m) # Example for math library
 

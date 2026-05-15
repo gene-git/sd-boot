@@ -10,9 +10,12 @@
  *
  * See man kernel-install for "boot_root"
  */
+#include <linux/limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "sd-boot.h"
 
@@ -35,11 +38,29 @@ exit:
     return good_kernel;
 }
 
+/*
+ * Check if kernel vers exists by checking /usr/lib/modules/<vers>/vmlinuz
+ * Informational only so don't fail.
+ */
+static bool does_kernel_version_exist(const char *kernel_version) {
+    char path[PATH_MAX] = {'\0'};
+
+    if (snprintf(path, PATH_MAX, "/usr/lib/modules/%s/vmlinuz", kernel_version) < 0) {
+        return false;
+    }
+
+    if (access(path, F_OK) == 0) {
+        return true;
+    }
+
+    return false;
+}
+
 /**
   * Update one kernel package
   * - oper ~ add or remove
   */
-static int kernel_update(SdBoot *conf, Array_str *pkgs_arr, int oper, KernelInfo *info) {
+static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, int oper, KernelInfo *info) {
     int ret = 0;
     char *curr = nullptr;
     char *prev = nullptr;
@@ -80,9 +101,17 @@ static int kernel_update(SdBoot *conf, Array_str *pkgs_arr, int oper, KernelInfo
      * - skip on update where prev = curr
      * - version string is = "<package>-<prev>"
      *   i.e. augment version string with package name
+     * - an alpm remove hook may have been run. 
+     *   check if the kernel image exists and display message.
+     *   Still call kernel-install remove in case it has any housekeeping
+     *   or other tasks to do.
      */
     if (oper == ADD && prev[0] != '\0' && strcmp(curr, prev) != 0) {
         msg(MSG_NORMAL, "  sd-boot: removing prev version %s\n", prev);
+
+        if (!does_kernel_version_exist(prev)) {
+            msg(MSG_NORMAL, "         : prev version already removed\n");
+        }
 
         char *cmd_args[] = {"remove", prev, nullptr};
 
@@ -268,10 +297,11 @@ int main(int argc, char *argv[]) {
      */
 
     /*
-     * kernel triggers
+     * kernel specific triggers
+     * ------------------------
      * - applies to a specific kernel.
-     * - kernel triggers (/usr/lib/modules/<kern-vers>/vmlinuz
-     *   => kernel package names
+     * - kernel trigger ~ /usr/lib/modules/<kern-vers>/vmlinuz
+     *   => kernel package name
      * - number of non-kernel triggers = any other triggers (apply to every kernel).
      */
     for (size_t i = 0; i < trigs.num_info; i++) {
@@ -279,19 +309,20 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        ret = kernel_update(&conf, &pkgs_arr, oper, &trigs.info[i]);
+        ret = kernel_update_one(&conf, &pkgs_arr, oper, &trigs.info[i]);
         if (ret != 0) {
             goto exit;
         }
     }
 
     /*
-     * non kernel specific triggers
+     * other kernel triggers
+     * ---------------------
      * - applies to all kernels.
-     * - NB.only applicable for "add" not remove)
-     * - Make list of any kernels not already updated above.
+     * - NB only applicable for "add" not remove
+     *   remove must be for specific kernel.
+     * - Create a list of kernels not already updated above.
      */
-
     if (trigs.num_other > 0 && oper == ADD) {
         /*
          * Gather kernel info
@@ -307,7 +338,7 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            ret = kernel_update(&conf, &pkgs_arr, oper, &infos[i]);
+            ret = kernel_update_one(&conf, &pkgs_arr, oper, &infos[i]);
             if (ret != 0) {
                 goto exit;
             }
