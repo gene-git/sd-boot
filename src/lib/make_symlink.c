@@ -54,7 +54,7 @@ static int is_symlink_needed(const char *target, const char *linkname, bool *nee
                  */
                 ret = unlink(linkname);
                 if (ret != 0) {
-                    msg(MSG_ERR, "sd-boot: error deleting linkname: %s\n", linkname);
+                    msg(MSG_ERR, "  ! sd-boot: error deleting linkname: %s\n", linkname);
                     ret = -1;
                     goto exit;
                 }
@@ -63,7 +63,7 @@ static int is_symlink_needed(const char *target, const char *linkname, bool *nee
             /*
              * not a symlink
              */
-            msg(MSG_ERR, "sd-boot: linkname exists but not a symlink: %s\n", linkname);
+            msg(MSG_ERR, "  ! sd-boot: linkname exists but not a symlink: %s\n", linkname);
             ret = -1;
             goto exit;
         }
@@ -76,7 +76,7 @@ int make_symlink(const char *target, const char *linkname) {
     int ret = 0;
 
     if (target == nullptr || linkname == nullptr) {
-        msg(MSG_ERR, "sd-boot bad input to make symlink\n");
+        msg(MSG_ERR, "  ! sd-boot bad input to make symlink\n");
         ret = -1;
         goto exit;
     }

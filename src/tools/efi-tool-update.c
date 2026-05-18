@@ -48,7 +48,7 @@ static int efi_tool_add(SdBoot *conf, char *pkg) {
     char *efi_image = nullptr;
     Array_str env_arr = {};
 
-    msg(MSG_NORMAL, "sd-boot: Updating bootable efi tool %s\n", pkg);
+    msg(MSG_NORMAL, "⦁ sd-boot: Updating bootable efi tool %s\n", pkg);
 
     /*
      * set up special efi plugins environ to use
@@ -71,7 +71,7 @@ static int efi_tool_add(SdBoot *conf, char *pkg) {
     prev = pkg_vers.previous;
 
     if (curr[0] == '\0') {
-        msg(MSG_ERR, "sd-boot: add efi tool: no curr version\n");
+        msg(MSG_ERR, "  ! sd-boot: add efi tool: no curr version\n");
         ret = -1;
         goto exit;
     }
@@ -84,10 +84,10 @@ static int efi_tool_add(SdBoot *conf, char *pkg) {
      */
     if (*prev != '\0' && strncmp(curr, prev, MAX_VAL_LEN-1) != 0) {
 
-        msg(MSG_NORMAL, "  sd-boot: removing prev %s %s\n", pkg, prev);
+        msg(MSG_NORMAL, "  ↳ sd-boot: removing prev %s %s\n", pkg, prev);
 
         if (snprintf(version, ROW_MAX-1, "%s-%s", pkg, prev) < 0) {
-            msg(MSG_ERR, "sd-boot: efi tool: error making prev version\n");
+            msg(MSG_ERR, "  ! sd-boot: efi tool: error making prev version\n");
             ret = -1;
             goto exit;
         }
@@ -95,7 +95,7 @@ static int efi_tool_add(SdBoot *conf, char *pkg) {
 
         ret = kernel_install_run(conf, cmd_args, env_arr.rows);
         if (ret != 0) {
-            msg(MSG_ERR, "sd-boot: error removing prev vers %s\n", version);
+            msg(MSG_ERR, "  ! sd-boot: error removing prev vers %s\n", version);
             ret = -1;
             goto exit;
         }
@@ -110,7 +110,7 @@ static int efi_tool_add(SdBoot *conf, char *pkg) {
      */
     efi_image = package_to_efi_image(conf, pkg);
     if (efi_image == nullptr) {
-        msg(MSG_ERR, "sd-boot: add efi tool: no efi image found\n");
+        msg(MSG_ERR, "  ! sd-boot: add efi tool: no efi image found\n");
         ret = -1;
         goto exit;
     }
@@ -119,17 +119,17 @@ static int efi_tool_add(SdBoot *conf, char *pkg) {
      * version = <package>-<curr>
      */
     if (snprintf(version, ROW_MAX-1, "%s-%s", pkg, curr) < 0) {
-        msg(MSG_ERR, "sd-boot: efi tool: error making curr vers\n");
+        msg(MSG_ERR, "  ! sd-boot: efi tool: error making curr vers\n");
         ret = -1;
         goto exit;
     }
 
-    msg(MSG_NORMAL, "  sd-boot: adding %s %s\n", pkg, curr);
+    msg(MSG_NORMAL, "  ↳ sd-boot: adding %s %s\n", pkg, curr);
 
     char *cmd_args[] = {"add", version, efi_image, nullptr};
     ret = kernel_install_run(conf, cmd_args, env_arr.rows);
     if (ret != 0) {
-        msg(MSG_ERR, "sd-boot: error installing efi tool\n");
+        msg(MSG_ERR, "  ! sd-boot: error installing efi tool\n");
         ret = -1;
         goto exit;
     }
@@ -151,7 +151,7 @@ static int efi_tool_remove(SdBoot *conf, char *pkg) {
     char version[ROW_MAX] = {'\0'};
     Array_str env_arr = {};
 
-    msg(MSG_NORMAL, "sd-boot: Removing efi tool %s\n", pkg);
+    msg(MSG_NORMAL, "  ↳ sd-boot: Removing efi tool %s\n", pkg);
     
     ret = ki_plugins_efi_update_env(conf->info.root, &env_arr);
     if (ret != 0) {
@@ -171,7 +171,7 @@ static int efi_tool_remove(SdBoot *conf, char *pkg) {
             break;
 
         case 1:
-            msg(MSG_ERR, "sd-boot: efi tool: remove %s : no version found\n", pkg);
+            msg(MSG_ERR, "  ! sd-boot: efi tool: remove %s : no version found\n", pkg);
             goto exit;
             break;
 
@@ -183,7 +183,7 @@ static int efi_tool_remove(SdBoot *conf, char *pkg) {
      * found version - lets remove it.
      */
     if (snprintf(version, ROW_MAX-1, "%s-%s", pkg, pkg_vers.current) < 0) {
-        msg(MSG_ERR, "sd-boot: efi tool: error making curr vers\n");
+        msg(MSG_ERR, "  ! sd-boot: efi tool: error making curr vers\n");
         ret = -1;
         goto exit;
     }
@@ -194,7 +194,7 @@ static int efi_tool_remove(SdBoot *conf, char *pkg) {
     char *cmd_args[] = {"remove", version, nullptr};
     ret = kernel_install_run(conf, cmd_args, env_arr.rows);
     if (ret != 0) {
-        msg(MSG_ERR, "sd-boot: error removing efi tool\n");
+        msg(MSG_ERR, "  ! sd-boot: error removing efi tool\n");
         ret = -1;
         goto exit;
     }
@@ -204,7 +204,7 @@ static int efi_tool_remove(SdBoot *conf, char *pkg) {
      */
     ret = remove_package_versions(conf, pkg);
     if (ret != 0) {
-        msg(MSG_ERR, "sd-boot: error installing efi filesystem drivers\n");
+        msg(MSG_ERR, "  ! sd-boot: error removing package versions file\n");
         return 1;
         goto exit;
     }
@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
     Array_str pkgs_arr = {};
 
     if (argc < 2) {
-        msg(MSG_ERR, "sd-boot: missing add or remove\n");
+        msg(MSG_ERR, "! sd-boot: missing add or remove\n");
         ret = 1;
         goto exit;
     }
@@ -252,13 +252,13 @@ int main(int argc, char *argv[]) {
      * - which sets verbosity level
      */
     if (load_config(&conf) != 0) {
-        msg(MSG_ERR, "sd-boot: warning - no config file loaded - skipping\n");
+        msg(MSG_ERR, "- sd-boot: warning - no config file loaded - skipping\n");
     }
 
     int oper = BAD;
     oper = kernel_install_oper(argv[1]);
     if (oper == BAD) {
-        msg(MSG_ERR, "sd-boot: expect add or remove but got %s\n", argv[1]);
+        msg(MSG_ERR, "! sd-boot: expect add or remove but got %s\n", argv[1]);
         ret = 1;
         goto exit;
     }
@@ -271,7 +271,7 @@ int main(int argc, char *argv[]) {
      */
     Array_str trigs_arr = {};
     if (read_triggers(&trigs_arr) != 0) {
-        msg(MSG_ERR, "sd-boot efi tool - error reading triggers\n");
+        msg(MSG_ERR, "! sd-boot efi tool - error reading triggers\n");
         ret = 1;
         goto exit;
     }

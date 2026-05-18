@@ -68,12 +68,12 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, int oper, Kernel
     PackageVersion pkg_vers = {};
 
     if (info->vers == nullptr || info->vers[0] == '\0') {
-        msg(MSG_ERR, "  sd-boot: kernel update failed to get kernel version\n");
+        msg(MSG_ERR, "  ! sd-boot: kernel update failed to get kernel version\n");
         ret = 1;
         goto exit;
     }
 
-    msg(MSG_NORMAL, "sd-boot: Updating kernel package %s %s\n", info->package, info->vers);
+    msg(MSG_NORMAL, "⦁ sd-boot: Updating kernel package %s %s\n", info->package, info->vers);
 
     if (!is_sd_boot_managed(pkgs_arr, info)) {
         msg(MSG_NORMAL, "  not managed by sd-boot - skipping %s\n", info->package);
@@ -107,7 +107,7 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, int oper, Kernel
      *   or other tasks to do.
      */
     if (oper == ADD && prev[0] != '\0' && strcmp(curr, prev) != 0) {
-        msg(MSG_NORMAL, "  sd-boot: removing prev version %s\n", prev);
+        msg(MSG_NORMAL, "  ↳ sd-boot: removing prev version %s\n", prev);
 
         if (!does_kernel_version_exist(prev)) {
             msg(MSG_NORMAL, "         : prev version already removed\n");
@@ -117,7 +117,7 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, int oper, Kernel
 
         ret = kernel_install_run(conf, cmd_args, nullptr);
         if (ret != 0) {
-            msg(MSG_ERR, "  sd-boot: error removing prev kernel %s\n", prev);
+            msg(MSG_ERR, "  ! sd-boot: error removing prev kernel %s\n", prev);
             ret = 1;
             goto exit;
         }
@@ -150,7 +150,7 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, int oper, Kernel
 
     envp = (char **)calloc(num_envp, sizeof(char *));
     if (envp == nullptr){
-        msg(MSG_ERR, "sd-boot: mem allocation failed\n");
+        msg(MSG_ERR, "  ! sd-boot: mem allocation failed\n");
         ret = -1;
         goto exit;
     }
@@ -162,11 +162,11 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, int oper, Kernel
 
     ret = kernel_install_run(conf, cmd_args, envp);
     if (ret != 0) {
-        msg(MSG_ERR, "sd-boot: error installing efi tool\n");
+        msg(MSG_ERR, "  ! sd-boot: error installing kernel\n");
         ret = 1;
         goto exit;
     }
-    msg(MSG_NORMAL, "  sd-boot: Completed kernel update %s\n", info->package);
+    msg(MSG_NORMAL, "  ↳ sd-boot: Completed kernel update %s\n", info->package);
 
 exit:
     if (envp != nullptr) {
@@ -182,7 +182,15 @@ exit:
 static bool did_this_kernel(KernelInfo *info, Triggers *trigs) {
     bool done = false;
 
+    if (info->package == nullptr || info->package[0] == '\0') {
+        return done;
+    }
+
     for (size_t i = 0; i < trigs->num_info; i++) {
+        if (trigs->info[i].package == nullptr || trigs->info[i].package[0] == '\0') {
+            continue;
+        }
+
         if (strcmp(info->package, trigs->info[i].package) == 0) {
             done = true;
             break;
@@ -209,7 +217,7 @@ static int initialize(int argc, char *argv[], int *oper,
      */
     int ret = 0;
     if (argc < 2) {
-        msg(MSG_ERR, "sd-boot: missing add or remove\n");
+        msg(MSG_ERR, "! sd-boot: missing add or remove\n");
         ret = 1;
         goto exit;
     }
@@ -217,13 +225,13 @@ static int initialize(int argc, char *argv[], int *oper,
     *oper = BAD;
     *oper = kernel_install_oper(argv[1]);
     if (*oper == BAD) {
-        msg(MSG_ERR, "sd-boot: expect add or remove but got %s\n", argv[1]);
+        msg(MSG_ERR, "! sd-boot: expect add or remove but got %s\n", argv[1]);
         ret = 1;
         goto exit;
     }
 
     if (load_config(conf) != 0) {
-        msg(MSG_VERB, "sd-boot: warning - no config file loaded - skipping\n");
+        msg(MSG_VERB, "- sd-boot: warning - no config file\n");
     }
 
     /*
@@ -231,7 +239,7 @@ static int initialize(int argc, char *argv[], int *oper,
      */
     ret = get_kernel_triggers(trigs);
     if (ret != 0) {
-        msg(MSG_ERR, "sd-boot error reading kernel triggers\n");
+        msg(MSG_ERR, "  ! sd-boot error reading kernel triggers\n");
         ret = 1;
         goto exit;
     }

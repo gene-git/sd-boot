@@ -48,7 +48,7 @@ int kernel_info_all(size_t *num_info_p, KernelInfo **info_p) {
         files.rows[i] = nullptr;
         sret = kernel_image_path_to_info(&(*info_p)[i]);
         if (sret != 0) {
-            msg(MSG_ERR, "sd-boot: Error gather kernel info: %s", (*info_p)[i].image);
+            msg(MSG_ERR, "  ! sd-boot: Error gather kernel info: %s", (*info_p)[i].image);
             ret = -1;
             goto exit;
         }

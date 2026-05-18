@@ -90,7 +90,9 @@ static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, ch
     size_t tag_len = 0;
 
     if (entry->title != nullptr && entry->title[0] != '\0') {
-        // "title" => update
+        /*
+         * "title" => update
+         */
         tag = "title";
         tag_len = strlen(tag);
         if (strncmp(row_in, tag, tag_len) == 0) {
@@ -102,7 +104,9 @@ static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, ch
     }
 
     if (entry->is_efi_tool) {
-        // "options" => drop
+        /*
+         * "options" => drop
+         */
         tag = "options";
         tag_len = strlen(tag);
         if (strncmp(row_in, tag, tag_len) == 0) {
@@ -110,8 +114,22 @@ static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, ch
             goto exit;
         }
 
-        // "linux ... " => "efi ... "
+        /*
+         * "linux ... " => "efi ... "
+         */
         tag = "linux";
+        tag_len = strlen(tag);
+        if (strncmp(row_in, tag, tag_len) == 0) {
+            if (snprintf(row_out, row_len, "%s%s\n", "efi  ", &row_in[tag_len]) < 0) {
+                ret = -1;
+            }
+            goto exit;
+        }
+
+        /*
+         * "uki ... " => "efi ... "
+         */
+        tag = "uki";
         tag_len = strlen(tag);
         if (strncmp(row_in, tag, tag_len) == 0) {
             if (snprintf(row_out, row_len, "%s%s\n", "efi  ", &row_in[tag_len]) < 0) {
@@ -121,7 +139,9 @@ static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, ch
         }
     }
 
-    // no mods made 
+    /*
+     * no mods made 
+     */
     strncpy(row_out, row_in, row_len);
 
 exit:

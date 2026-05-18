@@ -107,7 +107,7 @@ static int read_child_output(int fdes, char **output_p) {
      * sanity
      */
     if (output_p == nullptr) {
-        msg(MSG_ERR, "read_child: bad output ptr\n");
+        msg(MSG_ERR, "  ! read_child: bad output ptr\n");
         ret = -1;
         goto exit;
     }
@@ -121,7 +121,7 @@ static int read_child_output(int fdes, char **output_p) {
     if (*output_p == nullptr) {
         perror(nullptr);
         ret = -1;
-        msg(MSG_ERR, "read_child: mem err\n");
+        msg(MSG_ERR, "  ! read_child: mem err\n");
         goto exit;
     }
 
@@ -133,7 +133,7 @@ static int read_child_output(int fdes, char **output_p) {
         bytes_allocated = bytes + chunk;
         char *tmp_ptr = (char *)realloc((void *) *output_p, bytes_allocated + one_byte);
         if (tmp_ptr == nullptr) {
-            msg(MSG_ERR, "  sd-boot memory alloc fail reading child process stdout\n");
+            msg(MSG_ERR, "  ! sd-boot memory alloc fail reading child process stdout\n");
             goto exit;
         }
         *output_p = tmp_ptr;
@@ -146,7 +146,7 @@ static int read_child_output(int fdes, char **output_p) {
     if (bytes < bytes_allocated) {
         char *tmp_ptr = (char *)realloc((void *)*output_p, bytes + one_byte);
         if (tmp_ptr == nullptr) {
-            msg(MSG_ERR, "  sd-boot memory alloc fail reading child process stdout\n");
+            msg(MSG_ERR, "  ! sd-boot memory alloc fail reading child process stdout\n");
             ret = -1;
             goto exit;
         }

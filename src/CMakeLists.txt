@@ -89,6 +89,7 @@ add_library(sd_boot_objs
     lib/msg.c
     lib/package_version_installed.c
     lib/package_versions.c
+    lib/parse_kernel_triggers.c
     lib/path_add_slash.c
     lib/read_file.c
     lib/read_one_line.c

@@ -24,6 +24,7 @@ Target = usr/lib/plymouth/*
 Target = usr/src/*/dkms.conf
 Target = etc/modprobe.d/*
 Target = usr/lib/libusb*
+Target = var/lib/sbctl/**/*
 
 [Trigger]
 Type = Package

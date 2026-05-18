@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     int ret = 0;
 
     if (argc < 2) {
-        msg(MSG_ERR, "sd-boot: missing add or remove\n");
+        msg(MSG_ERR, "! sd-boot: missing add or remove\n");
         ret = 1;
         goto exit;
     }
@@ -44,14 +44,14 @@ int main(int argc, char *argv[]) {
      */
     SdBoot conf = {};
     if (load_config(&conf) != 0) {
-        msg(MSG_ERR, "sd-boot: warning - no config file loaded - skipping\n");
+        msg(MSG_ERR, "! sd-boot: warning - no config file loaded - skipping\n");
     }
 
     int oper = BAD;
 
     oper = kernel_install_oper(argv[1]);
     if (oper == BAD) {
-        msg(MSG_ERR, "sd-boot: missin add or remove but got %s\n", argv[1]);
+        msg(MSG_ERR, "! sd-boot: missin add or remove but got %s\n", argv[1]);
         ret = 1;
         goto exit;
     }
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
      */
     MountPoints mounts = {};
     if (find_efi_xbootldr_mounts(&mounts) != 0) {
-        msg(MSG_ERR, "sd-boot: failed find EFI mount point\n");
+        msg(MSG_ERR, "! sd-boot: failed find EFI mount point\n");
         ret = 1;
         goto exit;
     }
@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 
     switch (oper) {
         case ADD:
-            msg(MSG_NORMAL, "sd-boot: Copying efi filesystem drivers to %s\n", dst);
+            msg(MSG_NORMAL, "⦁ sd-boot: Copying efi filesystem drivers to %s\n", dst);
 
             char *const cmd_argv[] = {"/usr/bin/rsync", "--mkpath", "-a", src, dst, nullptr};
             char *const cmd_envp[] = {nullptr};
@@ -91,18 +91,18 @@ int main(int argc, char *argv[]) {
 
             ret = run_cmd((char **)cmd_argv, (char **)cmd_envp, &child_ret);
             if (ret != 0 || child_ret != 0) {
-                msg(MSG_ERR, "sd-boot: error installing efi filesystem drivers\n");
+                msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
                 ret = 1;
                 goto exit;
             }
             break;
 
         case REMOVE:
-            msg(MSG_NORMAL, "sd-boot: Removing efi filesystem drivers from %s\n", dst);
+            msg(MSG_NORMAL, "⦁ sd-boot: Removing efi filesystem drivers from %s\n", dst);
 
             ret = rm_rf(dst);
             if (ret != 0) {
-                msg(MSG_ERR, "sd-boot: error installing efi filesystem drivers\n");
+                msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
                 ret = 1;
                 goto exit;
             }

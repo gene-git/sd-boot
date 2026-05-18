@@ -68,7 +68,7 @@ int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]) {
 
     argv = (char **) calloc(num_args + 2, sizeof(char *));
     if (argv == nullptr) {
-        msg(MSG_ERR, "sd-boot: Error allocating memory for kenrel-install\n");
+        msg(MSG_ERR, "  ! sd-boot: Error allocating memory for kenrel-install\n");
         ret = -1;
         goto exit;
     }
@@ -91,7 +91,7 @@ int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]) {
     int child_ret = 0;
     ret = run_cmd(argv, envp_full, &child_ret);
     if (ret != 0) {
-        msg(MSG_ERR, "Error running %s\n", cmd);
+        msg(MSG_ERR, "  ! Error running %s\n", cmd);
         ret = -1;
         goto exit;
     }

@@ -9,6 +9,16 @@ sd-boot
 Recent Changes
 ==============
 
+**4.4.0**
+
+* Add secure boot signing key changes trigger to ALPM hook to update kernel.
+* Messages more consistent with prefixes (! = error, ⦁ = top level, ↳ = sub level).
+* Add brief section on signing kernels and secure boot.
+* Fix c-code checker (clang-tidy, valgrind)
+* Simplify some code (readability, maintainability)
+* Additional boundary case checks.
+* Loader entry modifier for efi tools handle "uki" row in addition to "linux"
+
 **4.3.0**
 
 * Drop the bash code version and sd-boot-set-alternative since its no longer needed.
@@ -34,10 +44,8 @@ Recent Changes
   Bash version remains available for now, and can be re-activated 
   using *sd-boot-set-alternative*.
 
-**3.9.1**
 
-* Add missing backup() in PKGBUILD
-
+See Changelog for more history.
 
 Overview
 ========
@@ -176,7 +184,7 @@ Kernel loader entries have the title changed from the default *Arch Linux* taken
 to be the Arch package name.
 
 efi-tools additionally remove the kernel boot command line options from the entry
-and change the line:
+and change the line from:
 
 .. code-block:: text
 
@@ -187,6 +195,8 @@ to
 .. code-block:: text
 
    efi <tool>.efi
+
+in BLS layout. It works similarly for UKI layout as well.
 
 It also means that the systemd-boot *loader.conf* file located in the *EFI* 
 probably needs to be changed as well if the default kernel is one of those managed by sd-boot.
@@ -246,6 +256,62 @@ sd-boot detects this, via an alpm hook, and installs them into
 
 where systemd-boot expects to find them.
 
+Signing Kernels & Secure Boot
+=============================
+
+Kernels will be signed if keys are available thanks to kernel-install and sbctl.
+Many thanks to Foxboron for writing sbctl which simplifies things enormously.
+
+This is a very brief overview.
+Please see Arch wiki and man pages for details on secure boot and kernel signing.
+
+Signing Kernel
+--------------
+
+The sbctl package must be installed.
+
+To have the kernels signed by local keys, first create the keys:
+
+.. code-block:: bash
+
+   sbctl create-keys
+
+You may be prompted to *migrate* an older install, if so then do it:
+
+
+.. code-block:: bash
+
+   sbctl setup --migrate
+
+Thats all that's required. This will sign the kernel image. Note that if the
+layout is BLS then the initrd is separate and unsigned. You may want to 
+change to UKI in which the initrd and the kernel image are packaged into 
+a single file which gets signed. To change the layout simply edit
+*/etc/kernel/install.conf* and change the layout from bls to uki:
+
+
+.. code-block:: bash
+
+   layout=uki
+   uki_generator=ukify
+
+That's all that's required to have a unified kernel image signed by the local keys.
+
+Secure Boot
+-----------
+
+    To use secure boot, the keys must be enrolled and secure boot activated in the UEFI Bios.
+
+To enroll the signing keys the bios needs to have secure boot set to *setup* mode and then
+boot up the machine and use *sbctl* to enroll the keys.
+
+.. code-block:: bash
+
+   sbctl enroll-keys -m
+
+At this point the machine is in secure boot mode and will only boot signed kernels.
+
+
 Bootable efi tools
 ==================
 
@@ -255,6 +321,9 @@ know it is permitted to install it.
 sd-boot supports bootable efi tools such as *efi-shell* provided by the *edk2-shell* package.
 The alpm hook *99-sd-boot-efi-tool-install.hook* provides the trigger based on package name
 and the location of the efi file itself is found in 
+
+Loader entries for efi tools are not kernels, so sd-boot uses a kernel-install plugin
+to modify the entry appropriately. 
 
 .. code-block:: text
 

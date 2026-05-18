@@ -40,7 +40,7 @@ char *package_to_efi_image(SdBoot *conf, char *pkg) {
         efi_path = read_file_first_row((const char *)path);
     }
     if (efi_path == nullptr) {
-        msg(MSG_ERR, "  sd-boot: Failed to load efi package file  %s\n", path);
+        msg(MSG_ERR, "  ! sd-boot: Failed to load efi package file  %s\n", path);
     }
 
     return efi_path;

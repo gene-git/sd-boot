@@ -35,7 +35,7 @@ int main(int argc, const char *argv[]) {
      * initialize config
      */
     if (load_config(&conf) != 0) {
-        msg(MSG_ERR, "  sd-boot: warning - no config file loaded - skipping\n");
+        msg(MSG_ERR, "  - sd-boot: warning - no config file\n");
     }
 
     /*
@@ -43,7 +43,7 @@ int main(int argc, const char *argv[]) {
      */
     ret = plugin_init(argc, argv, &plugin);
     if (ret != 0) {
-        msg(MSG_ERR, "  sd-boot efi tool loaderentry plugin failed\n");
+        msg(MSG_ERR, "  ! sd-boot efi tool loaderentry plugin failed\n");
         ret = 0;
         goto exit;
     }
@@ -57,7 +57,7 @@ int main(int argc, const char *argv[]) {
         ret = loaderentry_modify_efi(&conf, &plugin);
     }
     if (ret != 0) {
-        msg(MSG_ERR, "  sd-boot = problem updating loader entry\n");
+        msg(MSG_ERR, "  ! sd-boot = problem updating loader entry\n");
         ret = 0;
     }
 

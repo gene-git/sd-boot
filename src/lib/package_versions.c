@@ -61,20 +61,20 @@ static int write_package_versions(char *root, PackageVersion *pkg_vers) {
     fptr = fopen(path, "w");
     if (fptr == nullptr) {
         perror(nullptr);
-        msg(MSG_ERR, "  sd-boot: error opening %s\n", path);
+        msg(MSG_ERR, "  ! sd-boot: error opening %s\n", path);
         return -1;
     }
     /*
      * Write the file
      */
     if (fprintf(fptr, "current = %s\n", pkg_vers->current) < 0){
-        msg(MSG_ERR, "  sd-boot: error writing %s\n", path);
+        msg(MSG_ERR, "  ! sd-boot: error writing %s\n", path);
         ret = -1;
         goto exit;
     }
 
     if (fprintf(fptr, "previous = %s\n", pkg_vers->previous) < 0){
-        msg(MSG_ERR, "  sd-boot: error writing %s", path);
+        msg(MSG_ERR, "  ! sd-boot: error writing %s", path);
         ret = -1;
         goto exit;
     }
@@ -112,7 +112,7 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
 
     sret = alloc_kv_elems(num_elems, &elem);
     if (sret != 0) {
-        msg(MSG_ERR, "sd-boot: mem alloc fail in read_package_versions\n");
+        msg(MSG_ERR, "  ! sd-boot: mem alloc fail in read_package_versions\n");
         ret = -1;
         goto exit;
     }
@@ -135,7 +135,7 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
     sret = read_kv_elems(path, num_elems, elem, &num_elems_read);
     switch (sret) {
         case -1:
-            msg(MSG_ERR, "sd-boot: mem alloc fail in read_package_versions\n");
+            msg(MSG_ERR, "  ! sd-boot: mem alloc fail in read_package_versions\n");
             ret = -1;
             goto exit;
             break;
@@ -189,7 +189,7 @@ int update_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_v
     bool got_now_vers = false;
     switch (sret) {
         case -1:
-            msg(MSG_ERR, "  sd-boot: error reading pkg vers %s\n", pkg);
+            msg(MSG_ERR, "  ! sd-boot: error reading pkg vers %s\n", pkg);
             ret = -1;
             goto exit;
             break;
@@ -256,7 +256,7 @@ int remove_package_versions(SdBoot *conf, const char *pkg) {
     }
 
     if (remove_file(path) != 0) {
-        msg(MSG_ERR, "  sd-boot: error removing file: %s\n", path);
+        msg(MSG_ERR, "  ! sd-boot: error removing file: %s\n", path);
     }
     return ret;
 }

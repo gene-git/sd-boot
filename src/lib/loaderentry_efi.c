@@ -6,7 +6,8 @@
  *
  * This updates:
  *  - title xxx        => kernel package name
- *  - linux <efi-file> => efi <efi-file>
+ *  - linux <efi-file> => efi <efi-file> (bls layout)
+ *  - uki <efi-file>   => efi <efi-file> (uki layout)
  *  - options          => remove (these are kenel options)
  */
 #include <stddef.h>
@@ -65,11 +66,11 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
     entry.loader_entry_file = plugin->loader_entry_file;
     entry.title = info.package;
 
-    msg(MSG_NORMAL, "  sd-boot: updating efi tool loader entry %s\n", info.package);
+    msg(MSG_NORMAL, "  ↳ sd-boot: updating efi tool loader entry %s\n", info.package);
 
     ret = loaderentry_modify_file(&entry);
     if (ret != 0) {
-        msg(MSG_ERR, "  sd-boot: Failed to update loader entry title: %s\n", info.package);
+        msg(MSG_ERR, "  ! sd-boot: Failed to update loader entry title: %s\n", info.package);
         ret = 1;
     }
 

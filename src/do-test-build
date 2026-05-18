@@ -3,6 +3,9 @@
 # Developer test builds
 # 
 cd ./build
+cmake -S ../ -G Ninja -B .
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
+
 echo "Debug :"
 cmake -S ../ -B debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
 cmake --build debug

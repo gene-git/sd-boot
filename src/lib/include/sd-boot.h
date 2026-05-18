@@ -344,6 +344,9 @@ int remove_package_versions(SdBoot *conf, const char *pkg);
 // package_version_installed.c
 int package_version_installed(const char *pkg, size_t len_vers, char *vers);
 
+// parse_kernel_triggers.c
+int parse_kernel_triggers(Array_str *trigs_all, Triggers *trigs);
+
 // path_add_slash.c
 int path_add_slash(char *path, char **path_p);
 

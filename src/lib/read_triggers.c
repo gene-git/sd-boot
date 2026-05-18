@@ -67,7 +67,7 @@ int read_triggers(Array_str *arr) {
     size_t num_rows = CHUNK;
     ret = array_str_new(num_rows, arr);
     if (ret != 0) {
-        msg(MSG_ERR, "sd-boot: read triggers memory alloc fail\n");
+        msg(MSG_ERR, "  ! sd-boot: read triggers memory alloc fail\n");
         return -1;
     }
     bool keep_reading = true; 
@@ -109,7 +109,7 @@ int read_triggers(Array_str *arr) {
     if (arr->num_rows_used != arr->num_rows) {
         ret = array_str_resize(arr->num_rows_used, arr);
         if (ret != 0) {
-            msg(MSG_ERR, "sd-boot: memory error\n");
+            msg(MSG_ERR, "  ! sd-boot: memory error\n");
             status = -1;
             goto exit;
         }

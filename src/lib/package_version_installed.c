@@ -30,7 +30,7 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
 
     ret = run_cmd_output((char **)argv, (char **)envp, &output, &child_ret) ;
     if (ret != 0) {
-        msg(MSG_ERR, "  sd-boot: failed get efi from bootctl\n");
+        msg(MSG_ERR, "  ! sd-boot: failed get efi from bootctl\n");
         return -1;
     }
 

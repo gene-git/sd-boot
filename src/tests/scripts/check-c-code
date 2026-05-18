@@ -12,20 +12,20 @@
 echo "-----------------------------"
 echo "C-code checker:"
 
-cwd=$(/usr/bin/pwd)
+src_dir=$(/usr/bin/pwd)
 test_dir="tests/Testing"
 test_root="$test_dir/__root__"
-test_path="$cwd/$test_dir"
-test_root_path="$cwd/$test_root"
+test_path="$src_dir/$test_dir"
+test_root_path="$src_dir/$test_root"
 
 log_dir="$test_dir/Log-Checks"
-log_path="$cwd/$log_dir"
+log_path="$src_dir/$log_dir"
 
 /usr/bin/mkdir -p $test_root_path
 /usr/bin/mkdir -p $log_path
 
 echo "  Build and install into $test_root"
-  /usr/bin/rsync -a "$test_path"/Testing/Template/__root__ "$test_path/"
+  /usr/bin/rsync -a "$test_path"/Template/__root__ "$test_path/"
 
   ./do-test-build
   cd "$test_dir"
@@ -51,7 +51,7 @@ do
     Lout="$_LogDir"/stdout
     Lerr="$_LogDir"/stderr
 
-    /usr/bin/"$prog" lib/*.c tools/*.c plugins/*.c > "$Lout" 2> "$Lerr"
+    /usr/bin/"$prog" "$src_dir"/lib/*.c "$src_dir"/tools/*.c "$src_dir"/plugins/*.c > "$Lout" 2> "$Lerr"
 
     if [[ ! -s "$Lout" ]] ; then
         /usr/bin/rm "$Lout"

@@ -44,7 +44,7 @@ char *read_file_first_row(const char *path) {
     }
 
     if (ret < 0) {
-        msg(MSG_ERR, "sd-boot: Failed reading file: %s\n", path);
+        msg(MSG_ERR, "  ! sd-boot: Failed reading file: %s\n", path);
         goto exit;
     }
 

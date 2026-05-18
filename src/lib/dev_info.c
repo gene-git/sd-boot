@@ -134,7 +134,7 @@ static void dev_tree_setup(DevInfo *info) {
         "var/lib/sd-boot",
     };
 
-    msg(MSG_VERB, " Devtest Mode: using test root-dir : %s\n", info->root);
+    msg(MSG_VERB, "  * Devtest Mode: using test root-dir : %s\n", info->root);
 
     /*
      * make testing root tree
@@ -148,7 +148,7 @@ static void dev_tree_setup(DevInfo *info) {
             return ;
         };
         if (makedir(path, 0) != 0) {
-            msg(MSG_ERR, " Error creating dir %s\n", path);
+            msg(MSG_ERR, "  ! Error creating dir %s\n", path);
             return;
         }
     }
@@ -190,7 +190,7 @@ int init_devinfo(DevInfo *info) {
             dev_root_init(info);
             dev_tree_setup(info);
         } else {
-            msg(MSG_ERR, " Error: test mode must be run non-root\n");
+            msg(MSG_ERR, "  ! Error: test mode must be run non-root\n");
             return -1;
         }
     }

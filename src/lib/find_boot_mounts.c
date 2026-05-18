@@ -115,7 +115,7 @@ int find_efi_xbootldr_mounts(MountPoints *mounts) {
 
     ret = run_cmd_output(argv, envp, &output, &child_ret) ;
     if (ret != 0) {
-        msg(MSG_ERR, "  sd-boot: failed get efi from bootctl\n");
+        msg(MSG_ERR, "  ! sd-boot: failed get efi from bootctl\n");
         return -1;
     }
 

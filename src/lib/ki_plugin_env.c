@@ -126,7 +126,7 @@ int ki_plugins_efi_update_env(char *test_root, Array_str *env) {
 
     if (snprintf(entry_two, PATH_MAX, " %s/%s", test_root,
                 "etc/kernel/install.d/95-sd-boot-loaderentry-modify.install") < 0) {
-        msg(MSG_ERR, "sd-boot: error setting up efi-tool environment\n");
+        msg(MSG_ERR, "  ! sd-boot: error setting up efi-tool environment\n");
         ret = -1;
         goto exit;
     }
@@ -146,7 +146,7 @@ int ki_plugins_efi_update_env(char *test_root, Array_str *env) {
     }
 
     if (snprintf(env_var, len * sizeof(char), "%s%s%s", var, entry_one, entry_two) < 0) {
-        msg(MSG_ERR, "sd-boot: error setting up efi-tool environment\n");
+        msg(MSG_ERR, "  ! sd-boot: error setting up efi-tool environment\n");
         ret = -1;
         goto exit;
     }
