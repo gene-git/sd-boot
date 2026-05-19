@@ -6,12 +6,23 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.7.0 (2026-05-19)
-	32 commits.
+	3.6.2 (2026-04-21) -> 4.7.1 (2026-05-19)
+	34 commits.
 
 Commits
 =======
 
+
+* 2026-05-19  : **4.7.1**
+
+.. code-block:: text
+
+              - **4.7.1**
+            
+                * Change PKGBUILD arch to x85_64 not any.
+                * Change linking to only use libblkid where needed.
+                * Clean up cruft from CMakeLists.txt
+              - update Changelog
 
 * 2026-05-19  : **4.7.0**
 
