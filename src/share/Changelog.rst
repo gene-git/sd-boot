@@ -6,12 +6,29 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.6.0 (2026-05-18)
-	30 commits.
+	3.6.2 (2026-04-21) -> 4.7.0 (2026-05-19)
+	32 commits.
 
 Commits
 =======
 
+
+* 2026-05-19  : **4.7.0**
+
+.. code-block:: text
+
+              - **4.7.0**
+            
+                * Read /etc/kernel/install.conf so code is aware of layout (bls or uki).
+                * Loader entry plugin now exits earlier for uki kernels which has no loader entries.
+                * kernel-install remove does not need kernel image
+                * Add sbctl and systemd-ukify as dependencies
+                * Little code tidy
+ 2026-05-18   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-05-18  : **4.6.0**
 
