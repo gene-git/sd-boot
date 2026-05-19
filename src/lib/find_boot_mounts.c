@@ -6,6 +6,8 @@
  *   XBOOTLDR (if there is an XBOOTLDR partition)
  *
  * Parses output of systemd's bootctl.
+ *
+ * See https://www.kernel.org/pub/linux/utils/util-linux/v2.27/libblkid-docs/index.html
  */
 #include <blkid/blkid.h>
 #include <fcntl.h>
@@ -54,9 +56,11 @@ exit:
  * Caller must free memory returned.
  */
 static char *get_partition_guid(const char *device) {
+    int ret = 0;
     int fdes = 0; 
     const char *type_guid = nullptr;
     char *guid = nullptr;
+    blkid_probe probe = nullptr;
     
     /* 
      * Try opening the path to mount
@@ -64,36 +68,67 @@ static char *get_partition_guid(const char *device) {
      */
     fdes = open(device, O_RDONLY | O_CLOEXEC);
     if (fdes < 0) {
-        return nullptr;
+        goto exit;
     }
 
-    blkid_probe probe = blkid_new_probe();
-    if (!probe) {
-        close(fdes);
-        return nullptr;
+    probe = blkid_new_probe();
+    if (probe == nullptr) {
+        fdes = 0;
+        goto exit;
     }
 
-    if (blkid_probe_set_device(probe, fdes, 0, 0) < 0) {
-        blkid_free_probe(probe);
-        close(fdes);
-        return nullptr;
+    ret = blkid_probe_set_device(probe, fdes, 0, 0) ;
+    if (ret < 0) {
+        goto exit;
+        //blkid_free_probe(probe);
+        //close(fdes);
+        //return nullptr;
     }
 
     /*
-     * Force libblkid to pull partition layout metadata from the parent disk
+     * pull partition layout metadata from the parent disk
      */
-    blkid_probe_enable_partitions(probe, 1);
-    blkid_probe_set_partitions_flags(probe, BLKID_PARTS_ENTRY_DETAILS);
+    ret = blkid_probe_enable_partitions(probe, 1);
+    if (ret < 0) {
+        goto exit;
+    };
 
-    blkid_do_safeprobe(probe);
-    blkid_probe_lookup_value(probe, "PART_ENTRY_TYPE", &type_guid, nullptr);
+    ret = blkid_probe_set_partitions_flags(probe, BLKID_PARTS_ENTRY_DETAILS);
+    if (ret < 0) {
+        goto exit;
+    };
 
-    if (type_guid) {
+    /*
+     * Gather results of probe.
+     *  0 on success, 
+     *  1 if nothing is detected, 
+     * -2 if ambivalent result is detected and 
+     * -1 on case of error.
+     */
+    ret = blkid_do_safeprobe(probe);
+    if (ret == 1 || ret == -1) {
+        goto exit;
+    }
+
+    /*
+     * Get the partition entry type (guid)
+     */
+    ret = blkid_probe_lookup_value(probe, "PART_ENTRY_TYPE", &type_guid, nullptr);
+    if (ret < 0) {
+        goto exit;
+    }
+
+    if (type_guid != nullptr) {
         guid = strdup(type_guid);
     }
 
-    blkid_free_probe(probe);
-    close(fdes);
+exit:
+    if (probe != nullptr) {
+        blkid_free_probe(probe);
+    }
+    if (fdes > 0) {
+        close(fdes);
+    }
     return guid;
 }
 

@@ -9,6 +9,12 @@ sd-boot
 Recent Changes
 ==============
 
+**4.7.1**
+
+* Change PKGBUILD arch to x85_64 not any.
+* Change linking to only use libblkid where needed.
+* Clean up cruft from CMakeLists.txt
+
 **4.7.0**
 
 * Read /etc/kernel/install.conf so code is aware of layout (bls or uki).

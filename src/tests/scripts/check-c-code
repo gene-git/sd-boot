@@ -65,9 +65,7 @@ done
 echo "-----------------------------"
 echo "Valgrind:"
 echo "  test root ~ Testing/__root__"
-echo "  also see .valgridrc"
-echo "  pass/fail refers to our tools - for valgrind reports see:"
-echo "  valg log file for each tool"
+echo "  pass/fail refers to our tools - for valgrind reports see logs"
 echo ""
 
 init_test_kernel_update() {

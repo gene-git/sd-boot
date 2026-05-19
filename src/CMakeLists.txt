@@ -17,7 +17,6 @@ cmake_minimum_required(VERSION 4.3)
 # ALWAYS LAZY NEVER
 set(CMAKE_INSTALL_MESSAGE LAZY)
 
-#project(sd-boot VERSION 3.9.9 LANGUAGES C)
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" RAW_VERSION)
 string(STRIP "${RAW_VERSION}" PROJ_VERSION)
 project(sd-boot VERSION ${PROJ_VERSION} LANGUAGES C)
@@ -27,11 +26,6 @@ project(sd-boot VERSION ${PROJ_VERSION} LANGUAGES C)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-
-# valgrind is much better than sanitizer.
-#set(SANITIZER_FLAGS "-fsanitize=address,undefined")
-#add_compile_options("$<$<CONFIG:Debug>:${SANITIZER_FLAGS}>")
-#add_link_options("$<$<CONFIG:Debug>:${SANITIZER_FLAGS}>")
 
 # ntfw() needs this
 add_compile_definitions(_GNU_SOURCE)
@@ -68,7 +62,6 @@ add_library(sd_boot_objs
     lib/efi_image.c
     lib/env.c
     lib/file_list_glob.c
-    lib/find_boot_mounts.c
     lib/find_efi_current.c
     lib/get_one_line.c
     lib/is_kernel_image.c
@@ -110,19 +103,15 @@ add_library(sd_boot_static STATIC $<TARGET_OBJECTS:sd_boot_objs>)
 set_target_properties(sd_boot_shared PROPERTIES OUTPUT_NAME sd_boot)
 set_target_properties(sd_boot_static PROPERTIES OUTPUT_NAME sd_boot)
 
-#target_compile_options(sd-boot PRIVATE -g)
-#set_target_properties(sd-boot PROPERTIES
-#    VERSION ${PROJECT_VERSION}
-#    SOVERSION ${PROJECT_VERSION_MAJOR}
-#)
-
-#include_directories(include)
 include_directories(lib/include)
 target_include_directories(sd_boot_shared PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/include)
 target_include_directories(sd_boot_static PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/include)
 
+#
 # tools and plugins
-add_executable(sd-boot-find-boot-mounts tools/find-boot-mounts.c)
+# (find-boot-mounts only user of liblkid)
+#
+add_executable(sd-boot-find-boot-mounts tools/find-boot-mounts.c lib/find_boot_mounts.c)
 add_executable(sd-boot-efifs-update tools/efifs-update.c)
 add_executable(sd-boot-efi-tool-update tools/efi-tool-update.c)
 add_executable(sd-boot-kernel-update tools/kernel-update.c)
@@ -130,13 +119,6 @@ add_executable(sd-boot-kernel-update tools/kernel-update.c)
 add_executable(95-sd-boot-loaderentry-modify.install plugins/loaderentry-modify.c)
 
 #add_executable(sd-boot-set-alternative tools/set-alternative.c)
-
-#
-# Linking: 
-# Debug use static libs (kernel-install does not pass env vars to plugins (LD_LIBRARY_PATH)
-# At min plugins require static link for testing.
-# Proudction builds use shared libs as we instll libsd_boot.so into /usr/lib
-#
 
 #
 # tools
@@ -150,25 +132,20 @@ target_link_libraries(sd-boot-find-boot-mounts PRIVATE
 target_link_libraries(sd-boot-efifs-update PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
-    blkid
+    #blkid
 )
 
 target_link_libraries(sd-boot-efi-tool-update PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
-    blkid
+    #blkid
 )
 
 target_link_libraries(sd-boot-kernel-update PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
-    blkid
+    #blkid
 )
-
-#target_link_libraries(sd-boot-set-alternative PRIVATE 
-#    $<$<CONFIG:Debug>:sd_boot_static>
-#    $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
-#)
 
 #
 # plugins
@@ -176,13 +153,8 @@ target_link_libraries(sd-boot-kernel-update PRIVATE
 target_link_libraries(95-sd-boot-loaderentry-modify.install PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
-    blkid
+    #blkid
 )
-
-#target_link_libraries(95-sd-boot-loaderentry-kernel.install PRIVATE 
-#    $<$<CONFIG:Debug>:sd_boot_static>
-#    $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
-#)
 
 #
 # install
@@ -194,6 +166,7 @@ install(TARGETS
     sd-boot-kernel-update
     DESTINATION /usr/lib/sd-boot
 )
+
 #install(TARGETS 
 #    sd-boot-set-alternative
 #    DESTINATION /usr/lib/sd-boot
