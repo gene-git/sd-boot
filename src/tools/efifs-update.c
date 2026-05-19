@@ -47,10 +47,10 @@ int main(int argc, char *argv[]) {
         msg(MSG_ERR, "! sd-boot: warning - no config file loaded - skipping\n");
     }
 
-    int oper = BAD;
+    KernelInstallOper oper = KI_BAD;
 
     oper = kernel_install_oper(argv[1]);
-    if (oper == BAD) {
+    if (oper == KI_BAD) {
         msg(MSG_ERR, "! sd-boot: missin add or remove but got %s\n", argv[1]);
         ret = 1;
         goto exit;
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     }
 
     switch (oper) {
-        case ADD:
+        case KI_ADD:
             msg(MSG_NORMAL, "⦁ sd-boot: Copying efi filesystem drivers to %s\n", dst);
 
             char *const cmd_argv[] = {"/usr/bin/rsync", "--mkpath", "-a", src, dst, nullptr};
@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
             }
             break;
 
-        case REMOVE:
+        case KI_REMOVE:
             msg(MSG_NORMAL, "⦁ sd-boot: Removing efi filesystem drivers from %s\n", dst);
 
             ret = rm_rf(dst);

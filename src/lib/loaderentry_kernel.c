@@ -28,6 +28,13 @@ int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin) {
     }
 
     /*
+     * UKI layout has no loader entries
+     */
+    if (conf->is_uki) {
+        goto exit;
+    }
+
+    /*
      * Get package name from the kernel image path (info)
      */
     info.image = strdup(plugin->kernel_image);

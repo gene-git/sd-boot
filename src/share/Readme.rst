@@ -9,6 +9,14 @@ sd-boot
 Recent Changes
 ==============
 
+**4.7.0**
+
+* Read /etc/kernel/install.conf so code is aware of layout (bls or uki).
+* Loader entry plugin now exits earlier for uki kernels which has no loader entries.
+* kernel-install remove does not need kernel image
+* Add sbctl and systemd-ukify as dependencies
+* Little code tidy
+
 **4.6.0**
 
 * Loader entries are not used for UKI layout. 
@@ -320,6 +328,43 @@ boot up the machine and use *sbctl* to enroll the keys.
    sbctl enroll-keys -m
 
 At this point the machine is in secure boot mode and will only boot signed kernels.
+
+Changing Layout from BLS to UKI
+===============================
+
+This requires a little manual adustment since there are 2 differences. 
+
+BLS layout uses:
+
+.. code-block:: text
+
+    $BOOT/<machine-id>/<kernel-version>/linux
+    $BOOT/<machine-id>/<kernel-version>/initrd
+    $BOOT/loader/entries/<<machine-id>-<kernel-version>.conf
+
+while UKI layout uses:
+
+.. code-block:: text
+
+    $BOOT/EFI/Linux/<machine-id>-<kernel-version>.efi
+
+Of particular note is that there are no loader entry files in UKI layout.
+
+To switch from BLS to UKI layout first step is to adjust */etc/kernel/install.conf*
+
+.. code-block:: text
+
+    layout=uki
+    initrd_generator=dracut
+    uki_generator=ukify
+
+Then install the kernel package again using pacman. Please note that this does not remove the 
+old loader entry or kernel. THese will need to be manually removed.
+
+.. code-block:: text
+
+   rm $BOOT/loader/entries/<<machine-id>-<kernel-version>.conf
+   rm -rf $BOOT/<machine-id>/<kernel-version>
 
 
 Bootable efi tools

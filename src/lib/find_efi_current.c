@@ -112,6 +112,10 @@ int find_efi_current_boot(MountPoints *mounts) {
     while ((line = get_one_line(&ptr)) != nullptr) {
 
         line_tmp = strdup(line);
+        if (line_tmp == nullptr) {
+            msg(MSG_ERR, "  ! sd-boot: memory allocation fail\n");
+            goto exit;
+        }
         line_len = (size_t) strlen(line_tmp);
         cleaned = trim_string(line_tmp, line_len);
         line_len = strlen(cleaned);

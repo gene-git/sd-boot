@@ -10,30 +10,30 @@
 
 #include "sd-boot.h"
 
-int kernel_install_oper(char *oper) {
+KernelInstallOper kernel_install_oper(char *oper) {
     /*
      * Valid args are add or remove
      */
     if (strncmp(oper, "add", ARG_SZ) == 0) {
-        return ADD;
+        return KI_ADD;
     }
 
     if (strncmp(oper, "remove", ARG_SZ) == 0) {
-        return REMOVE;
+        return KI_REMOVE;
     }
 
     if (strncmp(oper, "inspect", ARG_SZ) == 0) {
-        return INSPECT;
+        return KI_INSPECT;
     }
 
     if (strncmp(oper, "add-all", ARG_SZ) == 0) {
-        return ADD_ALL;
+        return KI_ADD_ALL;
     }
 
     if (strncmp(oper, "list", ARG_SZ) == 0) {
-        return LIST;
+        return KI_LIST;
     }
-    return BAD;
+    return KI_BAD;
 }
 
 

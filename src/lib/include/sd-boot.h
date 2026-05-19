@@ -94,11 +94,18 @@ typedef struct {
 
 } KvElem;
 
+/*
+ * ours from /etc/sd-boot/config
+ * kern_install from /etc/kernel/install.conf
+ */
 typedef struct {
     DevInfo info;
 
-    size_t num;
-    KvElem *elem;
+    int verb;
+    bool is_uki;
+    char *layout;
+    char *initrd_generator;
+    char *uki_generator;
 
 } SdBoot;
 
@@ -129,15 +136,15 @@ enum MsgVerb{
  *
  * Command line operations
  */
-enum KernelInstallOper {
+typedef enum KernelInstallOper {
     ARG_SZ = 16,
-    ADD = 0,
-    REMOVE = 1,
-    INSPECT = 2,
-    ADD_ALL = 3,
-    LIST = 4,
-    BAD = 2,
-};
+    KI_BAD = 0,
+    KI_ADD = 1,
+    KI_REMOVE = 2,
+    KI_INSPECT = 3,
+    KI_ADD_ALL = 4,
+    KI_LIST = 5,
+} KernelInstallOper;
 
 /*
  *
@@ -286,7 +293,7 @@ int kernel_info_all(size_t *num_info_p, KernelInfo **info_p);
 int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]);
 
 // kernel_install_oper.c
-int kernel_install_oper(char *oper);
+KernelInstallOper kernel_install_oper(char *oper);
 
 // kernel_install_plugin.c
 int plugin_init(int argc, const char *argv[], KIplugin *plugin);
