@@ -69,6 +69,7 @@ add_library(sd_boot_objs
     lib/env.c
     lib/file_list_glob.c
     lib/find_boot_mounts.c
+    lib/find_efi_current.c
     lib/get_one_line.c
     lib/is_kernel_image.c
     lib/kernel_info_all.c
@@ -143,21 +144,25 @@ add_executable(95-sd-boot-loaderentry-modify.install plugins/loaderentry-modify.
 target_link_libraries(sd-boot-find-boot-mounts PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
+    blkid
 )
 
 target_link_libraries(sd-boot-efifs-update PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
+    blkid
 )
 
 target_link_libraries(sd-boot-efi-tool-update PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
+    blkid
 )
 
 target_link_libraries(sd-boot-kernel-update PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
+    blkid
 )
 
 #target_link_libraries(sd-boot-set-alternative PRIVATE 
@@ -171,6 +176,7 @@ target_link_libraries(sd-boot-kernel-update PRIVATE
 target_link_libraries(95-sd-boot-loaderentry-modify.install PRIVATE 
     $<$<CONFIG:Debug>:sd_boot_static>
     $<$<NOT:$<CONFIG:Debug>>:sd_boot_shared>
+    blkid
 )
 
 #target_link_libraries(95-sd-boot-loaderentry-kernel.install PRIVATE 

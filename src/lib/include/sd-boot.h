@@ -263,8 +263,11 @@ int count_envp_argv(char *const args[]);
 // file_list_glob.c
 int file_list_glob(const char *pattern, Array_str *files);
 
+// find_efi_current.c
+int find_efi_current_boot(MountPoints *mounts);
+
 // find_boot_mounts.c
-int find_efi_xbootldr_mounts(MountPoints *mounts);
+int find_efi_xbootldr_mounts(Array_str *efi, Array_str *xbootldr);
 
 // get_one_line.c
 char *get_one_line(char **state_p); 

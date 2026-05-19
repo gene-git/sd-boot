@@ -61,9 +61,10 @@ exit:
 }
 
 static int open_entry_file(const char *dir, const char *file, char *path, FILE **fptr_p) {
-    //
-    // Open entry file for read
-    // 
+    /*
+     * Open entry file for read
+     * Return -1 if open fails.
+     */ 
     int ret = 0;
 
     if (snprintf(path, PATH_MAX, "%s/%s", dir, file) < 0) {
@@ -73,7 +74,6 @@ static int open_entry_file(const char *dir, const char *file, char *path, FILE *
 
     *fptr_p = fopen(path, "r");
     if (*fptr_p == nullptr) {
-        perror(nullptr);
         ret = -1;
         goto exit;
     }
@@ -163,25 +163,35 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     FILE *tmp_fptr = nullptr;
     FILE *fptr = nullptr;
 
-    if (entry == nullptr || entry->loader_entry_dir == nullptr || entry->loader_entry_file == nullptr) {
+    if (entry == nullptr || 
+            entry->loader_entry_dir == nullptr || 
+            entry->loader_entry_file == nullptr || 
+            entry->loader_entry_file[0] == '\0') {
         return -1;
     }
 
-    // Set up a temp file to write to.
+    /* 
+     * existing entry file
+     * - load entry is only relevant for bls. So
+     *   not an error if no loader entry file found.
+     */
+    ret = open_entry_file(entry->loader_entry_dir, entry->loader_entry_file, path, &fptr);
+    if (ret != 0) {
+        ret = 0;
+        goto exit;
+    }
+
+    /*
+     * Set up a temp file to write to.
+     */
     ret = open_temp_file(entry->loader_entry_dir, path_tmp, &tmp_fptr);
     if (ret != 0) {
         goto exit;
     }
 
-    // existing entry file
-    ret = open_entry_file(entry->loader_entry_dir, entry->loader_entry_file, path, &fptr);
-    if (ret != 0) {
-        goto exit;
-    }
-
-    //
-    // read / edit 
-    //
+    /*
+     * read / edit 
+     */
     char row[ROW_SZ] = {'\0'};
     char row_mod[ROW_SZ] = {'\0'};
 
@@ -202,9 +212,9 @@ int loaderentry_modify_file(LoaderEntry *entry) {
         }
     }
 
-    //
-    // close
-    //
+    /*
+     * close
+     */
     (void) fclose(fptr);
     (void) fclose(tmp_fptr);
     fptr = nullptr;

@@ -16,6 +16,7 @@ Operation = Install
 Operation = Upgrade
 Target = etc/dracut.conf
 Target = etc/dracut.conf.d/*
+Target = etc/kernel/*
 Target = etc/shadow
 Target = usr/lib/firmware/*
 Target = usr/lib/firmware/intel-ucode/*

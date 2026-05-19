@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
      * locate efi
      */
     MountPoints mounts = {};
-    if (find_efi_xbootldr_mounts(&mounts) != 0) {
+    if (find_efi_current_boot(&mounts) != 0) {
         msg(MSG_ERR, "! sd-boot: failed find EFI mount point\n");
         ret = 1;
         goto exit;

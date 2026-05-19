@@ -9,6 +9,16 @@ sd-boot
 Recent Changes
 ==============
 
+**4.6.0**
+
+* Loader entries are not used for UKI layout. 
+  Turn off messages about missing loader entries.
+
+**4.5.0**
+
+* Enhance sd-boot-find-mounts using liblkid (new dependency)
+* Kernel ALPM hook trigger update.
+
 **4.4.0**
 
 * Add secure boot signing key changes trigger to ALPM hook to update kernel.

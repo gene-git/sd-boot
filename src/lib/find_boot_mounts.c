@@ -1,189 +1,179 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /*
- * Locate the Mount Points for:
+ * Identify the Mount Points for:
  *   EFI (where ESP is mounted)
  *   XBOOTLDR (if there is an XBOOTLDR partition)
  *
  * Parses output of systemd's bootctl.
  */
-#include <linux/limits.h>
+#include <blkid/blkid.h>
+#include <fcntl.h>
+#include <mntent.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+#include <unistd.h>
 
 #include "sd-boot.h"
 
-enum BufSize {
-    BUF_SIZE = 1024,
+enum Constants {
+    CHUNK = 32,
 };
 
-static int extract_efi_xbootldr(char *buf, size_t size, MountPoints *mounts) {
-    /*
-     * extract mount points:
-     * - efi from string: "ESP: <efi> ..."
-     * - xbootldr from string: "XBOOTLDR: <xbootldr> ..."
-     * NB this modifies content of buf
+
+/*
+ * Add one entry to list
+ */
+static int add_one_mount(char *fsname, Array_str *arr) {
+    int ret = 0;
+    size_t n_row = 0;
+
+    n_row = arr->num_rows;
+
+    if (arr->num_rows == 0) {
+        ret = array_str_new(1, arr);
+    } else {
+        ret = array_str_resize(arr->num_rows + 1, arr);
+    }
+    if (ret != 0) {
+        msg(MSG_ERR, "  sd-boot: memory alloc error\n");
+        goto exit;
+    }
+    arr->rows[n_row] = strdup(fsname);
+
+exit:
+    return ret;
+}
+
+/**
+ * Get partition GUID.
+ * Caller must free memory returned.
+ */
+static char *get_partition_guid(const char *device) {
+    int fdes = 0; 
+    const char *type_guid = nullptr;
+    char *guid = nullptr;
+    
+    /* 
+     * Try opening the path to mount
+     * - requires root 
      */
-    if (buf == nullptr || mounts == nullptr) {
-        return -1;
+    fdes = open(device, O_RDONLY | O_CLOEXEC);
+    if (fdes < 0) {
+        return nullptr;
     }
 
-    mounts->efi_dir[0] = '\0';
-    mounts->xbootldr_dir[0] = '\0';
-
-    char *token = nullptr;
-    char *save_ptr = nullptr;
-
-    /*
-     * efi - always exists
-     */
-    const char *key_efi = "ESP:";
-    const size_t len_key_efi = strnlen(key_efi, 16) ;
-    bool seen_efi = false;
-    bool saved_efi = false;
-
-    /*
-     * xbootldr - may not exist.
-     */
-    const char *key_xbootldr = "XBOOTLDR:";
-    const size_t len_key_xbootldr = strnlen(key_xbootldr, 16) ;
-    bool seen_xbootldr = false;
-    bool saved_xbootldr = false;
-
-    size_t length = 0;
-    token = strtok_r(buf, " ", &save_ptr);
-    while (token != nullptr) {
-        /*
-         * save token when prev one matched key (seen_key)
-         */
-        if (seen_efi && !saved_efi) {
-            length = strnlen(token, size);
-            strncpy(mounts->efi_dir, token, length);
-            saved_efi = true;
-        }
-        if (seen_xbootldr && !saved_xbootldr) {
-            length = strnlen(token, size);
-            strncpy(mounts->xbootldr_dir, token, length);
-            saved_xbootldr = true;
-        }
-
-        if (saved_efi && saved_xbootldr) {
-            break;
-        }
-
-        /*
-         * check if token matches a key
-         */
-        if (!seen_efi && strncmp(key_efi, token, len_key_efi) == 0) {
-            seen_efi = true;
-        }
-        if (!seen_xbootldr && strncmp(key_xbootldr, token, len_key_xbootldr) == 0) {
-            seen_xbootldr = true;
-        }
-        token = strtok_r(nullptr, " ", &save_ptr);
+    blkid_probe probe = blkid_new_probe();
+    if (!probe) {
+        close(fdes);
+        return nullptr;
     }
 
-    return 0;
+    if (blkid_probe_set_device(probe, fdes, 0, 0) < 0) {
+        blkid_free_probe(probe);
+        close(fdes);
+        return nullptr;
+    }
+
+    /*
+     * Force libblkid to pull partition layout metadata from the parent disk
+     */
+    blkid_probe_enable_partitions(probe, 1);
+    blkid_probe_set_partitions_flags(probe, BLKID_PARTS_ENTRY_DETAILS);
+
+    blkid_do_safeprobe(probe);
+    blkid_probe_lookup_value(probe, "PART_ENTRY_TYPE", &type_guid, nullptr);
+
+    if (type_guid) {
+        guid = strdup(type_guid);
+    }
+
+    blkid_free_probe(probe);
+    close(fdes);
+    return guid;
 }
 
 
-int find_efi_xbootldr_mounts(MountPoints *mounts) {
+
+int find_efi_xbootldr_mounts(Array_str *efi, Array_str *xbootldr) {
     /*
      * Locate the Mount Points for:
      *   EFI (where ESP is mounted)
      *   XBOOTLDR (if there is an XBOOTLDR partition)
+     * Requires libblkid
      *
-     * Parses output of systemd's bootctl.
+     * Allocates and returns an array of efi mount points and
+     * array of xbootldr mount points.
+     *
+     * Call must free the arrays.
      */ 
-    char buf[PATH_MAX] = {'\0'};
     int ret = 0;
-    int child_ret = 0;
-    size_t size = sizeof(buf);
+    FILE *fptr = nullptr;
+    char *guid = nullptr;
 
-    if (mounts == nullptr) {
-        return 1;
-    }
-    mounts->efi_dir[0] = '\0';
-    mounts->xbootldr_dir[0] = '\0';
-
-    char *output = nullptr;
-    char *line_tmp = nullptr;
-    char *argv[] = {"/usr/bin/bootctl", nullptr};
-    char *envp[] = {nullptr};
-
-    ret = run_cmd_output(argv, envp, &output, &child_ret) ;
-    if (ret != 0) {
-        msg(MSG_ERR, "  ! sd-boot: failed get efi from bootctl\n");
-        return -1;
-    }
-
-    if (output == nullptr || output[0] == 0) {
+    /*
+     * Loop on mounts (other than devices) and check partition type.
+     */
+    fptr = setmntent("/proc/mounts", "r");
+    if (fptr == nullptr) {
+        perror(nullptr);
+        msg(MSG_ERR, "  sd-boot: Error opening /proc/mounts\n");
+        ret = -1;
         goto exit;
     }
 
-    /*
-     * Break bootctl output into lines.
-     * - the line after "matcher" has the ESP mount point
-     */
-    const char *matcher = "Available Boot Loaders on ESP:";
-    const size_t len_matcher = strlen(matcher);
-    bool matched = false;
-    char *cleaned = nullptr;
-    char *ptr = output;
-    char *line = nullptr;
-    size_t line_len = 0;
-    size_t line_tmp_size = PATH_MAX * sizeof(char);
+    struct mntent *entry = {};
+    const char *skip_dev = "/dev/";
+    const size_t len_skip_dev = strlen(skip_dev);
+    const char *ESP_GUID = "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
+    const char *XBOOTLDR_GUID = "bc13c2ff-59e6-4262-a352-b275fd6f7172";
 
-    line_tmp = (char *) calloc(line_tmp_size, sizeof(char));
+    while ((entry = getmntent(fptr)) != nullptr) {  // NOLINT(concurrency-mt-unsafe)
+        /*
+         * Skip non-relevant
+         */
+        if (strncmp(entry->mnt_fsname, skip_dev, len_skip_dev) != 0) {
+            continue;
+        }
 
-    /*
-     * nb: dont change line inside loop.
-     * - trim_string moves chars around so make copy of line
-     */
-    bool found = false;
-    while ((line = get_one_line(&ptr)) != nullptr) {
-        if (!found) {
+        /*
+         * Get partition entry type
+         */
+        guid = get_partition_guid(entry->mnt_fsname);
+        if (!guid) {
+            continue;
+        }
 
-            line_len = (size_t) strlen(line);
-            if (line_len > line_tmp_size) {
-                line_tmp_size = line_len;
-                char *tmp_ptr = (char *)realloc(line_tmp, line_tmp_size + sizeof(char));
-                if (tmp_ptr == nullptr) {
-                    perror(nullptr);
-                    goto exit;
-                }
-                line_tmp = tmp_ptr;
+        if (strcasecmp(guid, ESP_GUID) == 0) {
+            ret = add_one_mount(entry->mnt_dir, efi);
+            if (ret != 0) {
+                msg(MSG_ERR, "  sd-boot: memory alloc error\n");
+                goto exit;
             }
-            strncpy(line_tmp, line, line_len+1);
 
-            cleaned = trim_string(line_tmp, line_tmp_size);
-            if (matched) {
-                found = true;
-                strncpy(buf, cleaned, size-1);
-            }
-            if (strncmp(cleaned, matcher, len_matcher) == 0) {
-                matched = true;
+        } else if (strcasecmp(guid, XBOOTLDR_GUID) == 0) {
+            ret = add_one_mount(entry->mnt_dir, xbootldr);
+            if (ret != 0) {
+                msg(MSG_ERR, "  sd-boot: memory alloc error\n");
+                goto exit;
             }
         }
-    }
-
-    if (buf[0] != '\0') {
-        line = strdup(buf);
-        line_len = strlen(buf);
-
-        ret = extract_efi_xbootldr(line, line_len, mounts);
-        free(line);
+        free((void *)guid);
+        guid = nullptr;
     }
 
 exit:
-    if (output != nullptr) {
-        free((void *)output);
+    if (fptr != nullptr) {
+        endmntent(fptr);
     }
-    if (line_tmp != nullptr) {
-        free((void *) line_tmp);
+    if (guid != nullptr) {
+        free((void *)guid);
     }
     
     return ret;
 }
+
