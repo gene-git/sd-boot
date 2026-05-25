@@ -48,21 +48,21 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
     char *ptr = output;
     char *save_ptr = nullptr;
 
-    bool found_pkg = false;
     char tmp[MAX_VAL_LEN+1] = {'\0'};
     char *tmp_ptr = nullptr;
 
     token = strtok_r(ptr, " ", &save_ptr);
     while (token != nullptr) {
-        if (*token != '\0') {
-            if (found_pkg) {
-                strlcpy(tmp, token, len_vers);
+        if (token[0] != '\0') {
+            if (strcmp(pkg, token) == 0) {
+                token = strtok_r(nullptr, " ", &save_ptr);
+                if (token == nullptr) {
+                    goto exit;
+                }
+                strlcpy(tmp, token, MAX_VAL_LEN);
                 tmp_ptr = trim_string(tmp, len_vers);
                 strlcpy(vers, tmp_ptr, len_vers);
                 break;
-            }
-            if (strcmp(pkg, token) == 0) {
-                found_pkg = true;
             }
         }
         token = strtok_r(nullptr, " ", &save_ptr);

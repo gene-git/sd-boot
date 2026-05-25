@@ -255,9 +255,9 @@ int main(int argc, char *argv[]) {
         msg(MSG_ERR, "- sd-boot: warning - no config file loaded - skipping\n");
     }
 
-    KernelInstallOper oper = KI_BAD;
-    oper = kernel_install_oper(argv[1]);
-    if (oper == KI_BAD) {
+    conf.oper = KI_BAD;
+    conf.oper = kernel_install_oper(argv[1]);
+    if (conf.oper == KI_BAD) {
         msg(MSG_ERR, "! sd-boot: expect add or remove but got %s\n", argv[1]);
         ret = 1;
         goto exit;
@@ -296,7 +296,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        switch (oper) {
+        switch (conf.oper) {
             case KI_ADD:
                 ret = efi_tool_add(&conf, pkg);
                 if (ret != 0) {

@@ -29,8 +29,11 @@ int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin) {
 
     /*
      * UKI layout has no loader entries
+     * - conf->layout is from /etc/kernel/install.conf
+     * - plugin->layout is from KERNEL_INSTALL_LAYOUT which could over-ride config setting.
+     *   so use that.
      */
-    if (conf->is_uki) {
+    if (plugin->is_uki) {
         goto exit;
     }
 

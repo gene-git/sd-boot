@@ -60,7 +60,7 @@ static bool does_kernel_version_exist(const char *kernel_version) {
   * Update one kernel package
   * - oper ~ add or remove
   */
-static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, KernelInstallOper oper, KernelInfo *info) {
+static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     int ret = 0;
     char *curr = nullptr;
     char *prev = nullptr;
@@ -73,7 +73,7 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, KernelInstallOpe
         goto exit;
     }
 
-    msg(MSG_NORMAL, "⦁ sd-boot: Updating kernel package %s %s\n", info->package, info->vers);
+    msg(MSG_NORMAL, "⦁ sd-boot: Updating (%s) kernel package : %s %s\n", conf->oper_str, info->package, info->vers);
 
     if (!is_sd_boot_managed(pkgs_arr, info)) {
         msg(MSG_NORMAL, "  not managed by sd-boot - skipping %s\n", info->package);
@@ -106,7 +106,7 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, KernelInstallOpe
      *   Still call kernel-install remove in case it has any housekeeping
      *   or other tasks to do.
      */
-    if (oper == KI_ADD && prev[0] != '\0' && strcmp(curr, prev) != 0) {
+    if (conf->oper == KI_ADD && prev[0] != '\0' && strcmp(curr, prev) != 0) {
         msg(MSG_NORMAL, "  ↳ sd-boot: removing prev version %s\n", prev);
 
         if (!does_kernel_version_exist(prev)) {
@@ -130,7 +130,7 @@ static int kernel_update_one(SdBoot *conf, Array_str *pkgs_arr, KernelInstallOpe
     const char *cmd_args_remove[] = {"remove", info->vers, nullptr};
     char **cmd_args = nullptr;
 
-    switch (oper) {
+    switch (conf->oper) {
         case KI_REMOVE:
             cmd_args = (char **)cmd_args_remove;
             break;
@@ -219,8 +219,7 @@ static bool did_this_kernel(KernelInfo *info, Triggers *trigs) {
  *      conf  = config file data
  *      trigs = Triggers data read from stdin
  */
-static int initialize(int argc, char *argv[], KernelInstallOper *oper, 
-        SdBoot *conf, Triggers *trigs, Array_str *pkgs_arr) {
+static int initialize(int argc, char *argv[], SdBoot *conf, Triggers *trigs, Array_str *pkgs_arr) {
     /*
      * Command line & Config
      */
@@ -231,9 +230,11 @@ static int initialize(int argc, char *argv[], KernelInstallOper *oper,
         goto exit;
     }
 
-    *oper = KI_BAD;
-    *oper = kernel_install_oper(argv[1]);
-    if (*oper == KI_BAD) {
+    conf->oper = KI_BAD;
+    conf->oper = kernel_install_oper(argv[1]);
+    conf->oper_str = strdup(argv[1]);
+
+    if (conf->oper == KI_BAD) {
         msg(MSG_ERR, "! sd-boot: expect add or remove but got %s\n", argv[1]);
         ret = 1;
         goto exit;
@@ -287,14 +288,13 @@ exit:
  */
 int main(int argc, char *argv[]) {
     int ret = 0;
-    KernelInstallOper oper = KI_BAD;
     SdBoot conf = {};
     Triggers trigs = {};
     Array_str pkgs_arr = {};
     size_t num_all = 0;
     KernelInfo *infos = nullptr;
 
-    ret = initialize(argc, argv, &oper, &conf, &trigs, &pkgs_arr);
+    ret = initialize(argc, argv, &conf, &trigs, &pkgs_arr);
     if (ret != 0) {
         goto exit;
     }
@@ -326,7 +326,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        ret = kernel_update_one(&conf, &pkgs_arr, oper, &trigs.info[i]);
+        ret = kernel_update_one(&conf, &pkgs_arr, &trigs.info[i]);
         if (ret != 0) {
             goto exit;
         }
@@ -340,7 +340,7 @@ int main(int argc, char *argv[]) {
      *   remove must be for specific kernel.
      * - Create a list of kernels not already updated above.
      */
-    if (trigs.num_other > 0 && oper == KI_ADD) {
+    if (trigs.num_other > 0 && conf.oper == KI_ADD) {
         /*
          * Gather kernel info
          */
@@ -355,7 +355,7 @@ int main(int argc, char *argv[]) {
                 continue;
             }
 
-            ret = kernel_update_one(&conf, &pkgs_arr, oper, &infos[i]);
+            ret = kernel_update_one(&conf, &pkgs_arr, &infos[i]);
             if (ret != 0) {
                 goto exit;
             }

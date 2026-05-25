@@ -12,6 +12,9 @@
 #include <sys/stat.h>
 
 
+/*
+ * Constants
+ */
 enum CONF_LEN {
     MAX_KEY_LEN = 64,
     MAX_VAL_LEN = 256,
@@ -24,6 +27,31 @@ enum CONF_LEN {
     ALIGN_128 = 128,
 
 };
+
+/*
+ *
+ * Message Options (Verbosity)
+ */
+enum MsgVerb{
+    MSG_ERR = -1,
+    MSG_VERB = 0,
+    MSG_NORMAL = 1,
+    MSG_QUIET = 2,
+};
+
+/*
+ *
+ * Command line kernel-install operations
+ */
+typedef enum KernelInstallOper {
+    ARG_SZ = 16,
+    KI_BAD = 0,
+    KI_ADD = 1,
+    KI_REMOVE = 2,
+    KI_INSPECT = 3,
+    KI_ADD_ALL = 4,
+    KI_LIST = 5,
+} KernelInstallOper;
 
 
 /*
@@ -39,6 +67,16 @@ typedef struct {
     size_t *row_len;
 
 } Array_str;
+
+/*
+ * Dynamic string
+ */
+typedef struct {
+    size_t num_used;
+    size_t num_alloc;
+    char *bytes;
+} Dynamic_str;
+
 
 /*
  * For Development & Testing
@@ -107,6 +145,9 @@ typedef struct {
     char *initrd_generator;
     char *uki_generator;
 
+    KernelInstallOper oper;
+    char *oper_str;
+
 } SdBoot;
 
 
@@ -121,30 +162,6 @@ typedef struct {
 } PackageVersion;   // no packed
 
 
-/*
- *
- * Message Options (Verbosity)
- */
-enum MsgVerb{
-    MSG_ERR = -1,
-    MSG_VERB = 0,
-    MSG_NORMAL = 1,
-    MSG_QUIET = 2,
-};
-
-/*
- *
- * Command line operations
- */
-typedef enum KernelInstallOper {
-    ARG_SZ = 16,
-    KI_BAD = 0,
-    KI_ADD = 1,
-    KI_REMOVE = 2,
-    KI_INSPECT = 3,
-    KI_ADD_ALL = 4,
-    KI_LIST = 5,
-} KernelInstallOper;
 
 /*
  *
@@ -166,6 +183,7 @@ typedef struct {
     char *machine_id;
     char *entry_token;
     char *boot_root;
+    bool is_uki;
 
     char *loader_entry_dir;
     char *loader_entry_file;
@@ -262,6 +280,9 @@ void clean_devinfo(DevInfo *info);
 // efi_image.c
 char *efi_image_to_package(SdBoot *conf, const char *path);
 char *package_to_efi_image(SdBoot *conf, char *pkg);
+
+// dynamic_string.c
+int dynamic_str_alloc(size_t num, Dynamic_str *str);
 
 // env.c
 int combined_env(size_t num1, char **envp1, size_t num2, char **envp2, char ***envp_p);
@@ -379,5 +400,8 @@ bool string_in_list(char *name, size_t num_names, char **names);
 // trim_string.c
 char *trim_string(char *str, size_t max_len);
 void strip_whitespace(char *str);
+
+// ukify_os_release.c
+int ukify_os_release(const char *name, const char *build_id, Dynamic_str *os_release);
 
 #endif

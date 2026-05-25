@@ -9,6 +9,15 @@ sd-boot
 Recent Changes
 ==============
 
+**4.7.2**
+
+* Loaderentry: take "layout" provided by kernel-install since KERNEL_INSTALL_LAYOUT env. can override 
+  /etc/kernel/install.conf. This is more robust approach. The layout is only used to avoid an 
+  unnecessary fork/exec when layout is *uki*.
+* When kernel is removed, the display message is now more explicit on *remove* vs *add*.
+* Some code tidy ups.
+* No functional change.
+
 **4.7.1**
 
 * Change PKGBUILD arch to x85_64 not any.
@@ -42,32 +51,6 @@ Recent Changes
 * Simplify some code (readability, maintainability)
 * Additional boundary case checks.
 * Loader entry modifier for efi tools handle "uki" row in addition to "linux"
-
-**4.3.0**
-
-* Drop the bash code version and sd-boot-set-alternative since its no longer needed.
-* Simplify installation.
-* When adding a new kernel version, check if previous version still there before 
-  calling *kernel-install remove* to remove the previous version since it may have 
-  already been removed by pacman. No functional impact other than avoiding one 
-  unnecessary fork/exec.
-* Remove one unnecessary trigger from kernel update alpm hook.
-
-**4.2.2**
-
-* little clean ups - fix comments etc.
-  No functional change.
-
-**4.0.0**
-
-* New C-code alternative to bash tools..
-
-  Activate: /usr/lib/sd-boot/sd-boot-set-alternative binary
-  Bash:     /usr/lib/sd-boot/sd-boot-set-alternative bash
-
-  Bash version remains available for now, and can be re-activated 
-  using *sd-boot-set-alternative*.
-
 
 See Changelog for more history.
 
@@ -371,6 +354,22 @@ old loader entry or kernel. THese will need to be manually removed.
 
    rm $BOOT/loader/entries/<<machine-id>-<kernel-version>.conf
    rm -rf $BOOT/<machine-id>/<kernel-version>
+
+
+While dracut can generate the UKI file without using ukify, this has some limitations.
+Unlike ukify I did not find any way to change the *os-release* file it uses.
+
+So at this time, I recommend using ukify.
+We would like to provide an additional option *OSRelease=* to ukify with a 
+modified version of os-release having *PRETTY_NAME* and *BUILD_ID*  leading to
+a more user friendly boot menu title.
+
+At this time, however, there is no clean way to do this that I could find.
+
+.. code-block:: text
+
+    [UKI]
+    Ukify=/usr/lib/sd-boot/ukify-wrapper
 
 
 Bootable efi tools

@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #include "sd-boot.h"
 
@@ -158,18 +159,9 @@ void print_ki_plugin(KIplugin *plugin) {
     }
 }
 
-int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
-    /*
-     * @plugin_init Initialize information passed to a plugin by kernel-install
-     * @plugin Data to initilize (caller must free with plugin_free()
-     *
-     * NB For simplicity we limit command line initrd to 2 entries.
-     */
+static int command_line_init(int argc, const char *argv[], KIplugin *plugin) {
     int ret = 0;
 
-    /*
-     * command line 
-     */
     ret = copy_argv_item(CMD_1, argc, argv, &plugin->command);
     if (ret != 0) {
         goto exit;
@@ -200,12 +192,21 @@ int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
         goto exit;
     }
 
-    /*
-     * env 
-     */
+exit:
+    return ret;
+}
+
+static int env_var_init(KIplugin *plugin) {
+    int ret = 0;
+
     ret = copy_env_item("KERNEL_INSTALL_LAYOUT", &plugin->layout);
     if (ret != 0) {
         goto exit;
+    }
+    if (plugin->layout != nullptr && plugin->layout[0] != '\0') {
+        if (strcasecmp(plugin->layout, "uki") == 0) {
+                plugin->is_uki = true;
+        }
     }
 
     ret = copy_env_item("KERNEL_INSTALL_VERBOSE", &plugin->verbose);
@@ -224,6 +225,35 @@ int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
     }
 
     ret = copy_env_item("KERNEL_INSTALL_BOOT_ROOT", &plugin->boot_root);
+    if (ret != 0) {
+        goto exit;
+    }
+
+exit:
+    return ret;
+}
+
+int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
+    /*
+     * @plugin_init Initialize information passed to a plugin by kernel-install
+     * @plugin Data to initilize (caller must free with plugin_free()
+     *
+     * NB For simplicity we limit command line initrd to 2 entries.
+     */
+    int ret = 0;
+
+    /*
+     * command line 
+     */
+    ret = command_line_init(argc, argv, plugin);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    /*
+     * env 
+     */
+    ret = env_var_init(plugin);
     if (ret != 0) {
         goto exit;
     }

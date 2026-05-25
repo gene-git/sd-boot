@@ -59,6 +59,7 @@ add_library(sd_boot_objs
     lib/config.c
     lib/copy_file.c
     lib/dev_info.c
+    lib/dynamic_string.c
     lib/efi_image.c
     lib/env.c
     lib/file_list_glob.c
@@ -94,6 +95,7 @@ add_library(sd_boot_objs
     lib/run_cmd_output.c
     lib/string_in_list.c
     lib/trim_string.c
+    lib/ukify_os_release.c
 )
 set_property(TARGET sd_boot_objs PROPERTY POSITION_INDEPENDENT_CODE 1)
 

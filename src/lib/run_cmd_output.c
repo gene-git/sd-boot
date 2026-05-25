@@ -97,11 +97,13 @@ static int read_child_output(int fdes, char **output_p) {
      * memory is freed and ptr set to null.
      */
     int ret = 0;
-    size_t bytes = 0;
-    size_t bytes_allocated = 0;
-    size_t chunk = CHUNK * sizeof(char);
+    //size_t num_alloc = 0;
     size_t one_byte = sizeof(char);
+    //size_t bytes = 0;
+    //size_t bytes_allocated = 0;
+    //size_t chunk = CHUNK * sizeof(char);
     char *ptr = nullptr;
+    Dynamic_str str = {};
 
     /*
      * sanity
@@ -113,10 +115,17 @@ static int read_child_output(int fdes, char **output_p) {
     }
 
     /*
-     * First memory chunk
-     * - actual allocated = bytes_allocated + 1.
+     * First chunk of memory
      */
-    bytes_allocated = chunk;
+    *output_p = nullptr;
+    //bytes_allocated = chunk;
+    //num_alloc = CHUNK;
+    ret = dynamic_str_alloc(CHUNK, &str);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    /*
     *output_p = (char *)calloc(bytes_allocated + one_byte, one_byte);
     if (*output_p == nullptr) {
         perror(nullptr);
@@ -126,23 +135,40 @@ static int read_child_output(int fdes, char **output_p) {
     }
 
     ptr = *output_p;
+    */
+    /*
+     * Ptr tracks where in the buffer to read the next chunk.
+     */
+    ptr = str.bytes;
     *ptr = '\0';
     ssize_t bytes_read = 0;
-    while ((bytes_read = read(fdes, ptr, chunk)) > 0) {
-        bytes += (size_t) bytes_read;
-        bytes_allocated = bytes + chunk;
-        char *tmp_ptr = (char *)realloc((void *) *output_p, bytes_allocated + one_byte);
-        if (tmp_ptr == nullptr) {
-            msg(MSG_ERR, "  ! sd-boot memory alloc fail reading child process stdout\n");
+    while ((bytes_read = read(fdes, ptr, CHUNK)) > 0) {
+        str.num_used += (size_t)bytes_read / one_byte;
+        //bytes += (size_t) bytes_read;
+
+        //bytes_allocated = bytes + chunk;
+        //num_alloc = (bytes / one_byte) + CHUNK;
+        ret = dynamic_str_alloc(str.num_used + CHUNK, &str);
+        //char *tmp_ptr = (char *)realloc((void *) *output_p, bytes_allocated + one_byte);
+        if (ret != 0) {
             goto exit;
         }
-        *output_p = tmp_ptr;
-        ptr = tmp_ptr + bytes;
+        //*output_p = tmp_ptr;
+        //ptr = str.bytes + bytes;
+        ptr = str.bytes + str.num_used;
     }
 
     /*
-     * Resize down add null terminate
+     * Resize down add null terminator
      */
+    if (str.num_used < str.num_alloc + 1) {
+        ret = dynamic_str_alloc(str.num_used + 1, &str);
+        if (ret != 0) {
+            goto exit;
+        }
+    } 
+    /*
+    num_alloc = bytes
     if (bytes < bytes_allocated) {
         char *tmp_ptr = (char *)realloc((void *)*output_p, bytes + one_byte);
         if (tmp_ptr == nullptr) {
@@ -152,14 +178,29 @@ static int read_child_output(int fdes, char **output_p) {
         }
         *output_p = tmp_ptr;
     }
+     */
+    if (str.bytes != nullptr && str.bytes[str.num_used] != '\0') {
+        str.bytes[str.num_used] = '\0';
+        //(*output_p)[bytes] = '\0';
+    }
+
+    *output_p = str.bytes;
+    str.bytes = nullptr;
+    str.num_alloc = 0;
 
     /*
      * ensure null terminated
-     */
     if (*output_p != nullptr && (*output_p)[bytes] != '\0') {
         (*output_p)[bytes] = '\0';
     }
+     */
 exit:
+    if (str.bytes != nullptr) {
+        /*
+         * error where pointer is not transferred to *output_p 
+         */
+        (void)dynamic_str_alloc(0, &str);
+    }
     return ret;
 }
 

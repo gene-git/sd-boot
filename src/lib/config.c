@@ -201,4 +201,7 @@ void clean_config(SdBoot *conf) {
     if (conf->uki_generator != nullptr) {
         free((void *)conf->uki_generator);
     }
+    if (conf->oper_str != nullptr) {
+        free((void *)conf->oper_str);
+    }
 }
