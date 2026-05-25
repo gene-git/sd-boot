@@ -6,12 +6,30 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.7.1 (2026-05-19)
-	34 commits.
+	3.6.2 (2026-04-21) -> 4.7.2 (2026-05-25)
+	36 commits.
 
 Commits
 =======
 
+
+* 2026-05-25  : **4.7.2**
+
+.. code-block:: text
+
+              - **4.7.2**
+            
+                * Loaderentry: take "layout" provided by kernel-install since KERNEL_INSTALL_LAYOUT env. can override
+                  /etc/kernel/install.conf. This is more robust approach. The layout is only used to avoid an
+                  unnecessary fork/exec when layout is *uki*.
+                * When kernel is removed, the display message is now more explicit on *remove* vs *add*.
+                * Some code tidy ups.
+                * No functional change.
+ 2026-05-19   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-05-19  : **4.7.1**
 
