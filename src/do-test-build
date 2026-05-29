@@ -1,25 +1,37 @@
 #!/usr/bin/bash
 #
-# Developer test builds
+# test builds
 # 
-cd ./build
-cmake -S ../ -G Ninja -B .
-cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .
 
-echo "Debug :"
-cmake -S ../ -B debug -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
-cmake --build debug
+echo "-------------------------------"
+echo "Building : release"
+echo ""
+/usr/bin/meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared
+/usr/bin/meson compile -C build/release
 
-echo "None (arch) :"
-cmake -S ../ -B none -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr
-cmake --build none
+echo ""
+echo "  tests standard"
+echo ""
+/usr/bin/meson test -C build/release
 
-#
-# install - debug has static linking
-# Since LD_LIBRARY_PATH are not passed down to
-# kernel-install plugins to minimize risk.
-#
-echo "Installing:"
-test_root="../tests/Testing/__root__"
-DESTDIR="$test_root" cmake --install debug 
-#DESTDIR="$test_root" cmake --install build/none 
+echo ""
+echo "  tests with valgrind"
+echo ""
+/usr/bin/meson test -C build/release --setup=valgrind
+
+echo "-------------------------------"
+echo "Building : debug"
+echo ""
+/usr/bin/meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static
+/usr/bin/meson compile -C build/debug
+
+echo ""
+echo "  tests standard"
+echo ""
+/usr/bin/meson test -C build/debug
+
+echo ""
+echo "  tests with valgrind"
+echo ""
+/usr/bin/meson test -C build/release --setup=standard
+

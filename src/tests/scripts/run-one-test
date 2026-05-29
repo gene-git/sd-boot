@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# meson wrapper script:
+# - handle redir stdin from a file.
+# - handle running under valgrind
+#
+# Usage: 
+#   run_one_test [valgrind] <executable> <input_file> [args...]
+#
+# If <input_file> is "-none-" then no redirection is done
+# If first arg is valgrind, run test under valgrind
+#
+
+if [[ "$1" == "valgrind" ]] ; then
+    shift 1
+    prog="$1"
+    shift 1
+    valgrind_args="--leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1"
+    prog="/usr/bin/valgrind $valgrind_args $prog"
+else
+    prog="$1"
+    shift 1
+fi
+
+infile="$1"
+shift 1
+if [[ "$infile" != "-none-" ]] ; then
+    exec $prog $@ < "$infile"
+else
+    exec $prog $@ 
+fi
+

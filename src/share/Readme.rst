@@ -9,6 +9,13 @@ sd-boot
 Recent Changes
 ==============
 
+**4.7.3**
+
+* Change build tooling to meson (was cmake).
+  Simpler and cleaner.
+* Use meson to run tests.
+* No functional change.
+
 **4.7.2**
 
 * Loaderentry: take "layout" provided by kernel-install since KERNEL_INSTALL_LAYOUT env. can override 
@@ -542,3 +549,5 @@ This is fine and when run in producion the image file will simply be *linux* ins
   Standalone tests of the plugin that modify the raw loader entry files.
   The scripts run the tests under valgrind, but there is an option
   to run in the debugger as well.
+
+

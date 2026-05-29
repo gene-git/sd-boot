@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+#
+# Static checks.
+# Must be run in src dir.
+# - cppcheck
+# - clang-tidy
+# 
+echo "-----------------------------"
+echo " Static checks:"
+echo "-----------------------------"
+
+src_dir=$(/usr/bin/pwd)
+log_dir="$src_dir/tests/Logs"
+/usr/bin/mkdir -p "$log_dir"
+
+echo ""
+echo " Logs are in $log_dir"
+echo ""
+
+echo " cppcheck:"
+
+/usr/bin/cppcheck lib plugins tools 2>&1 > "$log_dir/cppcheck"
+
+echo " clang-tidy:"
+
+# ensure compile_commands.json is available
+meson setup --reconfigure build/release --buildtype=release -Ddefault_library=static  > /dev/null
+/usr/bin/run-clang-tidy -p build/release lib plugins tools 2>&1 > "$log_dir/clang-tidy"
+

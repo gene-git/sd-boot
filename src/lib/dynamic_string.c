@@ -33,7 +33,7 @@ int dynamic_str_alloc(size_t num, Dynamic_str *str) {
      * Alloc
      */
     if (num > MEM_MAX / sizeof(char)) {
-        msg(MSG_ERR, "  sd-boot: ukify_os_release: mem allocation too big\n");
+        msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation too big\n");
         ret = -1;
         goto exit;
     }
@@ -43,7 +43,7 @@ int dynamic_str_alloc(size_t num, Dynamic_str *str) {
         if (str->num_alloc == 0 || str->bytes == nullptr) {
             str->bytes = (char *)calloc(num, sizeof(char));
             if (str->bytes == nullptr) {
-                msg(MSG_ERR, "  sd-boot: ukify_os_release: mem allocation error\n");
+                msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation error\n");
                 ret = -1;
             }
             str->num_alloc = num;
@@ -51,7 +51,7 @@ int dynamic_str_alloc(size_t num, Dynamic_str *str) {
         } else {
             str->bytes = (char *)realloc(str->bytes, num * sizeof(char));
             if (str->bytes == nullptr) {
-                msg(MSG_ERR, "  sd-boot: ukify_os_release: mem allocation error\n");
+                msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation error\n");
                 ret = -1;
                 str->num_alloc = 0;
                 goto exit;

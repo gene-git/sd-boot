@@ -17,117 +17,23 @@
 
 echo "sd-boot test suite."
 cwd=$(/usr/bin/pwd)
-test_dir="tests/Testing"
-test_root="$test_dir/__root__"
-test_path="$cwd/$test_dir"
-test_root_path="$cwd/$test_path"
 
-log_dir="$test_dir/Log-Test-Suite"
-log_path="$cwd/$log_dir"
+/usr/bin/meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared
+/usr/bin/meson compile -C build/release
 
-/usr/bin/mkdir -p "$test_root" "$log_dir"
+echo ""
+echo "-----------------------------"
+echo " Standard:"
+echo "------------"
+echo ""
+/usr/bin/meson test -C build/release --setup=standard
 
-echo "Initializee Testing Directory: $test_root"
-    /usr/bin/rsync -a "$test_path"/Template/__root__ "$test_path/"
-
-echo "  Results in $log_dir"
-
-echo "  - Building static executables"
-  ./do-test-build
-  cd ./tests/Testing
-
-#
-# Activate test environ
-#
-echo "  - Set testing env SDB_DEV_TEST"
-  export SDB_DEV_TEST=true
-
-declare -i pass
-declare -i fail
-pass=0
-fail=0
-
-init_test_kernel_update() {
-    local _pkg="$1"
-
-    echo "Prepping trigger for kernel-update test package: $_pkg"
-
-    # get kernel version from module (not package version)
-    local x=($(/usr/bin/pacman -Ql "$_pkg" | grep -E "/usr/lib/modules/.*/vmlinuz"))
-    local y=="${x[1]%*/vmlinuz}"
-    local _vers="${y##*/}"
-
-    echo "/usr/lib/modules/$_vers/vmlinuz" > Triggers/"$_pkg"
-    grep '^linux$' __root__/etc/sd-boot/kernel.packages
-    if (( $? != 0 )) ; then
-        echo "linux" >> __root__/etc/sd-boot/kernel.packages
-    fi
-}
-
-rm_empty() {
-    file="$1"
-    if [[ ! -s "$file" ]] ; then
-        /usr/bin/rm "$file"
-    fi
-}
-
-run_one_test() {
-    local tname="$1"
-    local tool="$2"
-    local arg="$3"
-    local trigger="$4"
-
-    /usr/bin/printf "%30s"  " $tool"
-
-    local rdl="./__root__/usr/lib/sd-boot"
-
-    ToolLog="$log_path/$tname-$tool"
-    /usr/bin/mkdir -p "$ToolLog"
-
-    Lout="$ToolLog"/stdout
-    Lerr="$ToolLog"/stderr
-
-    if [[ "$trigger" != "" ]] ; then
-        "$rdl/$tool" $arg < "$trigger" > "$Lout" 2> "$Lerr"
-    else
-        "$rdl/$tool" $arg > "$Lout" 2> "$Lerr"
-    fi
-    result="$?"
-
-    if ((result == 0)) ; then
-        ((pass++))
-    else
-        ((fail++))
-    fi
-
-    echo "$result" > "$ToolLog"/Exit
-
-    if (( result == 0)) ; then
-        /usr/bin/printf "\e[1;32m%s\e[0m\n" " : *pass*" 
-    else
-        /usr/bin/printf "\e[1;31m%s\e[0m\n" " : *fail*" 
-    fi
-
-    rm_empty "$Lout"
-    rm_empty "$Lerr"
-}
-
-# 
-# Run tests
-#
-init_test_kernel_update "linux"
-#init_test_kernel_update "linux-custom"
-
-run_one_test "t1" "sd-boot-find-boot-mounts" add
-run_one_test "t2" "sd-boot-efifs-update" add
-run_one_test "t3" "sd-boot-efi-tool-update" add "Triggers/efi-tool-update"
-#run_one_test "t4" "sd-boot-kernel-update" add "Triggers/linux-custom"
-run_one_test "t5" "sd-boot-kernel-update" add "Triggers/linux"
-#run_one_test "t6" "sd-boot-set-alternative" "binary"
-
-/usr/bin/printf "Results: \n"
-/usr/bin/printf "%10s : \e[1;32m%d\e[0m\n" "Pass" "$pass"
-/usr/bin/printf "%10s : \e[1;32m%d\e[0m\n" "Fail" "$fail"
+echo ""
+echo "-----------------------------"
+echo " Valgrind:"
+echo "------------"
+echo ""
+/usr/bin/meson test -C build/release --setup=valgrind
 
 exit 0
 
