@@ -6,12 +6,28 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.7.2 (2026-05-25)
-	36 commits.
+	3.6.2 (2026-04-21) -> 4.7.3 (2026-05-29)
+	38 commits.
 
 Commits
 =======
 
+
+* 2026-05-29  : **4.7.3**
+
+.. code-block:: text
+
+              - **4.7.3**
+            
+                * Change build tooling to meson (was cmake).
+                  Simpler and cleaner.
+                * Use meson to run tests.
+                * No functional change.
+ 2026-05-25   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-05-25  : **4.7.2**
 
