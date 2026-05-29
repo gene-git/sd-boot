@@ -9,6 +9,10 @@ sd-boot
 Recent Changes
 ==============
 
+**4.7.4**
+
+* loader flags to meson build
+
 **4.7.3**
 
 * Change build tooling to meson (was cmake).

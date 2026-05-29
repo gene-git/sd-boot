@@ -17,7 +17,7 @@ project('sd-boot', 'c',
   default_options: ['c_std=c23', 'warning_level=2'],
 )
 
-my_c_args = [
+my_cflags = [
   '-D_GNU_SOURCE',
   '-D_XOPEN_SOURCE=500',
   '-march=x86-64-v3',          # Optimized for modern (AVX2-capable) CPUs
@@ -37,6 +37,15 @@ my_c_args = [
   '-Wextra',
   '-Wpedantic',
   '-Wshadow'
+]
+
+my_ldflags = [
+  '-Wl,-O1',
+  '-Wl,--sort-common',
+  '-Wl,--as-needed',
+  '-Wl,-z,relro',
+  '-Wl,-z,now',
+  '-Wl,-z,pack-relative-relocs',
 ]
 
 
@@ -95,7 +104,8 @@ lib_sources = files(
 sd_boot_lib = library('sd_boot',
   sources: lib_sources,
   include_directories: inc_dir,
-  c_args: my_c_args,
+  c_args: my_cflags,
+  link_args: my_ldflags,
   install: true,
   install_dir: '/usr/lib'
 )
@@ -113,7 +123,8 @@ blkid_dep = dependency('blkid', required: true)
 find_boot_mounts = executable('sd-boot-find-boot-mounts',
   sources: ['tools/find-boot-mounts.c', 'lib/find_boot_mounts.c'],
   dependencies: [sd_boot_dep, blkid_dep],
-  c_args: my_c_args,
+  c_args: my_cflags,
+  link_args: my_ldflags,
   install: true,
   install_dir: '/usr/lib/sd-boot'
 )
@@ -121,7 +132,8 @@ find_boot_mounts = executable('sd-boot-find-boot-mounts',
 efifs_update = executable('sd-boot-efifs-update',
   sources: 'tools/efifs-update.c',
   dependencies: sd_boot_dep,
-  c_args: my_c_args,
+  c_args: my_cflags,
+  link_args: my_ldflags,
   install: true,
   install_dir: '/usr/lib/sd-boot'
 )
@@ -129,7 +141,8 @@ efifs_update = executable('sd-boot-efifs-update',
 efi_tool_update = executable('sd-boot-efi-tool-update',
   sources: 'tools/efi-tool-update.c',
   dependencies: sd_boot_dep,
-  c_args: my_c_args,
+  c_args: my_cflags,
+  link_args: my_ldflags,
   install: true,
   install_dir: '/usr/lib/sd-boot'
 )
@@ -137,7 +150,8 @@ efi_tool_update = executable('sd-boot-efi-tool-update',
 kernel_update = executable('sd-boot-kernel-update',
   sources: 'tools/kernel-update.c',
   dependencies: sd_boot_dep,
-  c_args: my_c_args,
+  c_args: my_cflags,
+  link_args: my_ldflags,
   install: true,
   install_dir: '/usr/lib/sd-boot'
 )
@@ -145,7 +159,8 @@ kernel_update = executable('sd-boot-kernel-update',
 loaderentry_modify = executable('95-sd-boot-loaderentry-modify',
   sources: 'plugins/loaderentry-modify.c',
   dependencies: sd_boot_dep,
-  c_args: my_c_args,
+  c_args: my_cflags,
+  link_args: my_ldflags,
   install: true,
   install_dir: '/etc/kernel/install.d'
 )
