@@ -6,12 +6,21 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.7.5 (2026-05-29)
-	42 commits.
+	3.6.2 (2026-04-21) -> 4.8.0 (2026-05-29)
+	44 commits.
 
 Commits
 =======
 
+
+* 2026-05-29  : **4.8.0**
+
+.. code-block:: text
+
+              - **4.8.0**
+            
+                * Fix installer typo for loaderentry modify.
+              - update Changelog
 
 * 2026-05-29  : **4.7.5**
 
