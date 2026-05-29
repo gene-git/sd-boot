@@ -6,12 +6,21 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.7.3 (2026-05-29)
-	38 commits.
+	3.6.2 (2026-04-21) -> 4.7.4 (2026-05-29)
+	40 commits.
 
 Commits
 =======
 
+
+* 2026-05-29  : **4.7.4**
+
+.. code-block:: text
+
+              - **4.7.4**
+            
+                * loader flags to meson build
+              - update Changelog
 
 * 2026-05-29  : **4.7.3**
 

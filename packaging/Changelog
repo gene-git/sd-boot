@@ -1,9 +1,15 @@
 -------------------------------------------------------
  Changelog    : sd-boot
- Tags         : 4.6.0 ➙ 4.7.3
-              : 2026-05-18 ➙ 2026-05-29
+ Tags         : 4.7.0 ➙ 4.7.4
+              : 2026-05-19 ➙ 2026-05-29
               : 6 tags. See Docs for full changelog
 -------------------------------------------------------
+
+ 2026-05-29   : 4.7.4
+              - **4.7.4**
+            
+                * loader flags to meson build
+              - update Changelog
 
  2026-05-29   : 4.7.3
               - **4.7.3**
@@ -44,16 +50,4 @@
                 * Add sbctl and systemd-ukify as dependencies
                 * Little code tidy
  2026-05-18   ⋯
-              - update Changelog
-
- 2026-05-18   : 4.6.0
-              - **4.6.0**
-            
-                * Loader entries are not used for UKI layout.
-                  Turn off messages about missing loader entries.
-            
-                **4.5.0**
-            
-                * Enhance sd-boot-find-mounts using liblkid (new dependency)
-                * Kernel ALPM hook trigger update.
               - update Changelog
