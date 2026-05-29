@@ -6,12 +6,19 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.7.4 (2026-05-29)
-	40 commits.
+	3.6.2 (2026-04-21) -> 4.7.5 (2026-05-29)
+	42 commits.
 
 Commits
 =======
 
+
+* 2026-05-29  : **4.7.5**
+
+.. code-block:: text
+
+              - fix license install typo
+              - update Changelog
 
 * 2026-05-29  : **4.7.4**
 
