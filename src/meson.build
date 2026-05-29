@@ -189,8 +189,8 @@ install_data('hooks/99-sd-boot-efi-tool-install.hook', install_dir: '/usr/share/
 install_data('share/Changelog.rst', install_dir: '/usr/share/sd-boot')
 install_data('share/loader.conf', install_dir: '/usr/share/sd-boot')
 install_data('share/Readme.rst', install_dir: '/usr/share/sd-boot')
-install_data('share/License/License-gpl-2.0.txt', install_dir: '/usr/share/License')
-install_data('share/License/License.rst', install_dir: '/usr/share/License')
+install_data('share/License/License-gpl-2.0.txt', install_dir: '/usr/share/sd-boot/License')
+install_data('share/License/License.rst', install_dir: '/usr/share/sd-boot/License')
 
 install_data('share/License/License.rst', install_dir: '/usr/share/licenses/sd-boot')
 

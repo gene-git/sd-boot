@@ -9,6 +9,10 @@ sd-boot
 Recent Changes
 ==============
 
+**4.7.5**
+
+* Fix typo for license file install.
+
 **4.7.4**
 
 * loader flags to meson build
@@ -47,21 +51,6 @@ Recent Changes
 
 * Loader entries are not used for UKI layout. 
   Turn off messages about missing loader entries.
-
-**4.5.0**
-
-* Enhance sd-boot-find-mounts using liblkid (new dependency)
-* Kernel ALPM hook trigger update.
-
-**4.4.0**
-
-* Add secure boot signing key changes trigger to ALPM hook to update kernel.
-* Messages more consistent with prefixes (! = error, ⦁ = top level, ↳ = sub level).
-* Add brief section on signing kernels and secure boot.
-* Fix c-code checker (clang-tidy, valgrind)
-* Simplify some code (readability, maintainability)
-* Additional boundary case checks.
-* Loader entry modifier for efi tools handle "uki" row in addition to "linux"
 
 See Changelog for more history.
 
