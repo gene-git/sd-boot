@@ -9,6 +9,10 @@ sd-boot
 Recent Changes
 ==============
 
+**4.8.0**
+
+* Fix installer typo for loaderentry modify.
+
 **4.7.5**
 
 * Fix typo for license file install.

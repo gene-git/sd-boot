@@ -5,9 +5,11 @@
 # meson compile -C build/release
 # meson install -C build/release --destdir <xxx>
 #
-# meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static
+# meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static -Dstrip=false
 # meson compile -C build/debug
-# meson install -C build/debug --destdir <xxx>
+# DESTDIR=<full-path> ninja -C build/debug install
+# Note this strips debug symbols
+#   meson install -C build/debug --destdir <xxx>
 #
 # meson test -C build/release --setup=standard [test_x]
 # meson test -C build/release --setup=valgrind [test_x]
@@ -23,11 +25,9 @@ my_cflags = [
   '-march=x86-64-v3',          # Optimized for modern (AVX2-capable) CPUs
   '-mtune=generic',
   '-mshstk',                   # Intel Shadow Stack protection
-  '-O2',                       # Safe standard optimization
   '-pipe',                     # Speeds up compilation
   '-fno-plt',                  # Optimization for shared library calls
   '-fexceptions',
-  '-Wp,-D_FORTIFY_SOURCE=3',   # Modern strict buffer overflow detection
   '-Wformat=2',
   '-Werror=format-security',   # Rejects insecure printf format strings
   '-fstack-clash-protection',  # Prevents stack-clash exploits
@@ -38,6 +38,10 @@ my_cflags = [
   '-Wpedantic',
   '-Wshadow'
 ]
+
+if get_option('buildtype') != 'debug'
+  my_cflags += ['-O2', '-Wp,-D_FORTIFY_SOURCE=3']
+endif
 
 my_ldflags = [
   '-Wl,-O1',
@@ -156,7 +160,7 @@ kernel_update = executable('sd-boot-kernel-update',
   install_dir: '/usr/lib/sd-boot'
 )
 
-loaderentry_modify = executable('95-sd-boot-loaderentry-modify',
+loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
   sources: 'plugins/loaderentry-modify.c',
   dependencies: sd_boot_dep,
   c_args: my_cflags,

@@ -3,17 +3,20 @@
 # Test efi loaderentry plugin
 #
 
-do_valgrind="no"
 do_valgrind="yes"
+do_valgrind="no"
 
 export SDB_DEV_TEST=true
 oper=add
 machine_id=$(</etc/machine-id)
-kernel_vers=edk2-shell-202602-3
 boot_dir="__root__/boot/$machine_id/$kernel_vers"
+
+kernel_vers=edk2-shell-202602-3
 kernel_image=/usr/share/edk2-shell/x64/Shell_Full.efi
 initrd=
 
+kernel_vers=memtest86_64-git-8.10.r6.260525-3
+kernel_image=/usr/share/memtest86_64/memtest.efi
 
 export KERNEL_INSTALL_LAYOUT="bls"
 export KERNEL_INSTALL_VERBOSE=""
