@@ -6,12 +6,40 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.8.0 (2026-05-29)
-	44 commits.
+	3.6.2 (2026-04-21) -> 4.9.1 (2026-05-30)
+	46 commits.
 
 Commits
 =======
 
+
+* 2026-05-30  : **4.9.1**
+
+.. code-block:: text
+
+              - **4.9.1**
+            
+                * Fix broken efi tool installin "uki" layout.
+            
+                  efi tool installs only work in bls layout. kernel-install (as of systemd version 260)
+                  provides no clear way to specify the layout at run time. We work around this for
+                  (non-kernel) efi tools by using a "shadow" kernel-install config with bls layout.
+            
+                  Please reinstall any efi tools (e.g. pacman -Syu edk2-shell) to ensure latest version
+                  is installed in $BOOT.
+            
+                * Efi tool ALPM hook now triggers on sd-boot.
+            
+                * Set default layout to "uki" in /etc/kernel/install.conf
+            
+                  May need to be changed manually.
+            
+                * Some code tidy ups.
+ 2026-05-29   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-05-29  : **4.8.0**
 
