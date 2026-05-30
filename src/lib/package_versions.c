@@ -223,10 +223,14 @@ int update_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_v
      */
     bool updated = false;
     if (got_now_vers) {
-        // "now current" becomes previous
+        /*
+         * If current different, than previous is now the old current.
+         */
         if (strncmp(pkg_vers->current, pkg_vers_now.current, MAX_VAL_LEN+1) != 0) {
             strncpy(pkg_vers->previous, pkg_vers_now.current, MAX_VAL_LEN+1);
             updated = true;
+        } else {
+            strncpy(pkg_vers->previous, pkg_vers_now.previous, MAX_VAL_LEN+1);
         }
     } else {
         updated = true;

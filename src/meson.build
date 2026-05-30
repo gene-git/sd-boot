@@ -7,9 +7,9 @@
 #
 # meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static -Dstrip=false
 # meson compile -C build/debug
-# DESTDIR=<full-path> ninja -C build/debug install
+# meson install -C build/debug --destdir <xxx>
+# Alternative is: DESTDIR=<full-path> ninja -C build/debug install
 # Note this strips debug symbols
-#   meson install -C build/debug --destdir <xxx>
 #
 # meson test -C build/release --setup=standard [test_x]
 # meson test -C build/release --setup=valgrind [test_x]
@@ -60,9 +60,11 @@ inc_dir = include_directories('lib/include')
 
 lib_sources = files(
     'lib/array_str.c',
+    'lib/array_str_move.c',
     'lib/config.c',
     'lib/copy_file.c',
     'lib/dev_info.c',
+    'lib/dir_dup_links.c',
     'lib/dynamic_string.c',
     'lib/efi_image.c',
     'lib/env.c',
@@ -72,12 +74,15 @@ lib_sources = files(
     'lib/is_kernel_image.c',
     'lib/kernel_info_all.c',
     'lib/kernel_info.c',
-    'lib/kernel_install_oper.c',
-    'lib/kernel_install_plugin.c',
-    'lib/kernel_install_run.c',
     'lib/kernel_triggers.c',
     'lib/keyval.c',
-    'lib/ki_plugin_env.c',
+    'lib/ki_efi_conf_bls.c',
+    'lib/ki_efi_env.c',
+    'lib/ki_oper.c',
+    'lib/ki_plugin.c',
+    'lib/ki_plugin_efi_env.c',
+    'lib/ki_plugin_test_env.c',
+    'lib/ki_run.c',
     'lib/loaderentry_efi.c',
     'lib/loaderentry_kernel.c',
     'lib/loaderentry_modify_file.c',
@@ -239,7 +244,7 @@ test('test_t2', run_one_test,
   workdir: testing_dir,
   )
 
-t3_input_file = files(testing_dir / 'Triggers/efi-tool-update')
+t3_input_file = files(testing_dir / 'Triggers/edk2-shell')
 test('test_t3', run_one_test,
   args: [efi_tool_update, t3_input_file, 'add'],
   workdir: testing_dir,

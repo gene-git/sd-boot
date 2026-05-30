@@ -148,6 +148,9 @@ typedef struct {
     KernelInstallOper oper;
     char *oper_str;
 
+    char *kernel_conf_dir;
+    char *kernel_conf_bls_dir;
+
 } SdBoot;
 
 
@@ -266,6 +269,9 @@ int array_str_new(size_t num_rows, Array_str *arr);
 int array_str_resize(size_t num_rows, Array_str *arr);
 int array_str_free(Array_str *arr);
 
+// array_str_move.c
+int array_str_move(Array_str *arr_1, Array_str *arr_2);
+
 // config.c
 int load_config(SdBoot *conf);
 void clean_config(SdBoot *conf);
@@ -280,6 +286,9 @@ void clean_devinfo(DevInfo *info);
 // efi_image.c
 char *efi_image_to_package(SdBoot *conf, const char *path);
 char *package_to_efi_image(SdBoot *conf, char *pkg);
+
+// dir_dup_links.c
+int dir_dup_links(const char *src, const char *dst, Array_str *skips);
 
 // dynamic_string.c
 int dynamic_str_alloc(size_t num, Dynamic_str *str);
@@ -310,20 +319,6 @@ void kernel_info_free(KernelInfo *info);
 // kernel_info_all.c
 int kernel_info_all(size_t *num_info_p, KernelInfo **info_p);
 
-// kernel_install_run.c
-int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]);
-
-// kernel_install_oper.c
-KernelInstallOper kernel_install_oper(char *oper);
-
-// kernel_install_plugin.c
-int plugin_init(int argc, const char *argv[], KIplugin *plugin);
-void plugin_free(KIplugin *plugin);
-
-// managed_packages.c
-int load_kernel_packages(SdBoot *conf, Array_str *arr);
-int load_efi_tool_packages(SdBoot *conf, Array_str *arr);
-
 // kernel_triggers.
 int get_kernel_triggers(Triggers *trigs);
 void free_triggers(Triggers *trigs);
@@ -332,9 +327,25 @@ void free_triggers(Triggers *trigs);
 int read_kv_elems(const char *path, size_t num, KvElem *elem, size_t *num_found_p);
 int alloc_kv_elems(size_t num, KvElem **elem_p);
 
+// ki_efi_conf_bls.c
+int ki_make_kernel_conf_bls(SdBoot *conf);
+
+// ki_efi_env.c
+int ki_efi_update_env(SdBoot *conf, Array_str *env);
+
+// ki_oper.c
+KernelInstallOper kernel_install_oper(char *oper);
+
+// ki_plugin.c
+int plugin_init(int argc, const char *argv[], KIplugin *plugin);
+void plugin_free(KIplugin *plugin);
+
 // ki_plugin_env.c
 int ki_plugins_test_env(char *test_root, Array_str *env);
 int ki_plugins_efi_update_env(char *test_root, Array_str *env);
+
+// ki_run.c
+int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]);
 
 // loaderentry_modify_file.c 
 int loaderentry_modify_file(LoaderEntry *entry);
@@ -344,6 +355,10 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin);
 
 // loaderentry_kernel.c
 int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin);
+
+// managed_packages.c
+int load_kernel_packages(SdBoot *conf, Array_str *arr);
+int load_efi_tool_packages(SdBoot *conf, Array_str *arr);
 
 // read_file.c
 int read_file(const char *path, Array_str *arr);
@@ -364,8 +379,9 @@ void strip_file_extension(char *filename, const char *ext);
 int str_to_int(char *str, int low_value, int high_value);
 
 // msg.c
-void set_verb_level(int verb_level);
+[[gnu::format(printf, 2, 3)]]
 void msg(int msg_level, const char *fmt, ...);
+void set_verb_level(int verb_level);
 
 // package_versions.c
 int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_vers);
@@ -395,7 +411,7 @@ int run_cmd(char **argv, char **envp, int *child_ret_p);
 int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p);
 
 // string_in_list.c
-bool string_in_list(char *name, size_t num_names, char **names);
+bool string_in_list(const char *name, size_t num_names, char **names);
 
 // trim_string.c
 char *trim_string(char *str, size_t max_len);

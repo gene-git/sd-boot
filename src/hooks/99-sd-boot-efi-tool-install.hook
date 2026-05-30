@@ -8,6 +8,7 @@ Operation = Install
 Operation = Upgrade
 Target = edk2-shell
 Target = memtest86_64-git
+Target = sd-boot
 
 [Action]
 Description = sd-boot: installing an efi tool to EFI

@@ -25,5 +25,6 @@ echo " clang-tidy:"
 
 # ensure compile_commands.json is available
 meson setup --reconfigure build/release --buildtype=release -Ddefault_library=static  > /dev/null
-/usr/bin/run-clang-tidy -p build/release lib plugins tools 2>&1 > "$log_dir/clang-tidy"
+
+/usr/bin/clang-tidy -p build/release lib/*.c plugins/*.c tools/*.c > "$log_dir/clang-tidy" 2>&1
 

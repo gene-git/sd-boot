@@ -52,7 +52,7 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
         goto exit;
     }
 
-    if (!string_in_list(info.package, pkgs_arr.num_rows, pkgs_arr.rows)) {
+    if (!string_in_list((const char *)info.package, pkgs_arr.num_rows, pkgs_arr.rows)) {
         goto exit;
     }
 

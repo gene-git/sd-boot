@@ -93,6 +93,25 @@ static int kernel_config(SdBoot *conf) {
     KvElem *elems = nullptr;
     size_t num_elems = 0;
 
+    /*
+     * We dont want kernel_conf_bls_dir configurable
+     * its used by efi tool to make a shadow /etc/kernel but with
+     * layout set to bls.
+     */
+    if (snprintf(path, sizeof(path), "%s/%s", conf->info.root, "etc/kernel") < 0) {
+        perror(nullptr);
+        ret = -1;
+        goto exit;
+    }
+    conf->kernel_conf_dir = strdup(path);
+
+    if (snprintf(path, sizeof(path), "%s/%s", conf->info.root, "var/lib/sd-boot/kernel_conf_bls") < 0) {
+        perror(nullptr);
+        ret = -1;
+        goto exit;
+    }
+    conf->kernel_conf_bls_dir = strdup(path);
+
     num_elems = 3;
     ret = alloc_kv_elems(num_elems, &elems);
     if (ret != 0) {
@@ -203,5 +222,11 @@ void clean_config(SdBoot *conf) {
     }
     if (conf->oper_str != nullptr) {
         free((void *)conf->oper_str);
+    }
+    if (conf->kernel_conf_dir) {
+        free((void *)conf->kernel_conf_dir);
+    }
+    if (conf->kernel_conf_bls_dir) {
+        free((void *)conf->kernel_conf_bls_dir);
     }
 }

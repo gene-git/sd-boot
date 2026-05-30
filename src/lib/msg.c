@@ -27,6 +27,7 @@ void set_verb_level(int verb_level) {
     }
 }
 
+[[gnu::format(printf, 2, 3)]]
 void msg(int msg_level, const char *fmt, ...) {
     if (fmt == nullptr) {
         return;

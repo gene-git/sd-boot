@@ -234,7 +234,7 @@ int main(int argc, const char *argv[]) {
 
         default:
             ret = 1;
-            msg(MSG_ERR, "  sd-boot - unknown alterative : %s\n", choice);
+            msg(MSG_ERR, "  sd-boot - unknown alterative : %d\n", choice);
     }
 
 exit:

@@ -53,7 +53,8 @@ static int efi_tool_add(SdBoot *conf, char *pkg) {
     /*
      * set up special efi plugins environ to use
      */
-    ret = ki_plugins_efi_update_env(conf->info.root, &env_arr);
+    //ret = ki_plugins_efi_update_env(conf->info.root, &env_arr);
+    ret = ki_efi_update_env(conf, &env_arr);
     if (ret != 0) {
         ret = 1;
         goto exit;
@@ -153,7 +154,8 @@ static int efi_tool_remove(SdBoot *conf, char *pkg) {
 
     msg(MSG_NORMAL, "  ↳ sd-boot: Removing efi tool %s\n", pkg);
     
-    ret = ki_plugins_efi_update_env(conf->info.root, &env_arr);
+    //ret = ki_plugins_efi_update_env(conf->info.root, &env_arr);
+    ret = ki_efi_update_env(conf, &env_arr);
     if (ret != 0) {
         ret = 1;
         goto exit;

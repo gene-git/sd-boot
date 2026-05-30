@@ -22,7 +22,7 @@ echo ""
 echo "-------------------------------"
 echo "Building : debug"
 echo ""
-/usr/bin/meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static
+/usr/bin/meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static -Dstrip=false
 /usr/bin/meson compile -C build/debug
 
 echo ""

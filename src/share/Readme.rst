@@ -9,6 +9,25 @@ sd-boot
 Recent Changes
 ==============
 
+**4.9.1**
+
+* Fix broken efi tool installin "uki" layout.
+
+  efi tool installs only work in bls layout. kernel-install (as of systemd version 260)
+  provides no clear way to specify the layout at run time. We work around this for 
+  (non-kernel) efi tools by using a "shadow" kernel-install config with bls layout.
+
+  Please reinstall any efi tools (e.g. pacman -Syu edk2-shell) to ensure latest version
+  is installed in $BOOT.
+
+* Efi tool ALPM hook now triggers on sd-boot.
+
+* Set default layout to "uki" in /etc/kernel/install.conf
+
+  May need to be changed manually.
+
+* Some code tidy ups.
+
 **4.8.0**
 
 * Fix installer typo for loaderentry modify.
@@ -36,25 +55,6 @@ Recent Changes
 * When kernel is removed, the display message is now more explicit on *remove* vs *add*.
 * Some code tidy ups.
 * No functional change.
-
-**4.7.1**
-
-* Change PKGBUILD arch to x85_64 not any.
-* Change linking to only use libblkid where needed.
-* Clean up cruft from CMakeLists.txt
-
-**4.7.0**
-
-* Read /etc/kernel/install.conf so code is aware of layout (bls or uki).
-* Loader entry plugin now exits earlier for uki kernels which has no loader entries.
-* kernel-install remove does not need kernel image
-* Add sbctl and systemd-ukify as dependencies
-* Little code tidy
-
-**4.6.0**
-
-* Loader entries are not used for UKI layout. 
-  Turn off messages about missing loader entries.
 
 See Changelog for more history.
 

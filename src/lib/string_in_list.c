@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool string_in_list(char *name, size_t num_names, char **names) {
+bool string_in_list(const char *name, size_t num_names, char **names) {
     /*
      * Return true if name in names
      * else false
