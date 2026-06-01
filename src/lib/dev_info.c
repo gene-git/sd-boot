@@ -32,8 +32,8 @@ static int dev_root_init(DevInfo *info) {
      * - Can only be run in Testing dir or it's parent dir
     */
     int ret = 0;
-    char cwd_env[PATH_MAX] = {'\0'};
-    char top_dir[PATH_MAX] = {'\0'};
+    char cwd_env[PATH_MAX] = {};
+    char top_dir[PATH_MAX] = {};
     const char *testing = "Testing";
     const char *root = "__root__";
     char *cwd_base = nullptr;
@@ -77,7 +77,7 @@ static int dev_root_init(DevInfo *info) {
         goto exit;
     }
 
-    char tmp_path[PATH_MAX] = {'\0'};
+    char tmp_path[PATH_MAX] = {};
     if (snprintf(tmp_path, PATH_MAX, "BOOT_ROOT=%s/boot", info->root) < 0) {
         perror(nullptr);
         ret = -1;
@@ -140,7 +140,7 @@ static void dev_tree_setup(DevInfo *info) {
      * make testing root tree
      */
     int num_dirs = sizeof(dirs)/sizeof(dirs[0]);
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
 
     for (int i = 0; i < num_dirs; i++) {
         if (snprintf(path, PATH_MAX, "%s/%s", info->root, dirs[i]) < 0) {

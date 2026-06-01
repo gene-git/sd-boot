@@ -11,6 +11,6 @@ Target = memtest86_64-git
 [Action]
 Description = sd-boot: Removing efi tool from ESP
 When = PreTransaction
-Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update remove
+Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update-triggers remove
 NeedsTargets
  

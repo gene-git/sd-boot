@@ -10,7 +10,7 @@
 
 #include "sd-boot.h"
 
-KernelInstallOper kernel_install_oper(char *oper) {
+KernelInstallOper kernel_install_oper(const char *oper) {
     /*
      * Valid args are add or remove
      */

@@ -30,7 +30,7 @@ int copy_file(const char *src, const char *dst) {
         goto exit;
     }
 
-    unsigned char buf[CHUNK] = {'\0'};
+    unsigned char buf[CHUNK] = {};
     const size_t buf_size = sizeof(buf[0]);
     const size_t buf_count = sizeof(buf) / buf_size;
     const size_t buf_bytes = buf_size * buf_count;

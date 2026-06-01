@@ -42,7 +42,7 @@ static int kernel_mod_dir_to_package(KernelInfo *info) {
     };
     size_t num_files = sizeof(files) / sizeof(files[0]);
 
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
     char *str = nullptr;
 
     for (size_t i = 0 ; i < num_files; i++) {

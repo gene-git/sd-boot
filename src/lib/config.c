@@ -27,7 +27,7 @@ enum Constants { VERB_MAX = 2 };
  * - verb
  */
 static int our_config(SdBoot *conf) {
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
     int ret = 0;
     KvElem *elems = nullptr;
     size_t num_elems = 0;
@@ -88,7 +88,7 @@ exit:
  * - uki_generator      ukify
  */
 static int kernel_config(SdBoot *conf) {
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
     int ret = 0;
     KvElem *elems = nullptr;
     size_t num_elems = 0;
@@ -98,14 +98,23 @@ static int kernel_config(SdBoot *conf) {
      * its used by efi tool to make a shadow /etc/kernel but with
      * layout set to bls.
      */
-    if (snprintf(path, sizeof(path), "%s/%s", conf->info.root, "etc/kernel") < 0) {
+    size_t root_len = strlen(conf->info.root);
+    char *path_sep = nullptr;
+
+    if (conf->info.root[root_len - 1] == '/') {
+        path_sep = "";
+    } else {
+        path_sep = "/";
+    }
+
+    if (snprintf(path, sizeof(path), "%s%s%s", conf->info.root, path_sep, "etc/kernel") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
     }
     conf->kernel_conf_dir = strdup(path);
 
-    if (snprintf(path, sizeof(path), "%s/%s", conf->info.root, "var/lib/sd-boot/kernel_conf_bls") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s%s", conf->info.root, path_sep, "var/lib/sd-boot/kernel_conf_bls") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -178,6 +187,11 @@ exit:
  * read config files
  * - /etc/sd-boot/config
  * - /etc/kernel/install.conf
+ *
+ * Return:
+ *   0 = success
+ *  -1 = failed to load (warning) 
+ *  -2 = fatal (root required)
  */
 int load_config(SdBoot *conf) {
     int ret = 0;

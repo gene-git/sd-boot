@@ -9,9 +9,25 @@ sd-boot
 Recent Changes
 ==============
 
+**5.1.0**
+
+* Avoid double "//" in efi tool shadow directory path name.
+* Error messages to stderr instead of stdout.
+* Code structure re-org.
+* More code tidy ups.
+* Add standalone tools (installed in /usr/bin):
+
+  * sd-boot-efi-tool-update <oper> <package-name>
+  * sd-boot-kernel-update <oper> <package-name>
+
+  Where <oper> is add or remove or inspect (see man kernel-install).
+  Note that <package-name> must be already installed via pacman.
+* Improve way shadow "install.conf" is created. If file exists and is correct then
+  dont write it again. 
+
 **4.9.1**
 
-* Fix broken efi tool installin "uki" layout.
+* Fix broken efi tool installation when using "uki" layout.
 
   efi tool installs only work in bls layout. kernel-install (as of systemd version 260)
   provides no clear way to specify the layout at run time. We work around this for 
@@ -47,16 +63,28 @@ Recent Changes
 * Use meson to run tests.
 * No functional change.
 
-**4.7.2**
-
-* Loaderentry: take "layout" provided by kernel-install since KERNEL_INSTALL_LAYOUT env. can override 
-  /etc/kernel/install.conf. This is more robust approach. The layout is only used to avoid an 
-  unnecessary fork/exec when layout is *uki*.
-* When kernel is removed, the display message is now more explicit on *remove* vs *add*.
-* Some code tidy ups.
-* No functional change.
-
 See Changelog for more history.
+
+Todo:
+-----
+
+* When switching from layyout from bls to uki, previous kernel is not removed 
+  since it  was installed using bls layout while *kernel-install remove*
+  is now using uki layout. This leaves the previous bls kernel install instead of 
+  removing it. Same would be true switching layout from uki back to bls. 
+
+  This means, at least for now, that manual intervention is necessary after changing layout 
+  to avoid leaving un-needed files. While it is benign they do take disk space.
+
+  For example after changing to uki layout, check */boot/loader/entries* and
+  */boot/<machine-id>/* and remove the older kernel(s) that are no longer needed. 
+  
+  In uki mode there are no loader entry files at all and kernels are installed 
+  in */boot/EFI/Linux* not in */boot/<machine-id>*.
+
+  Here */boot* means either */boot* or */efi* as appropriate.
+
+* So, it would be good to have the code be more helpful with this.
 
 Overview
 ========

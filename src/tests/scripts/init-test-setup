@@ -44,6 +44,7 @@ install_done_file="$build_dir/.init_install_done.$ppid"
 
         # make sure linux is listed as packaage handled by sd-boot (for testing)
         echo "linux" >> "$testing_dir/__root__/etc/sd-boot/kernel.packages"
+
         cd $cwd
     fi
 } 9>"$lock_file"

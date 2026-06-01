@@ -56,44 +56,34 @@ my_ldflags = [
 #
 # Source code
 #
-inc_dir = include_directories('lib/include')
+inc_dir = include_directories('include')
 
 lib_sources = files(
     'lib/array_str.c',
     'lib/array_str_move.c',
+    'lib/check_permission.c',
     'lib/config.c',
     'lib/copy_file.c',
     'lib/dev_info.c',
     'lib/dir_dup_links.c',
     'lib/dynamic_string.c',
-    'lib/efi_image.c',
     'lib/env.c',
     'lib/file_list_glob.c',
     'lib/find_efi_current.c',
     'lib/get_one_line.c',
-    'lib/is_kernel_image.c',
-    'lib/kernel_info_all.c',
-    'lib/kernel_info.c',
-    'lib/kernel_triggers.c',
     'lib/keyval.c',
-    'lib/ki_efi_conf_bls.c',
-    'lib/ki_efi_env.c',
     'lib/ki_oper.c',
     'lib/ki_plugin.c',
-    'lib/ki_plugin_efi_env.c',
     'lib/ki_plugin_test_env.c',
     'lib/ki_run.c',
-    'lib/loaderentry_efi.c',
-    'lib/loaderentry_kernel.c',
     'lib/loaderentry_modify_file.c',
+    'lib/make_bls_install_conf.c',
     'lib/make_dir.c',
     'lib/make_symlink.c',
-    'lib/managed_packages.c',
     'lib/misc.c',
     'lib/msg.c',
     'lib/package_version_installed.c',
     'lib/package_versions.c',
-    'lib/parse_kernel_triggers.c',
     'lib/path_add_slash.c',
     'lib/read_file.c',
     'lib/read_one_line.c',
@@ -105,6 +95,28 @@ lib_sources = files(
     'lib/string_in_list.c',
     'lib/trim_string.c',
     'lib/ukify_os_release.c',
+    #
+    'lib-efi/efi_image.c',
+    'lib-efi/efi_tool_add.c',
+    'lib-efi/efi_tool_inspect.c',
+    'lib-efi/efi_tool_remove.c',
+    'lib-efi/ki_efi_conf_bls.c',
+    'lib-efi/ki_efi_env.c',
+    'lib-efi/ki_plugin_efi_env.c',
+    'lib-efi/loaderentry_efi.c',
+    'lib-efi/managed_pkg.c',
+    #
+    'lib-kernel/is_kernel_image.c',
+    'lib-kernel/kernel_add_remove.c',
+    'lib-kernel/kernel_info_all.c',
+    'lib-kernel/kernel_info.c',
+    'lib-kernel/kernel_inspect.c',
+    'lib-kernel/kernel_pkg_to_info.c',
+    'lib-kernel/kernel_triggers.c',
+    'lib-kernel/ki_kernel_env.c',
+    'lib-kernel/loaderentry_kernel.c',
+    'lib-kernel/managed_kernel.c',
+    'lib-kernel/parse_kernel_triggers.c',
     )
 
 #
@@ -147,8 +159,26 @@ efifs_update = executable('sd-boot-efifs-update',
   install_dir: '/usr/lib/sd-boot'
 )
 
+efi_tool_update_triggers = executable('sd-boot-efi-tool-update-triggers',
+  sources: 'tools-efi/efi-tool-update-triggers.c',
+  dependencies: sd_boot_dep,
+  c_args: my_cflags,
+  link_args: my_ldflags,
+  install: true,
+  install_dir: '/usr/lib/sd-boot'
+)
+
 efi_tool_update = executable('sd-boot-efi-tool-update',
-  sources: 'tools/efi-tool-update.c',
+  sources: 'tools-efi/efi-tool-update.c',
+  dependencies: sd_boot_dep,
+  c_args: my_cflags,
+  link_args: my_ldflags,
+  install: true,
+  install_dir: '/usr/bin'
+)
+
+kernel_update_triggers = executable('sd-boot-kernel-update-triggers',
+  sources: 'tools-kernel/kernel-update-triggers.c',
   dependencies: sd_boot_dep,
   c_args: my_cflags,
   link_args: my_ldflags,
@@ -157,16 +187,16 @@ efi_tool_update = executable('sd-boot-efi-tool-update',
 )
 
 kernel_update = executable('sd-boot-kernel-update',
-  sources: 'tools/kernel-update.c',
+  sources: 'tools-kernel/kernel-update.c',
   dependencies: sd_boot_dep,
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/lib/sd-boot'
+  install_dir: '/usr/bin'
 )
 
 loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
-  sources: 'plugins/loaderentry-modify.c',
+  sources: 'tools-plugins/loaderentry-modify.c',
   dependencies: sd_boot_dep,
   c_args: my_cflags,
   link_args: my_ldflags,
@@ -177,31 +207,31 @@ loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
 #
 # Configs / Hooks
 #
-install_data('etc/dracut.conf.d/010-dracut.conf', install_dir: '/etc/dracut.conf.d')
+install_data('data/etc/dracut.conf.d/010-dracut.conf', install_dir: '/etc/dracut.conf.d')
 
-install_data('etc/kernel/install.conf', install_dir: '/etc/kernel')
-install_data('etc/kernel/ukify.conf', install_dir: '/etc/kernel')
+install_data('data/etc/kernel/install.conf', install_dir: '/etc/kernel')
+install_data('data/etc/kernel/ukify.conf', install_dir: '/etc/kernel')
 
-install_data('etc/sd-boot/config', install_dir: '/etc/sd-boot')
-install_data('etc/sd-boot/edk2-shell.image', install_dir: '/etc/sd-boot')
-install_data('etc/sd-boot/efi-tool.packages', install_dir: '/etc/sd-boot')
-install_data('etc/sd-boot/kernel.packages', install_dir: '/etc/sd-boot')
-install_data('etc/sd-boot/memtest86_64-git.image', install_dir: '/etc/sd-boot')
+install_data('data/etc/sd-boot/config', install_dir: '/etc/sd-boot')
+install_data('data/etc/sd-boot/edk2-shell.image', install_dir: '/etc/sd-boot')
+install_data('data/etc/sd-boot/efi-tool.packages', install_dir: '/etc/sd-boot')
+install_data('data/etc/sd-boot/kernel.packages', install_dir: '/etc/sd-boot')
+install_data('data/etc/sd-boot/memtest86_64-git.image', install_dir: '/etc/sd-boot')
 
-install_data('hooks/60-sd-boot-kernel-remove.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('hooks/69-sd-boot-efifs-remove.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('hooks/70-sd-boot-efi-tool-remove.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('hooks/90-sd-boot-kernel-install.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('hooks/99-sd-boot-efifs-install.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('hooks/99-sd-boot-efi-tool-install.hook', install_dir: '/usr/share/libalpm/hooks')
+install_data('data/hooks/60-sd-boot-kernel-remove.hook', install_dir: '/usr/share/libalpm/hooks')
+install_data('data/hooks/69-sd-boot-efifs-remove.hook', install_dir: '/usr/share/libalpm/hooks')
+install_data('data/hooks/70-sd-boot-efi-tool-remove.hook', install_dir: '/usr/share/libalpm/hooks')
+install_data('data/hooks/90-sd-boot-kernel-install.hook', install_dir: '/usr/share/libalpm/hooks')
+install_data('data/hooks/99-sd-boot-efifs-install.hook', install_dir: '/usr/share/libalpm/hooks')
+install_data('data/hooks/99-sd-boot-efi-tool-install.hook', install_dir: '/usr/share/libalpm/hooks')
 
-install_data('share/Changelog.rst', install_dir: '/usr/share/sd-boot')
-install_data('share/loader.conf', install_dir: '/usr/share/sd-boot')
-install_data('share/Readme.rst', install_dir: '/usr/share/sd-boot')
-install_data('share/License/License-gpl-2.0.txt', install_dir: '/usr/share/sd-boot/License')
-install_data('share/License/License.rst', install_dir: '/usr/share/sd-boot/License')
+install_data('data/share/Changelog.rst', install_dir: '/usr/share/sd-boot')
+install_data('data/share/loader.conf', install_dir: '/usr/share/sd-boot')
+install_data('data/share/Readme.rst', install_dir: '/usr/share/sd-boot')
+install_data('data/share/License/License-gpl-2.0.txt', install_dir: '/usr/share/sd-boot/License')
+install_data('data/share/License/License.rst', install_dir: '/usr/share/sd-boot/License')
 
-install_data('share/License/License.rst', install_dir: '/usr/share/licenses/sd-boot')
+install_data('data/share/License/License.rst', install_dir: '/usr/share/licenses/sd-boot')
 
 #
 # Tests: set up
@@ -246,13 +276,33 @@ test('test_t2', run_one_test,
 
 t3_input_file = files(testing_dir / 'Triggers/edk2-shell')
 test('test_t3', run_one_test,
-  args: [efi_tool_update, t3_input_file, 'add'],
+  args: [efi_tool_update_triggers, t3_input_file, 'add'],
   workdir: testing_dir,
   )
 
-t4_input_file = files(testing_dir / 'Triggers/linux')
 test('test_t4', run_one_test,
-  args: [kernel_update, t4_input_file, 'add'],
+  args: [efi_tool_update, '-none-', 'add', 'edk2-shell'],
+  workdir: testing_dir,
+  )
+
+test('test_t4a', run_one_test,
+  args: [efi_tool_update, '-none-', 'inspect', 'edk2-shell'],
+  workdir: testing_dir,
+  )
+
+t5_input_file = files(testing_dir / 'Triggers/linux')
+test('test_t5', run_one_test,
+  args: [kernel_update_triggers, t5_input_file, 'add'],
+  workdir: testing_dir,
+  )
+
+test('test_t6', run_one_test,
+  args: [kernel_update, '-none-', 'add', 'linux'],
+  workdir: testing_dir,
+  )
+
+test('test_t6a', run_one_test,
+  args: [kernel_update, '-none-', 'inspect', 'linux'],
   workdir: testing_dir,
   )
 

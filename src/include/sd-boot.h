@@ -165,7 +165,6 @@ typedef struct {
 } PackageVersion;   // no packed
 
 
-
 /*
  *
  * Kernel-Install Plugin
@@ -259,11 +258,12 @@ typedef struct {
 } MountPoints;
 
 /*
- *
- * Library function declarations
- *
-*/
+ * Function declarations
+ */
 
+/*
+ * lib
+ */
 // arr_str.c
 int array_str_new(size_t num_rows, Array_str *arr);
 int array_str_resize(size_t num_rows, Array_str *arr);
@@ -271,6 +271,9 @@ int array_str_free(Array_str *arr);
 
 // array_str_move.c
 int array_str_move(Array_str *arr_1, Array_str *arr_2);
+
+// check_permission.c
+bool check_permission(SdBoot *conf);
 
 // config.c
 int load_config(SdBoot *conf);
@@ -282,10 +285,6 @@ int copy_file(const char *src, const char *dst);
 // dev_info.c
 int init_devinfo(DevInfo *info);
 void clean_devinfo(DevInfo *info);
-
-// efi_image.c
-char *efi_image_to_package(SdBoot *conf, const char *path);
-char *package_to_efi_image(SdBoot *conf, char *pkg);
 
 // dir_dup_links.c
 int dir_dup_links(const char *src, const char *dst, Array_str *skips);
@@ -309,32 +308,12 @@ int find_efi_xbootldr_mounts(Array_str *efi, Array_str *xbootldr);
 // get_one_line.c
 char *get_one_line(char **state_p); 
 
-// is_kernel_image.c
-int is_kernel_image_path(char *image, bool *is_kernel);
-
-// kernel_info.c
-int kernel_image_path_to_info(KernelInfo *info);
-void kernel_info_free(KernelInfo *info);
-
-// kernel_info_all.c
-int kernel_info_all(size_t *num_info_p, KernelInfo **info_p);
-
-// kernel_triggers.
-int get_kernel_triggers(Triggers *trigs);
-void free_triggers(Triggers *trigs);
-
 // keyval.c
 int read_kv_elems(const char *path, size_t num, KvElem *elem, size_t *num_found_p);
 int alloc_kv_elems(size_t num, KvElem **elem_p);
 
-// ki_efi_conf_bls.c
-int ki_make_kernel_conf_bls(SdBoot *conf);
-
-// ki_efi_env.c
-int ki_efi_update_env(SdBoot *conf, Array_str *env);
-
 // ki_oper.c
-KernelInstallOper kernel_install_oper(char *oper);
+KernelInstallOper kernel_install_oper(const char *oper);
 
 // ki_plugin.c
 int plugin_init(int argc, const char *argv[], KIplugin *plugin);
@@ -342,7 +321,6 @@ void plugin_free(KIplugin *plugin);
 
 // ki_plugin_env.c
 int ki_plugins_test_env(char *test_root, Array_str *env);
-int ki_plugins_efi_update_env(char *test_root, Array_str *env);
 
 // ki_run.c
 int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]);
@@ -350,15 +328,8 @@ int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]);
 // loaderentry_modify_file.c 
 int loaderentry_modify_file(LoaderEntry *entry);
 
-// loaderentry_efi.c
-int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin);
-
-// loaderentry_kernel.c
-int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin);
-
-// managed_packages.c
-int load_kernel_packages(SdBoot *conf, Array_str *arr);
-int load_efi_tool_packages(SdBoot *conf, Array_str *arr);
+// make_bls_install_conf.c
+int make_bls_install_conf(const char *src, const char *dst);
 
 // read_file.c
 int read_file(const char *path, Array_str *arr);
@@ -391,9 +362,6 @@ int remove_package_versions(SdBoot *conf, const char *pkg);
 // package_version_installed.c
 int package_version_installed(const char *pkg, size_t len_vers, char *vers);
 
-// parse_kernel_triggers.c
-int parse_kernel_triggers(Array_str *trigs_all, Triggers *trigs);
-
 // path_add_slash.c
 int path_add_slash(char *path, char **path_p);
 
@@ -419,5 +387,77 @@ void strip_whitespace(char *str);
 
 // ukify_os_release.c
 int ukify_os_release(const char *name, const char *build_id, Dynamic_str *os_release);
+
+/*
+ * lib-efi
+ */
+// efi_image.c
+char *efi_image_to_package(SdBoot *conf, const char *path);
+char *package_to_efi_image(SdBoot *conf, const char *pkg);
+
+// efi_tool_add.c
+int efi_tool_add(SdBoot *conf, const char *pkg);
+
+// efi_tool_inspect.c
+int efi_tool_inspect(SdBoot *conf, const char *pkg);
+
+// efi_tool_remove.c
+int efi_tool_remove(SdBoot *conf, const char *pkg);
+
+// ki_efi_conf_bls.c
+int ki_make_kernel_conf_bls(SdBoot *conf);
+
+// ki_efi_env.c
+int ki_efi_update_env(SdBoot *conf, Array_str *env);
+
+// loaderentry_efi.c
+int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin);
+
+// ki_plugin_efi_env.c
+int ki_plugins_efi_update_env(char *test_root, Array_str *env);
+
+// managed_pkg.c
+bool is_efi_pkg_sd_boot_managed(Array_str *pkgs_arr, const char *pkg);
+int load_efi_tool_packages(SdBoot *conf, Array_str *arr);
+
+/*
+ * lib-kernel
+ */
+// is_kernel_image.c
+int is_kernel_image_path(char *image, bool *is_kernel);
+
+// kernel_add_remove.c
+int kernel_add_remove(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info);
+
+// kernel_info_all.c
+int kernel_info_all(size_t *num_info_p, KernelInfo **info_p);
+
+// kernel_info.c
+int kernel_image_path_to_info(KernelInfo *info);
+void kernel_info_free(KernelInfo *info);
+
+// kernel_inspect.c
+int kernel_inspect(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info);
+
+// kernel_pkg_to_info.c
+int kernel_pkg_to_info(const char *pkg, KernelInfo *info);
+
+// kernel_triggers.c
+int get_kernel_triggers(Triggers *trigs);
+void free_triggers(Triggers *trigs);
+
+// ki_kernel_env.c
+int ki_kernel_update_env(SdBoot *conf, Array_str *env);
+
+// loaderentry_kernel.c
+int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin);
+
+// managed_kernel.c
+bool is_kernel_sd_boot_managed(Array_str *pkgs_arr, KernelInfo *info);
+int load_managed_kernel_packages(SdBoot *conf, Array_str *arr);
+
+// parse_kernel_triggers.c
+int parse_kernel_triggers(Array_str *trigs_all, Triggers *trigs);
+
 
 #endif

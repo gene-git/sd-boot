@@ -19,7 +19,7 @@
 
 #include "sd-boot.h"
 
-char *package_to_efi_image(SdBoot *conf, char *pkg) {
+char *package_to_efi_image(SdBoot *conf, const char *pkg) {
     /*
      * Given package name of an efi tool, find the path
      * to the source efi image.
@@ -31,7 +31,7 @@ char *package_to_efi_image(SdBoot *conf, char *pkg) {
      * efi_path is allocated - caller must free()
      * 
      */
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
     char *efi_path = nullptr;
 
     if (snprintf(path, sizeof(path), "%s/%s%s.image", conf->info.root, "etc/sd-boot/", pkg) < 0) {
@@ -71,7 +71,7 @@ char *efi_image_to_package(SdBoot *conf, const char *path) {
      * - should never be duplicates - for safety we take first matching package
      */
     glob_t gstruct = {};
-    char pattern[PATH_MAX] = {'\0'};
+    char pattern[PATH_MAX] = {};
     char *this_path = nullptr;
     char *filename = nullptr;
     char *file = nullptr;

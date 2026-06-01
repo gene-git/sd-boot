@@ -13,6 +13,6 @@ Target = sd-boot
 [Action]
 Description = sd-boot: installing an efi tool to EFI
 When = PostTransaction
-Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update add
+Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update-triggers add
 NeedsTargets
  

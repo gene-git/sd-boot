@@ -33,7 +33,7 @@ int ki_plugins_efi_update_env(char *test_root, Array_str *env) {
      */
     const char* var = "KERNEL_INSTALL_PLUGINS=";
     const char *entry_one = "/usr/lib/kernel/install.d/90-loaderentry.install";
-    char entry_two[PATH_MAX] = {'\0'};
+    char entry_two[PATH_MAX] = {};
     char *env_var = nullptr;
 
     if (env == nullptr) {

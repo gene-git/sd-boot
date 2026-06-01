@@ -95,7 +95,7 @@ static int loader_entry(KIplugin *plugin) {
      * Path to loader entry file
      */
     int ret = 0;
-    char buf[PATH_MAX] = {'\0'};
+    char buf[PATH_MAX] = {};
 
     /*
      * loader entry dir

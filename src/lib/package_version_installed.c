@@ -30,7 +30,7 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
 
     ret = run_cmd_output((char **)argv, (char **)envp, &output, &child_ret) ;
     if (ret != 0) {
-        msg(MSG_ERR, "  ! sd-boot: failed get efi from bootctl\n");
+        msg(MSG_ERR, "  ! sd-boot: failed get package info from pacman\n");
         return -1;
     }
 
@@ -48,7 +48,7 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
     char *ptr = output;
     char *save_ptr = nullptr;
 
-    char tmp[MAX_VAL_LEN+1] = {'\0'};
+    char tmp[MAX_VAL_LEN+1] = {};
     char *tmp_ptr = nullptr;
 
     token = strtok_r(ptr, " ", &save_ptr);

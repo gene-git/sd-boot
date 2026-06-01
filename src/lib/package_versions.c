@@ -22,7 +22,7 @@ static int package_vers_filename(const char *pkg, char *root, char *path, size_t
     /*
      * Make sure dirs exist
      */
-    char path_dir[PATH_MAX] = {'\0'};
+    char path_dir[PATH_MAX] = {};
 
     if (snprintf(path_dir, len_path, "%s/%s", root, "var/lib/sd-boot") < 0) {
         perror(nullptr);
@@ -51,7 +51,7 @@ static int write_package_versions(char *root, PackageVersion *pkg_vers) {
      * Write the package file curr/prev vers file
      */
     int ret = 0;
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
 
     if (package_vers_filename(pkg_vers->pkg, root, path, sizeof(path)) != 0) {
         return -1;
@@ -125,7 +125,7 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
     elem[1].type = CONF_STR;
     elem[0].val.v_str[0] = '\0';
 
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
     if (package_vers_filename(pkg, conf->info.root, path, sizeof(path)) != 0) {
         ret = -1;
         goto exit;
@@ -253,7 +253,7 @@ int remove_package_versions(SdBoot *conf, const char *pkg) {
      * Remove the package version file
      */
     int ret = 0;
-    char path[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
 
     if (package_vers_filename(pkg, conf->info.root, path, sizeof(path)) != 0) {
         return -1;

@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
     KernelInstallOper oper = KI_BAD;
 
-    oper = kernel_install_oper(argv[1]);
+    oper = kernel_install_oper((const char *)argv[1]);
     if (oper == KI_BAD) {
         msg(MSG_ERR, "! sd-boot: missin add or remove but got %s\n", argv[1]);
         ret = 1;
@@ -66,8 +66,8 @@ int main(int argc, char *argv[]) {
         goto exit;
     }
 
-    char src[PATH_MAX] = {'\0'};
-    char dst[PATH_MAX] = {'\0'};
+    char src[PATH_MAX] = {};
+    char dst[PATH_MAX] = {};
 
     if (snprintf(src, PATH_MAX, "%s", "/usr/lib/efifs-x64/") < 0) {
         perror(nullptr);

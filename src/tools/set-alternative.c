@@ -67,8 +67,8 @@ static int add_del(enum Task task, const char *root, const char *dir, const char
      * <root>/<dir>/<file> -> <alt>/<file>
      */
     int ret = 0;
-    char linkname[PATH_MAX] = {'\0'};
-    char target[PATH_MAX] = {'\0'};
+    char linkname[PATH_MAX] = {};
+    char target[PATH_MAX] = {};
 
     if (snprintf(linkname, PATH_MAX, "%s/%s/%s", root, dir, file) < 0) {
         msg(MSG_ERR, "  sd-boot error creating link name for: %s/%s/%s\n", root, dir, file);

@@ -3,35 +3,42 @@
 # test builds
 # 
 
-echo "-------------------------------"
-echo "Building : release"
-echo ""
-/usr/bin/meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared
-/usr/bin/meson compile -C build/release
+do_release="y"
+do_debug="n"
 
-echo ""
-echo "  tests standard"
-echo ""
-/usr/bin/meson test -C build/release
+if [[ "$do_release" == "y" ]] ; then
+    echo "-------------------------------"
+    echo "Building : release"
+    echo ""
+    /usr/bin/meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared
+    /usr/bin/meson compile -C build/release
 
-echo ""
-echo "  tests with valgrind"
-echo ""
-/usr/bin/meson test -C build/release --setup=valgrind
+    echo ""
+    echo "  tests standard"
+    echo ""
+    /usr/bin/meson test -C build/release
 
-echo "-------------------------------"
-echo "Building : debug"
-echo ""
-/usr/bin/meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static -Dstrip=false
-/usr/bin/meson compile -C build/debug
+    echo ""
+    echo "  tests with valgrind"
+    echo ""
+    /usr/bin/meson test -C build/release --setup=valgrind
+fi
 
-echo ""
-echo "  tests standard"
-echo ""
-/usr/bin/meson test -C build/debug
+if [[ "$do_debug" == "y" ]] ; then
+    echo "-------------------------------"
+    echo "Building : debug"
+    echo ""
+    /usr/bin/meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static -Dstrip=false
+    /usr/bin/meson compile -C build/debug
 
-echo ""
-echo "  tests with valgrind"
-echo ""
-/usr/bin/meson test -C build/release --setup=standard
+    echo ""
+    echo "  tests standard"
+    echo ""
+    /usr/bin/meson test -C build/debug
+
+    echo ""
+    echo "  tests with valgrind"
+    echo ""
+    /usr/bin/meson test -C build/release --setup=standard
+fi
 

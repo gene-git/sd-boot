@@ -37,7 +37,7 @@ int ki_plugins_test_env(char *test_root, Array_str *env) {
         goto exit;
     }
 
-    char pattern[PATH_MAX] = {'\0'};
+    char pattern[PATH_MAX] = {};
     if (snprintf(pattern, PATH_MAX, "%s/%s", test_root, "etc/kernel/install.d/*.install") < 0) {
         ret = -1;
         goto exit;

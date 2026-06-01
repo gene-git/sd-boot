@@ -28,7 +28,7 @@ static int is_symlink_needed(const char *target, const char *linkname, bool *nee
     int ret = 0;
 
     struct stat link_stat = {};
-    char curr_targ[PATH_MAX] = {'\0'};
+    char curr_targ[PATH_MAX] = {};
     ssize_t bytes_read = 0;
     *need_link = true;
 

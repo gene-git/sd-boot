@@ -54,7 +54,7 @@ int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin) {
      *
      * If no managed packages - then nothing for us to do.
      */
-    ret = load_kernel_packages(conf, &pkgs_arr);
+    ret = load_managed_kernel_packages(conf, &pkgs_arr);
     if (ret != 0) {
         ret = 0;
         goto exit;

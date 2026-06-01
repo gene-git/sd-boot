@@ -19,12 +19,20 @@ echo ""
 
 echo " cppcheck:"
 
-/usr/bin/cppcheck lib plugins tools 2>&1 > "$log_dir/cppcheck"
+libs=(lib lib-efi lib-kernel)
+tools=(tools tools-efi tools-kernel tools-plugins)
+/usr/bin/cppcheck "${libs[@]}" "${tools[@]}"   2>&1 > "$log_dir/cppcheck"
 
 echo " clang-tidy:"
 
 # ensure compile_commands.json is available
 meson setup --reconfigure build/release --buildtype=release -Ddefault_library=static  > /dev/null
 
-/usr/bin/clang-tidy -p build/release lib/*.c plugins/*.c tools/*.c > "$log_dir/clang-tidy" 2>&1
+shopt -s nullglob
+c_files=()
+for i in "${libs[@]}" "${tools[@]}"
+do
+    c_files+=("$i"/*.c)
+done
+/usr/bin/clang-tidy -p build/release "${c_files[@]}" > "$log_dir/clang-tidy" 2>&1
 

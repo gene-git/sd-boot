@@ -61,5 +61,5 @@ Target = util-linux-libs
 [Action]
 Description = sd-boot: kernel update
 When = PostTransaction
-Exec = /usr/lib/sd-boot/sd-boot-kernel-update add
+Exec = /usr/lib/sd-boot/sd-boot-kernel-update-triggers add
 NeedsTargets

@@ -83,7 +83,7 @@ int read_file(const char *path, Array_str *arr) {
      * realloc rows up by 64 (or other appropriate number) at a time.
      */
     int ret = 0;
-    char row[ROW_MAX] = {'\0'};
+    char row[ROW_MAX] = {};
 
     /*
      * Return 1 if doesn't exist.

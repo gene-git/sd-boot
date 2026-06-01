@@ -158,8 +158,8 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     // - ^options xxx => remove
     //
     int ret = 0;
-    char path[PATH_MAX] = {'\0'};
-    char path_tmp[PATH_MAX] = {'\0'};
+    char path[PATH_MAX] = {};
+    char path_tmp[PATH_MAX] = {};
     FILE *tmp_fptr = nullptr;
     FILE *fptr = nullptr;
 
@@ -192,8 +192,8 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     /*
      * read / edit 
      */
-    char row[ROW_SZ] = {'\0'};
-    char row_mod[ROW_SZ] = {'\0'};
+    char row[ROW_SZ] = {};
+    char row_mod[ROW_SZ] = {};
 
     while (fgets(row, sizeof(row), fptr) != nullptr) {
 
