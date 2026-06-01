@@ -77,7 +77,7 @@ lib_sources = files(
     'lib/ki_plugin_test_env.c',
     'lib/ki_run.c',
     'lib/loaderentry_modify_file.c',
-    'lib/make_bls_install_conf.c',
+    'lib/make_kernel_install_conf.c',
     'lib/make_dir.c',
     'lib/make_symlink.c',
     'lib/misc.c',

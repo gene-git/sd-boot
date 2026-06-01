@@ -258,6 +258,15 @@ typedef struct {
 } MountPoints;
 
 /*
+ * Modifications for "shadow" bls (kernel) install.conf
+ */
+typedef struct KInstallMods {
+    char *layout;
+    char *initrd_generator;
+    char *uki_generator;
+} KInstallMods;
+
+/*
  * Function declarations
  */
 
@@ -329,7 +338,7 @@ int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]);
 int loaderentry_modify_file(LoaderEntry *entry);
 
 // make_bls_install_conf.c
-int make_bls_install_conf(const char *src, const char *dst);
+int make_kernel_install_conf(KInstallMods *mods, const char *src, const char *dst);
 
 // read_file.c
 int read_file(const char *path, Array_str *arr);

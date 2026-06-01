@@ -22,6 +22,7 @@
 
 enum Const {
     CHUNK = 4096,
+    NUM_KEYS = 3,
 };
 
 static int write_new_file(size_t bls_size, const char *bls, const char *dst) {
@@ -113,27 +114,68 @@ struct BlsInfo {
     char *bls;
 };
 
-static int adjust_layout_line(struct BlsInfo *info) {
+
+static int modify_one_line(KInstallMods *mods, struct BlsInfo *info) {
     int ret = 0;
-    const char *key = "layout";
-    size_t key_len = strlen(key);
-    const char *bls_line = "layout = bls\n";
-    const size_t bls_line_len = strlen(bls_line);
+    //const char *key = "layout";
+    //size_t key_len = strlen(key);
+    //const char *bls_line = "layout = bls\n";
+    //const size_t bls_line_len = strlen(bls_line);
     void *ptr = nullptr;
+
+    char *keys[NUM_KEYS] = {};
+    char *changes[NUM_KEYS] = {};
+    char *key = nullptr;
+    char *change = nullptr;
+    size_t key_len = 0;
+    size_t change_len = 0;
+
+    keys[0] = "layout";
+    keys[1] = "initrd_generator";
+    keys[2] = "uki_generator";
+
+    changes[0] = mods->layout;
+    changes[1] = mods->initrd_generator;
+    changes[2] = mods->uki_generator;
 
     size_t line_len = info->line_end - info->line_start;
 
+    /*
+     * Line can only match 1 key or no keys
+     */
+    bool matched = false;
+    for (size_t i = 0; i < NUM_KEYS; i++) {
+
+        key = keys[i];
+        key_len = strlen(key);
+        change = changes[i];
+        change_len = strlen(change);
+
+        if (line_len >= key_len && strncmp(info->line_start, key, key_len) == 0) {
+            matched = true;
+            break;
+        }
+    }
+    if (matched) {
+        info->num_used += change_len;
+        info->this_line = change;
+        info->this_length = change_len;
+    /* 
     if (line_len >= key_len && strncmp(info->line_start, key, key_len) == 0) {
         info->num_used += bls_line_len;
         info->this_line = (char *)bls_line;
         info->this_length = bls_line_len;
-
+     */
     } else {
         info->num_used += line_len;
         info->this_line = info->line_start;
         info->this_length = line_len;
     }
 
+    /*
+     * Add space for newline
+     */
+    info->num_used++;
     if (info->num_used >= info->num_allocated) {
         info->num_allocated += info->num_used + CHUNK;
         ptr = realloc(info->bls, info->num_allocated * sizeof(char));
@@ -153,7 +195,8 @@ exit:
  * read into *new_install_conf_p layout to bls
  * return size (including null terminator).
  */
-static int make_new_install(const void *file_map, size_t file_size, char **bls_p, size_t *bls_size_p) {
+static int make_new_install(KInstallMods *mods, const void *file_map, size_t file_size, 
+        char **bls_p, size_t *bls_size_p) {
     int ret = 0;
     struct BlsInfo info = {};
 
@@ -198,12 +241,16 @@ static int make_new_install(const void *file_map, size_t file_size, char **bls_p
          */
         size_t num_used_so_far = info.num_used;
 
-        ret = adjust_layout_line(&info);
+        ret = modify_one_line(mods, &info);
         if (ret != 0) {
             goto exit;
         }
 
+        /*
+         * this_length is without the newline
+         */
         curr_position = info.bls + num_used_so_far;
+        info.this_length++;
         memcpy((void *)curr_position, (const void *)info.this_line, info.this_length);
         total_length += info.this_length;
 
@@ -245,7 +292,7 @@ exit:
     return ret;
 }
 
-int make_bls_install_conf(const char *src, const char *dst) {
+int make_kernel_install_conf(KInstallMods *mods, const char *src, const char *dst) {
     int ret = 0;
     void *file_map = MAP_FAILED;
     size_t file_size = 0;
@@ -267,7 +314,7 @@ int make_bls_install_conf(const char *src, const char *dst) {
     /*
      * Read src and change layout to bls
      */
-    ret = make_new_install(file_map, file_size, &bls, &bls_size);
+    ret = make_new_install(mods, file_map, file_size, &bls, &bls_size);
     if (ret != 0) {
         goto exit;
     }

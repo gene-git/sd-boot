@@ -51,6 +51,7 @@ int ki_make_kernel_conf_bls(SdBoot *conf) {
     Array_str skip = {};
     char src[PATH_MAX] = {};
     char dst[PATH_MAX] = {};
+    KInstallMods kinstall_mods = {};
 
     ret = array_str_new(1, &skip);
     if (ret != 0) {
@@ -74,7 +75,11 @@ int ki_make_kernel_conf_bls(SdBoot *conf) {
         goto exit;
     }
 
-    ret = make_bls_install_conf(src, dst);
+    kinstall_mods.layout = "layout = bls\n";
+    kinstall_mods.initrd_generator = "initrd_generator = \n";
+    kinstall_mods.uki_generator = "uki_generator = \n";
+
+    ret = make_kernel_install_conf(&kinstall_mods, src, dst);
     if (ret != 0) {
         goto exit;
     }

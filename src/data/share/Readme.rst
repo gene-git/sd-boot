@@ -9,6 +9,11 @@ sd-boot
 Recent Changes
 ==============
 
+**5.2.0**
+
+* Shadow "install.con" for non-kernels now sets generator in addition to layout = bls.
+  Also fixes missing "newline" bug.
+
 **5.1.0**
 
 * Avoid double "//" in efi tool shadow directory path name.
