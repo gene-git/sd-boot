@@ -6,12 +6,37 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 4.9.1 (2026-05-30)
-	46 commits.
+	3.6.2 (2026-04-21) -> 5.1.0 (2026-05-31)
+	48 commits.
 
 Commits
 =======
 
+
+* 2026-05-31  : **5.1.0**
+
+.. code-block:: text
+
+              - **5.1.0**
+            
+                * Avoid double "//" in efi tool shadow directory path name.
+                * Error messages to stderr instead of stdout.
+                * Code structure re-org.
+                * More code tidy ups.
+                * Add standalone tools (installed in /usr/bin):
+            
+                  * sd-boot-efi-tool-update <oper> <package-name>
+                  * sd-boot-kernel-update <oper> <package-name>
+            
+                  Where <oper> is add or remove or inspect (see man kernel-install).
+                  Note that <package-name> must be already installed via pacman.
+                * Improve way shadow "install.conf" is created. If file exists and is correct then
+                  dont write it again.
+ 2026-05-30   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-05-30  : **4.9.1**
 
