@@ -6,12 +6,26 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.1.0 (2026-05-31)
-	48 commits.
+	3.6.2 (2026-04-21) -> 5.2.0 (2026-06-01)
+	50 commits.
 
 Commits
 =======
 
+
+* 2026-06-01  : **5.2.0**
+
+.. code-block:: text
+
+              - **5.2.0**
+            
+                * Shadow "install.con" for non-kernels now sets generator in addition to layout = bls.
+                  Also fixes missing "newline" bug.
+ 2026-05-31   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-05-31  : **5.1.0**
 
