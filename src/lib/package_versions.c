@@ -23,8 +23,15 @@ static int package_vers_filename(const char *pkg, char *root, char *path, size_t
      * Make sure dirs exist
      */
     char path_dir[PATH_MAX] = {};
+    size_t root_len = strlen(test_root);
+    char *path_sep = nullptr;
+    if (test_root[root_len - 1] == '/') {
+        path_sep = "";
+    } else {
+        path_sep = "/";
+    }
 
-    if (snprintf(path_dir, len_path, "%s/%s", root, "var/lib/sd-boot") < 0) {
+    if (snprintf(path_dir, len_path, "%s%s%s", root, path_sep, "var/lib/sd-boot") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -135,7 +142,7 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
     sret = read_kv_elems(path, num_elems, elem, &num_elems_read);
     switch (sret) {
         case -1:
-            msg(MSG_ERR, "  ! sd-boot: mem alloc fail in read_package_versions\n");
+            msg(MSG_ERR, "  ! sd-boot: read_package_versions error reading file\n");
             ret = -1;
             goto exit;
             break;

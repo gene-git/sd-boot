@@ -9,10 +9,17 @@ sd-boot
 Recent Changes
 ==============
 
+** 5.3.0
+
+* Fix missing checkdepends() - test suite relies on edk2-shell.
+  Fixes build failing when edk2-shell not installed. 
+  Thanks to @coolreader18 for aur report.
+* Avoid another double "//"
+
 **5.2.0**
 
-* Shadow "install.con" for non-kernels now sets generator in addition to layout = bls.
-  Also fixes missing "newline" bug.
+* Shadow "install.conf" for non-kernels now disables initrd generator in addition to 
+  setting layout = bls. Also fixes missing "newline" bug.
 
 **5.1.0**
 
