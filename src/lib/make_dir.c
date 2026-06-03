@@ -63,7 +63,7 @@ int makepath(const char *path, mode_t mode) {
     size_t plen = 0;
     //mode_t pmode = 0;
 
-    if (path == nullptr || path[0] == '\0' || path[0] == '/') {
+    if (path == nullptr || path[0] == '\0' || strcmp(path, "/") == 0) {
         goto exit;
     }
 

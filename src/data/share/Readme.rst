@@ -9,7 +9,12 @@ sd-boot
 Recent Changes
 ==============
 
-** 5.3.0
+**5.4.0**
+
+* Fix bug failing to create /var/lib/sd-boot
+  Resolves issue #1 reported by @coolreader18
+
+**5.3.0
 
 * Fix missing checkdepends() - test suite relies on edk2-shell.
   Fixes build failing when edk2-shell not installed. 

@@ -131,7 +131,7 @@ static void dev_tree_setup(DevInfo *info) {
         "tmp",
         "var",
         "var/lib",
-        "var/lib/sd-boot",
+        //"var/lib/sd-boot",
     };
 
     msg(MSG_VERB, "  * Devtest Mode: using test root-dir : %s\n", info->root);
