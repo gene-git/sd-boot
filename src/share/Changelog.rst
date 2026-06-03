@@ -6,12 +6,25 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.2.0 (2026-06-01)
-	50 commits.
+	3.6.2 (2026-04-21) -> 5.3.0 (2026-06-01)
+	53 commits.
 
 Commits
 =======
 
+
+* 2026-06-01  : **5.3.0**
+
+.. code-block:: text
+
+              - one more file
+              - ** 5.3.0
+            
+                * Fix missing checkdepends() - test suite relies on edk2-shell.
+                  Fixes build failing when edk2-shell not installed.
+                  Thanks to @coolreader18 for aur report.
+                * Avoid another double "//"
+              - update Changelog
 
 * 2026-06-01  : **5.2.0**
 
