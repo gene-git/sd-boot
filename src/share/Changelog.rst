@@ -6,12 +6,26 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.3.0 (2026-06-01)
-	53 commits.
+	3.6.2 (2026-04-21) -> 5.4.0 (2026-06-03)
+	55 commits.
 
 Commits
 =======
 
+
+* 2026-06-03  : **5.4.0**
+
+.. code-block:: text
+
+              - **5.4.0**
+            
+                * Fix bug failing to create /var/lib/sd-boot
+                  Resolves issue #1 reported by @coolreader18
+ 2026-06-02   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-06-01  : **5.3.0**
 
