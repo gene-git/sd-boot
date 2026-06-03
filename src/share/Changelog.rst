@@ -6,12 +6,21 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.4.0 (2026-06-03)
-	55 commits.
+	3.6.2 (2026-04-21) -> 5.4.1 (2026-06-03)
+	57 commits.
 
 Commits
 =======
 
+
+* 2026-06-03  : **5.4.1**
+
+.. code-block:: text
+
+              - **5.4.1**
+            
+                * Some code clean ups
+              - update Changelog
 
 * 2026-06-03  : **5.4.0**
 
