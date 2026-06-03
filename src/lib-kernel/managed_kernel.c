@@ -29,7 +29,7 @@ exit:
 int load_managed_kernel_packages(SdBoot *conf, Array_str *arr) {
     char path[PATH_MAX] = {};
 
-    if (snprintf(path, PATH_MAX, "%s/%s", conf->info.root, "etc/sd-boot/kernel.packages") < 0) {
+    if (snprintf(path, PATH_MAX, "%s%s", conf->info.root, "etc/sd-boot/kernel.packages") < 0) {
         perror(nullptr);
         return -1;
     }

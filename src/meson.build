@@ -71,6 +71,7 @@ lib_sources = files(
     'lib/file_list_glob.c',
     'lib/find_efi_current.c',
     'lib/get_one_line.c',
+    'lib/get_plugin_list.c',
     'lib/keyval.c',
     'lib/ki_oper.c',
     'lib/ki_plugin.c',

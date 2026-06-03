@@ -32,10 +32,10 @@ int array_str_move(Array_str *arr_1, Array_str *arr_2) {
      * Move them
      */
     for (size_t i = 0; i < arr_1->num_rows; i++) {
-        if (arr_1->rows[i] != nullptr) {
-            arr_2->rows[new_row++] = arr_1->rows[i];
-            arr_1->rows[i] = nullptr;
-        }
+        size_t irow = new_row++;
+        arr_2->rows[irow] = arr_1->rows[i];
+        arr_1->rows[i] = nullptr;
+        arr_2->row_len[irow] = arr_1->row_len[i];
     }
 
     /*

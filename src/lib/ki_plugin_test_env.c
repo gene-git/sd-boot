@@ -13,7 +13,6 @@
  *
  * This is only used in testing.
  */
-#include <linux/limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,36 +28,21 @@ int ki_plugins_test_env(char *test_root, Array_str *env) {
      */
     int ret = 0;
     char *var = nullptr;
-    Array_str standard_plugins = {};
-    Array_str testing_plugins = {};
+    Array_str plugins = {};
 
-    ret = file_list_glob("/usr/lib/kernel/install.d/*.install", &standard_plugins);
-    if (ret != 0) {
-        goto exit;
-    }
-
-    char pattern[PATH_MAX] = {};
-    if (snprintf(pattern, PATH_MAX, "%s/%s", test_root, "etc/kernel/install.d/*.install") < 0) {
-        ret = -1;
-        goto exit;
-    }
-
-    ret = file_list_glob(pattern, &testing_plugins);
+    ret = get_plugin_list(test_root, &plugins);
     if (ret != 0) {
         goto exit;
     }
 
     /*
-     * Combine them
+     * env KERNEL_INSTALL_PLUGINS
      */
     const char *env_name = "KERNEL_INSTALL_PLUGINS=";
     size_t bytes = strlen(env_name) + 1;
 
-    for (size_t i=0; i < standard_plugins.num_rows; i++) {
-        bytes += standard_plugins.row_len[i] + 1;
-    }
-    for (size_t i=0; i < testing_plugins.num_rows; i++) {
-        bytes += testing_plugins.row_len[i] + 1;
+    for (size_t i=0; i < plugins.num_rows; i++) {
+        bytes += plugins.row_len[i] + 1;
     }
 
     var = (char *)calloc(bytes, sizeof(char));
@@ -72,13 +56,11 @@ int ki_plugins_test_env(char *test_root, Array_str *env) {
         goto exit;
     }
 
-    for (size_t i=0; i < standard_plugins.num_rows; i++) {
-        strlcat(var, standard_plugins.rows[i], bytes);
-        strlcat(var, " ", bytes);
-    }
-    for (size_t i=0; i < testing_plugins.num_rows; i++) {
-        strlcat(var, testing_plugins.rows[i], bytes);
-        strlcat(var, " ", bytes);
+    for (size_t i=0; i < plugins.num_rows; i++) {
+        if (plugins.rows[i] != nullptr) {
+            strlcat(var, plugins.rows[i], bytes);
+            strlcat(var, " ", bytes);
+        }
     }
 
     ret = array_str_new(2, env);
@@ -90,12 +72,10 @@ int ki_plugins_test_env(char *test_root, Array_str *env) {
     env->rows[1] = nullptr;
 
 exit:
-    array_str_free(&standard_plugins);
-    array_str_free(&testing_plugins);
+    array_str_free(&plugins);
     if (var != nullptr) {
         free((void *)var);
     }
-
     return ret;
 }
 

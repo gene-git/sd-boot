@@ -23,15 +23,8 @@ static int package_vers_filename(const char *pkg, char *root, char *path, size_t
      * Make sure dirs exist
      */
     char path_dir[PATH_MAX] = {};
-    size_t root_len = strlen(root);
-    char *path_sep = nullptr;
-    if (root[root_len - 1] == '/') {
-        path_sep = "";
-    } else {
-        path_sep = "/";
-    }
 
-    if (snprintf(path_dir, len_path, "%s%s%s", root, path_sep, "var/lib/sd-boot") < 0) {
+    if (snprintf(path_dir, len_path, "%s%s", root, "var/lib/sd-boot") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;

@@ -44,7 +44,7 @@ static int our_config(SdBoot *conf) {
     elems[0].lo_val_int = 0;
     elems[0].hi_val_int = VERB_MAX;
 
-    if (snprintf(path, sizeof(path), "%s/%s", conf->info.root, "etc/sd-boot/config") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s", conf->info.root, "etc/sd-boot/config") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -98,6 +98,7 @@ static int kernel_config(SdBoot *conf) {
      * its used by efi tool to make a shadow /etc/kernel but with
      * layout set to bls.
      */
+    /*
     size_t root_len = strlen(conf->info.root);
     char *path_sep = nullptr;
 
@@ -106,15 +107,16 @@ static int kernel_config(SdBoot *conf) {
     } else {
         path_sep = "/";
     }
+    */
 
-    if (snprintf(path, sizeof(path), "%s%s%s", conf->info.root, path_sep, "etc/kernel") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s", conf->info.root, "etc/kernel") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
     }
     conf->kernel_conf_dir = strdup(path);
 
-    if (snprintf(path, sizeof(path), "%s%s%s", conf->info.root, path_sep, "var/lib/sd-boot/kernel_conf_bls") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s", conf->info.root, "var/lib/sd-boot/kernel_conf_bls") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -140,7 +142,7 @@ static int kernel_config(SdBoot *conf) {
     elems[2].type = CONF_STR;
     elems[2].val.v_str[0] = '\0';
 
-    if (snprintf(path, sizeof(path), "%s/%s", conf->info.root, "etc/kernel/install.conf") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s", conf->info.root, "etc/kernel/install.conf") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -224,6 +226,8 @@ exit:
 
 void clean_config(SdBoot *conf) {
     clean_devinfo(&conf->info);
+
+    array_str_free(&conf->skip_kernel_plugins);
     
     if (conf->layout != nullptr) {
         free((void *)conf->layout);

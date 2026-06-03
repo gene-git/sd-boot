@@ -9,6 +9,10 @@ sd-boot
 Recent Changes
 ==============
 
+**5.4.1**
+
+* Some code clean ups
+
 **5.4.0**
 
 * Fix bug failing to create /var/lib/sd-boot

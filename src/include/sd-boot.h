@@ -133,13 +133,22 @@ typedef struct {
 } KvElem;
 
 /*
- * ours from /etc/sd-boot/config
- * kern_install from /etc/kernel/install.conf
+ * Data taken from
+ * - /etc/sd-boot/config.yaml (or config)
+ *   - verb
+ *   - str skip_kernel_plugins (list of paths of kernel plugins to skip)
+ *
+ * - /etc/kernel/install.conf
+ *   - layout
+ *   - initrd_generator
+ *   - uki_generator;
  */
 typedef struct {
     DevInfo info;
 
     int verb;
+    Array_str skip_kernel_plugins;
+
     bool is_uki;
     char *layout;
     char *initrd_generator;
@@ -316,6 +325,9 @@ int find_efi_xbootldr_mounts(Array_str *efi, Array_str *xbootldr);
 
 // get_one_line.c
 char *get_one_line(char **state_p); 
+
+// get_plugin_list.c
+int get_plugin_list(char *etc_root, Array_str *plugins);
 
 // keyval.c
 int read_kv_elems(const char *path, size_t num, KvElem *elem, size_t *num_found_p);

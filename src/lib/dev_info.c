@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  * Development Set Up.
- * - Supports non-root testing in directory (Testing/__root__)
+ * - Supports non-root testing in directory (Testing/__root__/)
  * - Activated by non-root user and env variable set:
  *   SDB_DEV_TEST
  *
@@ -35,7 +35,7 @@ static int dev_root_init(DevInfo *info) {
     char cwd_env[PATH_MAX] = {};
     char top_dir[PATH_MAX] = {};
     const char *testing = "Testing";
-    const char *root = "__root__";
+    //const char *root = "__root__";
     char *cwd_base = nullptr;
 
     if (getcwd(cwd_env, PATH_MAX) == nullptr) {
@@ -49,8 +49,8 @@ static int dev_root_init(DevInfo *info) {
 
     /*
      * test-root:
-     *  ~ <cwd>/Testing/__root__ 
-     *  ~ <cwd>/__root__   (if cwd ~/Testing)
+     *  ~ <cwd>/Testing/__root__/
+     *  ~ <cwd>/__root__/   (if cwd ~/Testing)
      */ 
     if (strncmp(cwd_base, testing, PATH_MAX) != 0) {
         if (snprintf(cwd_env, PATH_MAX, "%s/%s", top_dir, testing) < 0) {
@@ -61,7 +61,7 @@ static int dev_root_init(DevInfo *info) {
         strncpy(top_dir, cwd_env, PATH_MAX);
     } 
 
-    if (snprintf(info->root, PATH_MAX, "%s/%s", top_dir, root) < 0) {
+    if (snprintf(info->root, PATH_MAX, "%s/__root__/", top_dir) < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -78,7 +78,7 @@ static int dev_root_init(DevInfo *info) {
     }
 
     char tmp_path[PATH_MAX] = {};
-    if (snprintf(tmp_path, PATH_MAX, "BOOT_ROOT=%s/boot", info->root) < 0) {
+    if (snprintf(tmp_path, PATH_MAX, "BOOT_ROOT=%sboot", info->root) < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -143,7 +143,7 @@ static void dev_tree_setup(DevInfo *info) {
     char path[PATH_MAX] = {};
 
     for (int i = 0; i < num_dirs; i++) {
-        if (snprintf(path, PATH_MAX, "%s/%s", info->root, dirs[i]) < 0) {
+        if (snprintf(path, PATH_MAX, "%s%s", info->root, dirs[i]) < 0) {
             perror(nullptr);
             return ;
         };
@@ -158,12 +158,12 @@ static void dev_tree_setup(DevInfo *info) {
  * Initialize Developer Test Mode.
  *
  * When not active info->root = "/".
- * When active info->root ~ "Testing/__root__"
+ * When active info->root ~ "Testing/__root__/"
  *
  * Env SDB_DEV_TEST => testing mode.,
  * - Work is done inside a separate directory root
  * - In test mode:
- *   * test <test-root> = ./Testing/__root__ 
+ *   * test <test-root> = ./Testing/__root__ /
  *   * <test-root>/etc/sd-boot/
  *     used for inputs
  *   * <test-root> 

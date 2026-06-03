@@ -34,7 +34,7 @@ char *package_to_efi_image(SdBoot *conf, const char *pkg) {
     char path[PATH_MAX] = {};
     char *efi_path = nullptr;
 
-    if (snprintf(path, sizeof(path), "%s/%s%s.image", conf->info.root, "etc/sd-boot/", pkg) < 0) {
+    if (snprintf(path, sizeof(path), "%s%s%s.image", conf->info.root, "etc/sd-boot/", pkg) < 0) {
         perror(nullptr);
     } else {
         efi_path = read_file_first_row((const char *)path);
@@ -76,7 +76,7 @@ char *efi_image_to_package(SdBoot *conf, const char *path) {
     char *filename = nullptr;
     char *file = nullptr;
 
-    if (snprintf(pattern, sizeof(pattern), "%s/%s.image", conf->info.root, "etc/sd-boot/*") < 0) {
+    if (snprintf(pattern, sizeof(pattern), "%s%s.image", conf->info.root, "etc/sd-boot/*") < 0) {
         perror(nullptr);
         goto exit;
     }
