@@ -39,7 +39,7 @@ char *package_to_efi_image(SdBoot *conf, const char *pkg) {
     } else {
         efi_path = read_file_first_row((const char *)path);
     }
-    if (efi_path == nullptr) {
+    if (!efi_path) {
         msg(MSG_ERR, "  ! sd-boot: Failed to load efi package file  %s\n", path);
     }
 
@@ -60,7 +60,7 @@ char *efi_image_to_package(SdBoot *conf, const char *path) {
      *  Caller should free the mem.
      */
     char *pkg = nullptr;
-    if (path == nullptr || *path == '\0') {
+    if (!path || *path == '\0') {
         goto exit;
     }
 

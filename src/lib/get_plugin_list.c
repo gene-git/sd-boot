@@ -21,13 +21,14 @@
 
 #include "sd-boot.h"
 
-int get_plugin_list(char *etc_root, Array_str *plugins) {
+int get_plugin_list(char *root, Array_str *plugins) {
     /*
      * Env will be all the  *.install files from 
-     * - usr plugins from /usr/lib/kernel/install.d
-     * - etc plugins from "<etc_root>/etc/kernel/install.d
+     * - usr plugins from <root>/usr/lib/kernel/install.d
+     * - etc plugins from "<root>/etc/kernel/install.d
      */
     int ret = 0;
+    char pattern[PATH_MAX] = {};
     Array_str etc_plugins = {};
 
     /*
@@ -38,7 +39,12 @@ int get_plugin_list(char *etc_root, Array_str *plugins) {
         goto exit;
     }
 
-    ret = file_list_glob("/usr/lib/kernel/install.d/*.install", plugins);
+    if (snprintf(pattern, PATH_MAX, "%s%s", root, "usr/lib/kernel/install.d/*.install") < 0) {
+        ret = -1;
+        goto exit;
+    }
+
+    ret = file_list_glob(pattern, plugins);
     if (ret != 0) {
         goto exit;
     }
@@ -46,8 +52,7 @@ int get_plugin_list(char *etc_root, Array_str *plugins) {
     /*
      * etc plugins
      */
-    char pattern[PATH_MAX] = {};
-    if (snprintf(pattern, PATH_MAX, "%s%s", etc_root, "etc/kernel/install.d/*.install") < 0) {
+    if (snprintf(pattern, PATH_MAX, "%s%s", root, "etc/kernel/install.d/*.install") < 0) {
         ret = -1;
         goto exit;
     }

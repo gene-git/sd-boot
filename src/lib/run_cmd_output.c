@@ -64,20 +64,6 @@ static int init_file_actions(int *fds, posix_spawn_file_actions_t *actions) {
      */
     posix_spawn_file_actions_addclose(actions, fds[0]);
 
-    // close child read end of pipe or original write end of pipe.
-    /*
-    ret = posix_spawn_file_actions_addclose(actions, fds[0]);
-    if (ret != 0) {
-        perror(nullptr);
-        goto exit;
-    }
-    ret = posix_spawn_file_actions_addclose(actions, fds[1]);
-    if (ret != 0) {
-        perror(nullptr);
-        goto exit;
-    }
-    */
-
 
 exit:
     if (ret != 0) {
@@ -97,18 +83,14 @@ static int read_child_output(int fdes, char **output_p) {
      * memory is freed and ptr set to null.
      */
     int ret = 0;
-    //size_t num_alloc = 0;
     size_t one_byte = sizeof(char);
-    //size_t bytes = 0;
-    //size_t bytes_allocated = 0;
-    //size_t chunk = CHUNK * sizeof(char);
     char *ptr = nullptr;
     Dynamic_str str = {};
 
     /*
      * sanity
      */
-    if (output_p == nullptr) {
+    if (!output_p) {
         msg(MSG_ERR, "  ! read_child: bad output ptr\n");
         ret = -1;
         goto exit;
@@ -126,17 +108,6 @@ static int read_child_output(int fdes, char **output_p) {
     }
 
     /*
-    *output_p = (char *)calloc(bytes_allocated + one_byte, one_byte);
-    if (*output_p == nullptr) {
-        perror(nullptr);
-        ret = -1;
-        msg(MSG_ERR, "  ! read_child: mem err\n");
-        goto exit;
-    }
-
-    ptr = *output_p;
-    */
-    /*
      * Ptr tracks where in the buffer to read the next chunk.
      */
     ptr = str.bytes;
@@ -144,17 +115,11 @@ static int read_child_output(int fdes, char **output_p) {
     ssize_t bytes_read = 0;
     while ((bytes_read = read(fdes, ptr, CHUNK)) > 0) {
         str.num_used += (size_t)bytes_read / one_byte;
-        //bytes += (size_t) bytes_read;
 
-        //bytes_allocated = bytes + chunk;
-        //num_alloc = (bytes / one_byte) + CHUNK;
         ret = dynamic_str_alloc(str.num_used + CHUNK, &str);
-        //char *tmp_ptr = (char *)realloc((void *) *output_p, bytes_allocated + one_byte);
         if (ret != 0) {
             goto exit;
         }
-        //*output_p = tmp_ptr;
-        //ptr = str.bytes + bytes;
         ptr = str.bytes + str.num_used;
     }
 
@@ -167,35 +132,17 @@ static int read_child_output(int fdes, char **output_p) {
             goto exit;
         }
     } 
-    /*
-    num_alloc = bytes
-    if (bytes < bytes_allocated) {
-        char *tmp_ptr = (char *)realloc((void *)*output_p, bytes + one_byte);
-        if (tmp_ptr == nullptr) {
-            msg(MSG_ERR, "  ! sd-boot memory alloc fail reading child process stdout\n");
-            ret = -1;
-            goto exit;
-        }
-        *output_p = tmp_ptr;
-    }
-     */
+
     if (str.bytes != nullptr && str.bytes[str.num_used] != '\0') {
         str.bytes[str.num_used] = '\0';
-        //(*output_p)[bytes] = '\0';
     }
 
     *output_p = str.bytes;
     str.bytes = nullptr;
     str.num_alloc = 0;
 
-    /*
-     * ensure null terminated
-    if (*output_p != nullptr && (*output_p)[bytes] != '\0') {
-        (*output_p)[bytes] = '\0';
-    }
-     */
 exit:
-    if (str.bytes != nullptr) {
+    if (str.bytes) {
         /*
          * error where pointer is not transferred to *output_p 
          */
@@ -224,7 +171,7 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
     /*
      * sanity check
      */
-    if (envp == nullptr || argv == nullptr || argv[0] == nullptr ||  argv[0][0] == '\0') {
+    if (!envp || !argv || argv[0] == nullptr ||  argv[0][0] == '\0') {
         return -1;
     }
 
@@ -304,7 +251,7 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
         child_ret = -1;
         perror(nullptr);
     }
-    if (child_ret_p != nullptr) {
+    if (child_ret_p) {
         *child_ret_p = child_ret;
     }
 

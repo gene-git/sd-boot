@@ -21,7 +21,7 @@ enum Constants {
 static bool have_image(const char *image, Triggers *trigs) {
     bool have_it = false;
 
-    if (image == nullptr) {
+    if (!image) {
         return false;
     }
 
@@ -56,7 +56,7 @@ static int add_kern_to_list(char *trig, Triggers *trigs) {
             trigs->num_info_alloc += CHUNK;
 
             tmp_ptr = realloc((void *)trigs->info, trigs->num_info_alloc * unit);
-            if (tmp_ptr == nullptr) {
+            if (!tmp_ptr) {
                 ret = -1;
                 goto exit;
             }
@@ -87,14 +87,14 @@ static int free_unused(Triggers *trigs) {
         size_t unit = sizeof(KernelInfo);
 
         if (trigs->num_info == 0) {
-            if (trigs->info != nullptr) {
+            if (trigs->info) {
                 free((void *)trigs->info);
                 trigs->info = nullptr;
             }
         } else {
             void *tmp_ptr = nullptr;
             tmp_ptr = realloc((void *) trigs->info, trigs->num_info * unit);
-            if (tmp_ptr == nullptr) {
+            if (!tmp_ptr) {
                 ret = -1;
                 goto exit;
             }
@@ -132,7 +132,7 @@ int parse_kernel_triggers(Array_str *trigs_all, Triggers *trigs) {
     int ret = 0;
 
     trigs->num_info = 0;
-    if (trigs_all->num_rows == 0 || trigs_all->rows == nullptr) {
+    if (trigs_all->num_rows == 0 || !trigs_all->rows) {
         msg(MSG_ERR, "  ! sd-boot: No kernel triggers passed in!\n");
         goto exit;
     }
@@ -141,7 +141,7 @@ int parse_kernel_triggers(Array_str *trigs_all, Triggers *trigs) {
     size_t unit = sizeof(KernelInfo);
 
     trigs->info = (KernelInfo *)calloc(CHUNK, unit);
-    if (trigs->info == nullptr) {
+    if (!trigs->info) {
         ret = -1;
         goto exit;
     }

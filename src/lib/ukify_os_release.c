@@ -26,7 +26,7 @@ static const char *adjust_value(const char *name, const char *build_id, const ch
     const char *key_pretty_name = "PRETTY_NAME";
     const char *key_build_id = "BUILD_ID";
 
-    if (key == nullptr) {
+    if (!key) {
         return value;
     }
 
@@ -51,7 +51,7 @@ static char *line_adjusted(const char *name, const char *build_id, char *line, s
     char *value = nullptr;
     const char *value_new = nullptr;
 
-    if (line == nullptr || line[0] == '\0') {
+    if (!line || line[0] == '\0') {
         return nullptr;
     }
 
@@ -59,7 +59,7 @@ static char *line_adjusted(const char *name, const char *build_id, char *line, s
      * missing key?
      */
     equals = strchr(line, '=');
-    if (equals == nullptr || equals == line) {
+    if (!equals || equals == line) {
         return nullptr;
     }
 
@@ -74,7 +74,7 @@ static char *line_adjusted(const char *name, const char *build_id, char *line, s
     }
 
     value_new = adjust_value(name, build_id, line, value);
-    if (value_new == nullptr) {
+    if (!value_new) {
         return nullptr;
     }
 
@@ -155,7 +155,7 @@ int ukify_os_release(const char *name, const char *build_id, Dynamic_str *os_rel
     const char *src = "/usr/lib/os-release";
 
     fin = fopen(src, "r");
-    if (fin == nullptr) {;
+    if (!fin ) {;
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -193,7 +193,7 @@ int ukify_os_release(const char *name, const char *build_id, Dynamic_str *os_rel
          * len_adjusted includes trailing null
          */
         line_new = line_adjusted(name, build_id, line, &len_adjusted);
-        if (line_new == nullptr) {
+        if (!line_new ) {
             continue;
         }
 
@@ -213,13 +213,13 @@ int ukify_os_release(const char *name, const char *build_id, Dynamic_str *os_rel
     }
 
 exit:
-    if (line != nullptr) {
+    if (line) {
         free((void *)line);
     }
-    if (line_new != nullptr) {
+    if (line_new) {
         free((void *)line_new);
     }
-    if (fin != nullptr && fclose(fin) != 0) {
+    if (fin && fclose(fin) != 0) {
         ret = -1;
         perror(nullptr);
     };

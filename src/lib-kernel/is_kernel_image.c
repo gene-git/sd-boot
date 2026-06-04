@@ -14,7 +14,7 @@ int is_kernel_image_path(char *image, bool *is_kernel) {
     char *pat = "^.*usr/lib/modules/[^/]+/vmlinuz$";
 
     *is_kernel = false;
-    if (image == nullptr || image[0] == '\0') {
+    if (!image || image[0] == '\0') {
         goto exit;
     }
 

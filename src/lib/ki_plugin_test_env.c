@@ -20,17 +20,17 @@
 
 #include "sd-boot.h"
 
-int ki_plugins_test_env(char *test_root, Array_str *env) {
+int ki_plugins_test_env(char *root, Array_str *env) {
     /*
      * Env will be all the  *.install files from 
      * - standard plugins from /usr/lib/kernel/install.d
-     * - plugins from "<test_root>/etc/kernel/install.d
+     * - plugins from "<root>/etc/kernel/install.d
      */
     int ret = 0;
     char *var = nullptr;
     Array_str plugins = {};
 
-    ret = get_plugin_list(test_root, &plugins);
+    ret = get_plugin_list(root, &plugins);
     if (ret != 0) {
         goto exit;
     }
@@ -46,7 +46,7 @@ int ki_plugins_test_env(char *test_root, Array_str *env) {
     }
 
     var = (char *)calloc(bytes, sizeof(char));
-    if (var == nullptr) {
+    if (!var) {
         ret = -1;
         goto exit;
     }
@@ -73,7 +73,7 @@ int ki_plugins_test_env(char *test_root, Array_str *env) {
 
 exit:
     array_str_free(&plugins);
-    if (var != nullptr) {
+    if (var) {
         free((void *)var);
     }
     return ret;

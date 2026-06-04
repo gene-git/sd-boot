@@ -9,6 +9,20 @@ sd-boot
 Recent Changes
 ==============
 
+**5.6.0**
+
+* The loader entry plugin is now installed in /usr/lib/kernel/install.d.
+  This allows administrators to over-ride in /etc/kernel/install.d/xxx.
+
+  i.e. /usr/lib/kernel/install.d/95-sd-boot-loaderentry-modify.install
+
+* Switch /etc/sd-boot/config to /etc/sd-boot/config.yaml
+  Yaml config will be auto created from existing config.
+  This adds a new dependency on *libyaml*.
+
+* Package dependencies updated.
+* Some code tidy up. Simplify style used to check for nullptr.
+
 **5.4.1**
 
 * Some code clean ups
@@ -62,27 +76,6 @@ Recent Changes
 * Set default layout to "uki" in /etc/kernel/install.conf
 
   May need to be changed manually.
-
-* Some code tidy ups.
-
-**4.8.0**
-
-* Fix installer typo for loaderentry modify.
-
-**4.7.5**
-
-* Fix typo for license file install.
-
-**4.7.4**
-
-* loader flags to meson build
-
-**4.7.3**
-
-* Change build tooling to meson (was cmake).
-  Simpler and cleaner.
-* Use meson to run tests.
-* No functional change.
 
 See Changelog for more history.
 
@@ -353,6 +346,7 @@ a single file which gets signed. To change the layout simply edit
 .. code-block:: bash
 
    layout=uki
+   initrd_generator=dracut
    uki_generator=ukify
 
 That's all that's required to have a unified kernel image signed by the local keys.

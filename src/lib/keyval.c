@@ -26,7 +26,7 @@ static int line_to_key_val(ssize_t num_read, char *line, char **key_p, char **va
     /*
      * sanity check
      */
-    if (num_read < 0 || line == nullptr || *line == '\0') {
+    if (num_read < 0 || !line || *line == '\0') {
         return 1;
     }
     size_t num = (size_t)num_read;
@@ -51,7 +51,7 @@ static int line_to_key_val(ssize_t num_read, char *line, char **key_p, char **va
     }
     *key_p = trim_string(*key_p, MAX_KEY_LEN-1);
 
-    if (*val_p != nullptr) {
+    if (*val_p) {
         *val_p = trim_string(*val_p, MAX_KEY_LEN-1);
     }
     return 0;
@@ -65,7 +65,7 @@ static int match_key_to_elem(char *key, size_t num_elems, KvElem *elem, size_t *
      *  0 = match found, *idx_p is the elem index
      *  1 = no match found
      */
-    if (key == nullptr) {
+    if (!key) {
         return -1;
     }
 
@@ -87,7 +87,7 @@ static int save_key_val(char *key, char *val, size_t num_elems, KvElem *elem) {
      *  1 = no match
      */
 
-    if (key == nullptr || val == nullptr) {
+    if (!key || !val) {
         return 1;
     }
 
@@ -160,7 +160,7 @@ int read_kv_elems(const char *path, size_t num_elems, KvElem *elem, size_t *num_
     char *line = nullptr;
     char *line_copy = nullptr;
 
-    if (num_elems == 0 || path == nullptr) {
+    if (num_elems == 0 || !path) {
         return 0;
     }
 
@@ -173,7 +173,7 @@ int read_kv_elems(const char *path, size_t num_elems, KvElem *elem, size_t *num_
 
     FILE *fptr = nullptr;
     fptr = fopen(path, "r");            // NOLINT(concurrency-mt-unsafe)
-    if (fptr == nullptr ){
+    if (!fptr){
         perror("Error opening file");
         ret = -1;
         goto exit;
@@ -184,13 +184,13 @@ int read_kv_elems(const char *path, size_t num_elems, KvElem *elem, size_t *num_
      */
     size_t line_len = ROW_MAX;
     line = (char *)calloc(line_len, sizeof(char));
-    if (line == nullptr) {
+    if (!line) {
         perror(nullptr);
         ret = -1;
         goto exit;
     }
     line_copy = (char *)calloc(line_len, sizeof(char));
-    if (line_copy == nullptr) {
+    if (!line_copy) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -220,15 +220,15 @@ int read_kv_elems(const char *path, size_t num_elems, KvElem *elem, size_t *num_
     *num_found_p = num_found;
 
 exit:
-    if (fptr != nullptr) {
+    if (fptr) {
         if (fclose(fptr) != 0) {
             perror(nullptr);
         }
     }
-    if (line != nullptr) {
+    if (line) {
         free((void *) line);
     }
-    if (line_copy != nullptr) {
+    if (line_copy) {
         free((void *) line_copy);
     }
     return ret;

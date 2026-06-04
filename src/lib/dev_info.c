@@ -35,10 +35,9 @@ static int dev_root_init(DevInfo *info) {
     char cwd_env[PATH_MAX] = {};
     char top_dir[PATH_MAX] = {};
     const char *testing = "Testing";
-    //const char *root = "__root__";
     char *cwd_base = nullptr;
 
-    if (getcwd(cwd_env, PATH_MAX) == nullptr) {
+    if (!getcwd(cwd_env, PATH_MAX)) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -123,10 +122,10 @@ static void dev_tree_setup(DevInfo *info) {
         "etc",
         "etc/sd-boot",
         "etc/kernel",
-        "etc/kernel/install.d",
         "usr",
         "usr/bin",
         "usr/lib",
+        "usr/lib/kernel/install.d",
         "usr/lib/sd-boot",
         "tmp",
         "var",
@@ -165,7 +164,7 @@ static void dev_tree_setup(DevInfo *info) {
  * - In test mode:
  *   * test <test-root> = ./Testing/__root__ /
  *   * <test-root>/etc/sd-boot/
- *     used for inputs
+ *     used for sd-boot config
  *   * <test-root> 
  *     /efi, /boot are where kernels are installed.
  * - NB testing tree only applicable for non-root user.
@@ -184,7 +183,7 @@ int init_devinfo(DevInfo *info) {
 
     char *test_env = secure_getenv("SDB_DEV_TEST");
 
-    if (test_env != nullptr) {
+    if (test_env) {
         info->test = true;
         if (info->euid != 0) {
             dev_root_init(info);

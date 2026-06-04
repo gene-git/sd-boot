@@ -95,7 +95,7 @@ void free_triggers(Triggers *trigs) {
     /*
      * Free up any mem
      */
-    if (trigs->info != nullptr) {
+    if (trigs->info) {
         for (size_t i = 0; i < trigs->num_info; i++) {
             kernel_info_free(&trigs->info[i]);
         }

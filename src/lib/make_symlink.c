@@ -75,7 +75,7 @@ exit:
 int make_symlink(const char *target, const char *linkname) {
     int ret = 0;
 
-    if (target == nullptr || linkname == nullptr) {
+    if (!target || !linkname ) {
         msg(MSG_ERR, "  ! sd-boot bad input to make symlink\n");
         ret = -1;
         goto exit;

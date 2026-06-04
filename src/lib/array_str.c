@@ -22,7 +22,7 @@ int array_str_new(size_t num_rows, Array_str *arr) {
      */
     int ret = 0;
 
-    if (arr == nullptr) {
+    if (!arr) {
         msg(MSG_ERR, "sd-boot: array strings bad input\n");
         ret = 1;
         goto exit;
@@ -30,7 +30,7 @@ int array_str_new(size_t num_rows, Array_str *arr) {
 
     arr->num_rows = 0;
     arr->rows = (char **)calloc(num_rows, sizeof(char *));
-    if (arr->rows == nullptr) {
+    if (!arr->rows) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -38,14 +38,14 @@ int array_str_new(size_t num_rows, Array_str *arr) {
     arr->num_rows = num_rows;
 
     arr->row_len = (size_t *)calloc(num_rows, sizeof(size_t));
-    if (arr->row_len == nullptr) {
+    if (!arr->row_len) {
         perror(nullptr);
         ret = -1;
         goto exit;
     }
 
 exit:
-    if (ret != 0 && arr != nullptr && arr->rows != nullptr) {
+    if (ret != 0 && arr && arr->rows) {
         msg(MSG_ERR, "sd-boot: memory allocation error for %zu\n", num_rows);
         array_str_free(arr);
     }
@@ -62,17 +62,17 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
      * Free up mem for now unused rows.
      */
     for (size_t i = num_rows; i < arr->num_rows; i++) {
-        if (arr->rows[i] != nullptr) {
+        if (arr->rows[i]) {
             free((void *)arr->rows[i]);
         }
     }
 
     // special case "free" so we dont rely on realloc to free
     if (num_rows == 0) {
-        if (arr->rows != nullptr) {
+        if (arr->rows) {
             free((void *)arr->rows);
         }
-        if (arr->row_len != nullptr) {
+        if (arr->row_len) {
             free((void *)arr->row_len);
         }
         arr->rows = nullptr;
@@ -86,7 +86,7 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
         void *tmp_ptr = nullptr;
 
         tmp_ptr = reallocarray((void *)arr->rows, num_rows, sizeof(char *));
-        if (tmp_ptr == nullptr){
+        if (!tmp_ptr){
             perror(nullptr);
             ret = -1;
             goto exit;
@@ -94,7 +94,7 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
         arr->rows = (char **)tmp_ptr; 
 
         tmp_ptr = reallocarray((void *)arr->row_len, num_rows, sizeof(size_t));
-        if (tmp_ptr == nullptr){
+        if (!tmp_ptr){
             perror(nullptr);
             ret = -1;
             goto exit;
@@ -115,7 +115,7 @@ static int array_str_more_rows(size_t num_rows, Array_str *arr) {
     void *tmp_ptr = nullptr;
 
     tmp_ptr = reallocarray((void *)arr->rows, num_rows, sizeof(char *));
-    if (tmp_ptr == nullptr){
+    if (!tmp_ptr){
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -124,7 +124,7 @@ static int array_str_more_rows(size_t num_rows, Array_str *arr) {
     arr->rows = (char **)tmp_ptr;
 
     tmp_ptr = reallocarray((void *)arr->row_len, num_rows, sizeof(size_t));
-    if (tmp_ptr == nullptr){
+    if (!tmp_ptr){
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -159,7 +159,7 @@ int array_str_resize(size_t num_rows, Array_str *arr) {
      */
     int ret = 0;
 
-    if (arr == nullptr) {
+    if (!arr) {
         msg(MSG_ERR, "sd-boot: memory alloc bad pointers\n");
         ret = -1;
         goto exit;

@@ -59,7 +59,7 @@ static int write_package_versions(char *root, PackageVersion *pkg_vers) {
 
     FILE *fptr = nullptr;
     fptr = fopen(path, "w");
-    if (fptr == nullptr) {
+    if (!fptr) {
         perror(nullptr);
         msg(MSG_ERR, "  ! sd-boot: error opening %s\n", path);
         return -1;
@@ -80,7 +80,7 @@ static int write_package_versions(char *root, PackageVersion *pkg_vers) {
     }
 
 exit:
-    if (fptr != nullptr) {
+    if (fptr) {
         if (fclose(fptr) != 0) {
             perror(nullptr);
         }

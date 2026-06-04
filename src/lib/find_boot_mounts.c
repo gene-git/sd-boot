@@ -27,30 +27,6 @@ enum Constants {
 };
 
 
-/*
- * Add one entry to list
- */
-static int add_one_mount(char *fsname, Array_str *arr) {
-    int ret = 0;
-    size_t n_row = 0;
-
-    n_row = arr->num_rows;
-
-    if (arr->num_rows == 0) {
-        ret = array_str_new(1, arr);
-    } else {
-        ret = array_str_resize(arr->num_rows + 1, arr);
-    }
-    if (ret != 0) {
-        msg(MSG_ERR, "  sd-boot: memory alloc error\n");
-        goto exit;
-    }
-    arr->rows[n_row] = strdup(fsname);
-
-exit:
-    return ret;
-}
-
 /**
  * Get partition GUID.
  * Caller must free memory returned.
@@ -72,7 +48,7 @@ static char *get_partition_guid(const char *device) {
     }
 
     probe = blkid_new_probe();
-    if (probe == nullptr) {
+    if (!probe) {
         fdes = 0;
         goto exit;
     }
@@ -118,12 +94,12 @@ static char *get_partition_guid(const char *device) {
         goto exit;
     }
 
-    if (type_guid != nullptr) {
+    if (type_guid) {
         guid = strdup(type_guid);
     }
 
 exit:
-    if (probe != nullptr) {
+    if (probe) {
         blkid_free_probe(probe);
     }
     if (fdes > 0) {
@@ -184,14 +160,14 @@ int find_efi_xbootldr_mounts(Array_str *efi, Array_str *xbootldr) {
         }
 
         if (strcasecmp(guid, ESP_GUID) == 0) {
-            ret = add_one_mount(entry->mnt_dir, efi);
+            ret = array_str_add(entry->mnt_dir, efi);
             if (ret != 0) {
                 msg(MSG_ERR, "  sd-boot: memory alloc error\n");
                 goto exit;
             }
 
         } else if (strcasecmp(guid, XBOOTLDR_GUID) == 0) {
-            ret = add_one_mount(entry->mnt_dir, xbootldr);
+            ret = array_str_add(entry->mnt_dir, xbootldr);
             if (ret != 0) {
                 msg(MSG_ERR, "  sd-boot: memory alloc error\n");
                 goto exit;

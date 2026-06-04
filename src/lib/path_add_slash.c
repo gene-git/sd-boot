@@ -11,7 +11,8 @@
 #include <string.h>
 
 int path_add_slash(char *path, char **path_p) {
-    if (path == nullptr || path_p == nullptr) {
+
+    if (!path || !path_p) {
         return -1;
     }
     if (path[0] == '/') {

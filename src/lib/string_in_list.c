@@ -12,7 +12,7 @@ bool string_in_list(const char *name, size_t num_names, char **names) {
      * Return true if name in names
      * else false
      */
-    if (name == nullptr || names == nullptr) {
+    if (!name || !names ) {
         return false;
     }
 

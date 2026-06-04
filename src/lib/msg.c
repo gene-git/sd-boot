@@ -32,7 +32,8 @@ void set_verb_level(int verb_level) {
  */
 [[gnu::format(printf, 2, 3)]]
 void msg(int level, const char *fmt, ...) {
-    if (fmt == nullptr) {
+
+    if (!fmt ) {
         return;
     }
     if (level <= VerbLevel) {

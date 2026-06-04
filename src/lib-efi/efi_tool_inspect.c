@@ -36,7 +36,7 @@ int efi_tool_inspect(SdBoot *conf, const char *pkg) {
      * efi image path
      */
     efi_image = package_to_efi_image(conf, pkg);
-    if (efi_image == nullptr) {
+    if (!efi_image) {
         msg(MSG_ERR, "  ! sd-boot: inspect efi tool: no efi image found\n");
         ret = -1;
         goto exit;
@@ -72,7 +72,7 @@ int efi_tool_inspect(SdBoot *conf, const char *pkg) {
 
 exit:
     array_str_free(&env_arr);
-    if (efi_image != nullptr) {
+    if (efi_image) {
         free((void *)efi_image);
     }
     return ret;

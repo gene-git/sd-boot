@@ -37,12 +37,12 @@ void work_clean(struct Work *work) {
 static bool this_kernel_already_done(KernelInfo *info, Triggers *trigs) {
     bool done = false;
 
-    if (info->package == nullptr || info->package[0] == '\0') {
+    if (!info->package || info->package[0] == '\0') {
         return done;
     }
 
     for (size_t i = 0; i < trigs->num_info; i++) {
-        if (trigs->info[i].package == nullptr || trigs->info[i].package[0] == '\0') {
+        if (!trigs->info[i].package || trigs->info[i].package[0] == '\0') {
             continue;
         }
 
@@ -208,7 +208,7 @@ int main(int argc, char *argv[]) {
 
 exit:
     work_clean(&work);
-    if (infos != nullptr) {
+    if (infos) {
         for (size_t i = 0; i < num_all; i++) {
             kernel_info_free(&infos[i]);
         }

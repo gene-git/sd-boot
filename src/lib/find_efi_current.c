@@ -27,7 +27,7 @@ static void extract_efi_xbootldr(char *buf, size_t size, MountPoints *mounts) {
      *
      * Only extract the first instance.
      */
-    if (buf == nullptr || mounts == nullptr) {
+    if (!buf || !mounts) {
         return;
     }
     char *token = nullptr;
@@ -38,14 +38,14 @@ static void extract_efi_xbootldr(char *buf, size_t size, MountPoints *mounts) {
     const char *xbt_key = "XBOOTLDR:";
 
     token = strtok_r(buf, " ", &save_ptr);
-    if (token != nullptr) {
+    if (token) {
         /*
          * check if token matches a key
          */
         if (strncmp(efi_key, (const char *)token, strlen(efi_key)) == 0) {
             if (mounts->efi_dir[0] == '\0') {
                 token = strtok_r(nullptr, " ", &save_ptr);
-                if (token != nullptr) {
+                if (token) {
                     length = strnlen(token, size);
                     strncpy(mounts->efi_dir, token, length);
                 }
@@ -54,7 +54,7 @@ static void extract_efi_xbootldr(char *buf, size_t size, MountPoints *mounts) {
         } else if (strncmp(xbt_key, (const char *)token, strlen(xbt_key)) == 0) {
             if (mounts->xbootldr_dir[0] == '\0') {
                 token = strtok_r(nullptr, " ", &save_ptr);
-                if (token != nullptr) {
+                if (token) {
                     length = strnlen(token, size);
                     strncpy(mounts->xbootldr_dir, token, length);
                 }
@@ -75,7 +75,7 @@ int find_efi_current_boot(MountPoints *mounts) {
     int ret = 0;
     int child_ret = 0;
 
-    if (mounts == nullptr) {
+    if (!mounts) {
         return 1;
     }
     mounts->efi_dir[0] = '\0';
@@ -94,7 +94,7 @@ int find_efi_current_boot(MountPoints *mounts) {
         return -1;
     }
 
-    if (output == nullptr || output[0] == 0) {
+    if (!output || output[0] == 0) {
         goto exit;
     }
 
@@ -109,10 +109,10 @@ int find_efi_current_boot(MountPoints *mounts) {
      * - trim_string moves chars around so make copy of line
      */
     ptr = output;
-    while ((line = get_one_line(&ptr)) != nullptr) {
+    while ((line = get_one_line(&ptr))) {
 
         line_tmp = strdup(line);
-        if (line_tmp == nullptr) {
+        if (!line_tmp) {
             msg(MSG_ERR, "  ! sd-boot: memory allocation fail\n");
             goto exit;
         }
@@ -131,10 +131,10 @@ int find_efi_current_boot(MountPoints *mounts) {
     }
 
 exit:
-    if (output != nullptr) {
+    if (output) {
         free((void *)output);
     }
-    if (line_tmp != nullptr) {
+    if (line_tmp) {
         free((void *) line_tmp);
     }
     

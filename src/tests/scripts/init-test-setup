@@ -35,6 +35,8 @@ install_done_file="$build_dir/.init_install_done.$ppid"
         /usr/bin/mkdir -p "$testing_dir/__root__"
         /usr/bin/rsync -a "$testing_dir"/Template/__root__ "$testing_dir/"
 
+        /usr/bin/rsync -a --mkpath /usr/lib/kernel  "$testing_dir"/__root__/usr/lib/
+
         cd "$source_dir"
         /usr/bin/meson install -C build/release --destdir "$testing_dir"/__root__ --quiet
 

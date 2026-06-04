@@ -16,7 +16,7 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
      * - return 0 on success
      * vers should be ROW_MAX bytes to be large enough for package version.
      */
-    if (pkg == nullptr || vers == nullptr) {
+    if (!pkg || !vers) {
         return -1;
     }
 
@@ -34,7 +34,7 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
         return -1;
     }
 
-    if (output != nullptr && output[0] == '\0') {
+    if (output && output[0] == '\0') {
         ret = -1;
         goto exit;
     }
@@ -52,11 +52,11 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
     char *tmp_ptr = nullptr;
 
     token = strtok_r(ptr, " ", &save_ptr);
-    while (token != nullptr) {
+    while (token) {
         if (token[0] != '\0') {
             if (strcmp(pkg, token) == 0) {
                 token = strtok_r(nullptr, " ", &save_ptr);
-                if (token == nullptr) {
+                if (!token) {
                     goto exit;
                 }
                 strlcpy(tmp, token, MAX_VAL_LEN);
@@ -68,7 +68,7 @@ int package_version_installed(const char *pkg, size_t len_vers, char *vers) {
         token = strtok_r(nullptr, " ", &save_ptr);
     }
 exit:
-    if (output != nullptr) {
+    if (output) {
         free((void *) output);
     }
     return ret;

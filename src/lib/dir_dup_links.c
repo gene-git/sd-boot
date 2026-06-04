@@ -85,7 +85,7 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
     int ret = 0;
     struct dirent *entry = {};
 
-    if (src == nullptr || dst == nullptr) {
+    if (!src || !dst) {
         return -1;
     }
 
@@ -100,7 +100,7 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
      *  Open src/dir
      */
     DIR *src_dir = opendir(src);
-    if (src_dir == nullptr) {
+    if (!src_dir) {
         perror(nullptr);
         return -1;
     }
@@ -113,10 +113,10 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
     }
 
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
-    while ((entry = readdir(src_dir)) != nullptr) {
+    while ((entry = readdir(src_dir))) {
         const char *name = entry->d_name;
 
-        if (skips != nullptr && skips->num_rows > 0) {
+        if (skips && skips->num_rows > 0) {
             if (string_in_list(name, skips->num_rows, skips->rows)) {
                 continue;
             }
@@ -128,7 +128,7 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
         }
     }
 
-    if (src_dir != nullptr) {
+    if (src_dir) {
         (void) closedir(src_dir);
     }
     if (dst_fd > 0) {

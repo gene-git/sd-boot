@@ -26,7 +26,7 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
     /*
      * Sanity check
      */
-    if (plugin->is_kernel || plugin->kernel_version == nullptr || plugin->kernel_version[0] == '\0') {
+    if (plugin->is_kernel || !plugin->kernel_version || plugin->kernel_version[0] == '\0') {
         goto exit;
     }
 
@@ -34,7 +34,7 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
      * Get package name from the image path (info)
      */
     info.package = efi_image_to_package(conf, plugin->kernel_image);
-    if (info.package == nullptr || info.package[0] == '\0') {
+    if (!info.package || info.package[0] == '\0') {
         // msg(MSG_VERB, "sd-boot: Failed to get kernel package from image: %s\n", plugin->kernel_image);
         ret = 0;
         goto exit;

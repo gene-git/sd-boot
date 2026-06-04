@@ -179,7 +179,7 @@ static int modify_one_line(KInstallMods *mods, struct BlsInfo *info) {
     if (info->num_used >= info->num_allocated) {
         info->num_allocated += info->num_used + CHUNK;
         ptr = realloc(info->bls, info->num_allocated * sizeof(char));
-        if (ptr == nullptr) {
+        if (!ptr) {
             msg(MSG_ERR, "! sd-boot mem allocation error\n");
             ret = -1;
             goto exit;
@@ -213,7 +213,7 @@ static int make_new_install(KInstallMods *mods, const void *file_map, size_t fil
      */
     info.num_allocated = CHUNK;
     info.bls = (char *)malloc(CHUNK * sizeof(char));
-    if (info.bls == nullptr) {
+    if (!info.bls) {
         msg(MSG_ERR, "! sd-boot mem allocation error\n");
         ret = -1;
         goto exit;
@@ -232,7 +232,7 @@ static int make_new_install(KInstallMods *mods, const void *file_map, size_t fil
         /*
          * Handle end of file without a newline
          */
-        if (info.line_end == nullptr) {
+        if (!info.line_end) {
             info.line_end = (char *)file_end;
         }
 
@@ -269,7 +269,7 @@ static int make_new_install(KInstallMods *mods, const void *file_map, size_t fil
     total_length += 1;
     if (total_length != info.num_allocated) {
         ptr = realloc(info.bls, total_length * sizeof(char));
-        if (ptr == nullptr) {
+        if (!ptr) {
             msg(MSG_ERR, "! sd-boot mem allocation error\n");
             ret = -1;
             goto exit;
@@ -283,7 +283,7 @@ static int make_new_install(KInstallMods *mods, const void *file_map, size_t fil
 
 exit:
     if (ret != 0){
-        if (info.bls != nullptr) {
+        if (info.bls) {
             free((void *)info.bls);
         }
         *bls_p = nullptr;
@@ -299,7 +299,7 @@ int make_kernel_install_conf(KInstallMods *mods, const char *src, const char *ds
     char *bls = nullptr;
     size_t bls_size = 0;
 
-    if (src == nullptr || dst == nullptr) {
+    if (!src || !dst) {
         return -1;
     }
 
@@ -334,7 +334,7 @@ int make_kernel_install_conf(KInstallMods *mods, const char *src, const char *ds
     }
 
     bool changed = false;
-    if (file_size != bls_size || bls_size == 0 || bls == nullptr) {
+    if (file_size != bls_size || bls_size == 0 || !bls) {
         changed = true;
     } else {
         if (memcmp(file_map, bls, file_size) != 0) {
@@ -350,7 +350,7 @@ int make_kernel_install_conf(KInstallMods *mods, const char *src, const char *ds
     }
 
 exit:
-    if (bls != nullptr) {
+    if (bls) {
         free((void *)bls);
     }
     return ret;

@@ -30,7 +30,7 @@
 static int kernel_mod_dir_to_package(KernelInfo *info) {
     int ret = 0;
 
-    if (info->mod_dir == nullptr) {
+    if (!info->mod_dir) {
         ret = -1;
         goto exit;
     }
@@ -52,13 +52,13 @@ static int kernel_mod_dir_to_package(KernelInfo *info) {
         }
 
         str = read_file_first_row(path);
-        if (str != nullptr) {
+        if (str) {
             info->package = str;
             str = nullptr;
             break;
         } 
     }
-    if (info->package == nullptr) {
+    if (!info->package) {
         /*
          * caller decides if this is error.
          * plugins are called always and its up to plugin to ignore or not
@@ -99,7 +99,7 @@ int kernel_image_path_to_info(KernelInfo *info) {
      * Make copy since dirname modifies the data
      */
     img_path = strdup(info->image);
-    if (img_path == nullptr) {
+    if (!img_path) {
         ret = -1;
         goto exit;
     }
@@ -109,12 +109,12 @@ int kernel_image_path_to_info(KernelInfo *info) {
     char *kern_vers = basename(img_path);
 
     info->mod_dir = strdup(mod_dir);
-    if (info->mod_dir == nullptr) {
+    if (!info->mod_dir) {
         ret = -1;
         goto exit;
     }
     info->vers = strdup(kern_vers);
-    if (info->vers == nullptr) {
+    if (!info->vers) {
         ret = -1;
         goto exit;
     }
@@ -126,7 +126,7 @@ int kernel_image_path_to_info(KernelInfo *info) {
     }
 
 exit:
-    if (img_path != nullptr) {
+    if (img_path) {
         free((void *)img_path);
     }
     return ret;
@@ -137,18 +137,18 @@ exit:
  * Free any KernelInfo mem
  */
 void kernel_info_free(KernelInfo *info) {
-    if (info->image != nullptr) {
+    if (info->image) {
         free((void *)info->image);
     }
 
-    if (info->mod_dir != nullptr) {
+    if (info->mod_dir) {
         free((void *)info->mod_dir);
     }
 
-    if (info->package != nullptr) {
+    if (info->package) {
         free((void *)info->package);
     }
-    if (info->vers != nullptr) {
+    if (info->vers) {
         free((void *)info->vers);
     }
 }

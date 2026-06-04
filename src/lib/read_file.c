@@ -59,7 +59,7 @@ exit:
 }
 
 void close_file(FILE *file) {
-    if (file != nullptr && fclose(file) != 0) {
+    if (file && fclose(file) != 0) {
         perror(nullptr);
     }
 }
@@ -90,7 +90,7 @@ int read_file(const char *path, Array_str *arr) {
      * -1 for an error
      */
     FILE *file = fopen(path, "r");
-    if (file == nullptr) {
+    if (!file) {
         /*
          * 1 = no such file
          */

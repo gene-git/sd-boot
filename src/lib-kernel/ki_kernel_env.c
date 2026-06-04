@@ -16,7 +16,7 @@ int ki_kernel_update_env(SdBoot *conf, Array_str *env) {
     size_t num_envp_plugins = 0;
     size_t num_envp = 0;
 
-    if (envp_plugins != nullptr) {
+    if (envp_plugins) {
         num_envp_plugins = count_envp_argv(envp_plugins);
     }
 

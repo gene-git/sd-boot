@@ -57,7 +57,7 @@ static int copy_argv_item(int idx, int argc, const char **argv, char **ptr) {
      * kernel-install passes down based on how it is called
      * So we treat a missing item as empty string.
      */
-    if (argv == nullptr) {
+    if (!argv) {
         return -1;
     }
 
@@ -77,13 +77,13 @@ static int copy_env_item(char *name, char **ptr) {
      * makes a copy of env variable "name"
      * - empty string is ok
      */
-    if (name == nullptr) {
+    if (!name) {
         return -1;
     }
 
     char *env = nullptr;
     env = secure_getenv(name);
-    if (env == nullptr) {
+    if (!env) {
         env = "";
     }
     *ptr = strndup(env, MAX_STR);
@@ -203,9 +203,9 @@ static int env_var_init(KIplugin *plugin) {
     if (ret != 0) {
         goto exit;
     }
-    if (plugin->layout != nullptr && plugin->layout[0] != '\0') {
+    if (plugin->layout && plugin->layout[0] != '\0') {
         if (strcasecmp(plugin->layout, "uki") == 0) {
-                plugin->is_uki = true;
+            plugin->is_uki = true;
         }
     }
 
@@ -284,55 +284,55 @@ void plugin_free(KIplugin *plugin) {
     /*
      * free up any non-null mem
      */
-    if (plugin->command != nullptr) {
+    if (plugin->command) {
         free((void *) plugin->command);
     }
 
-    if (plugin->kernel_version != nullptr) {
+    if (plugin->kernel_version) {
         free((void *) plugin->kernel_version);
     }
 
-    if (plugin->entry_dir_abs != nullptr) {
+    if (plugin->entry_dir_abs) {
         free((void *) plugin->entry_dir_abs);
     }
 
-    if (plugin->kernel_image != nullptr) {
+    if (plugin->kernel_image) {
         free((void *) plugin->kernel_image);
     }
 
-    if (plugin->initrd_1 != nullptr) {
+    if (plugin->initrd_1) {
         free((void *) plugin->initrd_1);
     }
 
-    if (plugin->initrd_2 != nullptr) {
+    if (plugin->initrd_2) {
         free((void *) plugin->initrd_2);
     }
 
-    if (plugin->layout != nullptr) {
+    if (plugin->layout) {
         free((void *) plugin->layout);
     }
 
-    if (plugin->verbose != nullptr) {
+    if (plugin->verbose) {
         free((void *) plugin->verbose);
     }
 
-    if (plugin->machine_id != nullptr) {
+    if (plugin->machine_id) {
         free((void *) plugin->machine_id);
     }
 
-    if (plugin->entry_token != nullptr) {
+    if (plugin->entry_token) {
         free((void *) plugin->entry_token);
     }
 
-    if (plugin->boot_root != nullptr) {
+    if (plugin->boot_root) {
         free((void *) plugin->boot_root);
     }
 
-    if (plugin->loader_entry_dir != nullptr) {
+    if (plugin->loader_entry_dir) {
         free((void *) plugin->loader_entry_dir);
     }
 
-    if (plugin->loader_entry_file != nullptr) {
+    if (plugin->loader_entry_file) {
         free((void *) plugin->loader_entry_file);
     }
 }

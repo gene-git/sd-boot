@@ -24,8 +24,8 @@
 int main(int argc, const char *argv[]) {
     /*
      * Invoked by kernel-install.
-     * Installed as: 
-     *  /etc/kernel/install.d/95-sd-boot-loaderentry-modify.install
+     * Installed in: 
+     *  /usr/lib/kernel/install.d/95-sd-boot-loaderentry-modify.install
      */
     int ret = 0;
     KIplugin plugin = {};

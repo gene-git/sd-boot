@@ -40,9 +40,9 @@ int dynamic_str_alloc(size_t num, Dynamic_str *str) {
 
     if (num != str->num_alloc) {
 
-        if (str->num_alloc == 0 || str->bytes == nullptr) {
+        if (str->num_alloc == 0 || !str->bytes) {
             str->bytes = (char *)calloc(num, sizeof(char));
-            if (str->bytes == nullptr) {
+            if (!str->bytes) {
                 msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation error\n");
                 ret = -1;
             }
@@ -50,7 +50,7 @@ int dynamic_str_alloc(size_t num, Dynamic_str *str) {
 
         } else {
             str->bytes = (char *)realloc(str->bytes, num * sizeof(char));
-            if (str->bytes == nullptr) {
+            if (!str->bytes) {
                 msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation error\n");
                 ret = -1;
                 str->num_alloc = 0;

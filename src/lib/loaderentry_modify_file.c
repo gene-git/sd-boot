@@ -89,7 +89,7 @@ static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, ch
     char *tag = nullptr;
     size_t tag_len = 0;
 
-    if (entry->title != nullptr && entry->title[0] != '\0') {
+    if (entry->title && entry->title[0] != '\0') {
         /*
          * "title" => update
          */
@@ -163,9 +163,7 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     FILE *tmp_fptr = nullptr;
     FILE *fptr = nullptr;
 
-    if (entry == nullptr || 
-            entry->loader_entry_dir == nullptr || 
-            entry->loader_entry_file == nullptr || 
+    if (!entry || !entry->loader_entry_dir || !entry->loader_entry_file || 
             entry->loader_entry_file[0] == '\0') {
         return -1;
     }
@@ -195,7 +193,7 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     char row[ROW_SZ] = {};
     char row_mod[ROW_SZ] = {};
 
-    while (fgets(row, sizeof(row), fptr) != nullptr) {
+    while (fgets(row, sizeof(row), fptr)) {
 
         ret = entry_row_modify(entry, ROW_SZ, row, row_mod);
         if (ret != 0) {
@@ -230,10 +228,10 @@ int loaderentry_modify_file(LoaderEntry *entry) {
         }
     }
 exit:
-    if (tmp_fptr != nullptr) {
+    if (tmp_fptr) {
         (void) fclose(tmp_fptr);
     }
-    if (fptr != nullptr) {
+    if (fptr) {
         (void) fclose(fptr);
     }
     if (ret != 0 && path_tmp[0] != '\0') {

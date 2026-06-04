@@ -18,7 +18,7 @@ int array_str_move(Array_str *arr_1, Array_str *arr_2) {
      */
     size_t new_row = arr_2->num_rows;
     for (size_t i = arr_2->num_rows - 1; i > 0; i--) {
-        if (arr_2->rows[i] != nullptr) {
+        if (arr_2->rows[i]) {
             break;
         }
         new_row = i;
@@ -41,7 +41,7 @@ int array_str_move(Array_str *arr_1, Array_str *arr_2) {
     /*
      * tidy up memory and ensure last row is nullptr
      */
-    if (arr_2->rows[new_row - 1] != nullptr) {
+    if (arr_2->rows[new_row - 1]) {
         new_row++;
     }
     if (array_str_resize(new_row, arr_2) != 0) {

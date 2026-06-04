@@ -23,7 +23,7 @@ int kernel_inspect(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     char **envp = nullptr;
     Array_str env = {};
 
-    if (info->vers == nullptr || info->vers[0] == '\0') {
+    if (!info->vers || info->vers[0] == '\0') {
         msg(MSG_ERR, "  ! sd-boot: kernel update failed to get kernel version\n");
         ret = 1;
         goto exit;

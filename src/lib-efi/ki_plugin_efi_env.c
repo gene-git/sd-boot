@@ -17,7 +17,7 @@
 
 #include "sd-boot.h"
 
-int ki_plugins_efi_update_env(char *test_root, Array_str *env) {
+int ki_plugins_efi_update_env(char *root, Array_str *env) {
     /*
      * Set up the plugin environment passed to kernel-install:
      *
@@ -32,27 +32,23 @@ int ki_plugins_efi_update_env(char *test_root, Array_str *env) {
      * KERNEL_INSTALL_PLUGINS=
      */
     const char* var = "KERNEL_INSTALL_PLUGINS=";
-    const char *entry_one = "/usr/lib/kernel/install.d/90-loaderentry.install";
-    char entry_two[PATH_MAX] = {};
+    const char *pdir = "/usr/lib/kernel/install.d/";
+    char entry_1[PATH_MAX] = {};
+    char entry_2[PATH_MAX] = {};
     char *env_var = nullptr;
 
-    if (env == nullptr) {
+    if (!env) {
         ret = -1;
         goto exit;
     }
 
-    /*
-    size_t root_len = strlen(test_root);
-    char *path_sep = nullptr;
-    if (test_root[root_len - 1] == '/') {
-        path_sep = "";
-    } else {
-        path_sep = "/";
+    if (snprintf(entry_1, PATH_MAX, "%s%s%s", root, pdir, "90-loaderentry.install") < 0) {
+        msg(MSG_ERR, "  ! sd-boot: error setting up efi-tool environment\n");
+        ret = -1;
+        goto exit;
     }
-    */
 
-    if (snprintf(entry_two, PATH_MAX, " %s%s", test_root,
-                "etc/kernel/install.d/95-sd-boot-loaderentry-modify.install") < 0) {
+    if (snprintf(entry_2, PATH_MAX, " %s%s%s", root, pdir, "95-sd-boot-loaderentry-modify.install") < 0) {
         msg(MSG_ERR, "  ! sd-boot: error setting up efi-tool environment\n");
         ret = -1;
         goto exit;
@@ -60,19 +56,19 @@ int ki_plugins_efi_update_env(char *test_root, Array_str *env) {
 
     /*
      * allocate mem for:
-     * <var><entry_one><entry_two>
+     * <var><entry_1><entry_2>
      */
     size_t len = 0;
-    len = strlen(var) + strlen(entry_one) + strlen(entry_two) + 1;
+    len = strlen(var) + strlen(entry_1) + strlen(entry_2) + 1;
 
     env_var = (char *)calloc(len, sizeof(char) + 1);
-    if (env_var == nullptr) {
+    if (!env_var) {
         perror(nullptr);
         ret = -1;
         goto exit;
     }
 
-    if (snprintf(env_var, len * sizeof(char), "%s%s%s", var, entry_one, entry_two) < 0) {
+    if (snprintf(env_var, len * sizeof(char), "%s%s%s", var, entry_1, entry_2) < 0) {
         msg(MSG_ERR, "  ! sd-boot: error setting up efi-tool environment\n");
         ret = -1;
         goto exit;
@@ -88,7 +84,7 @@ int ki_plugins_efi_update_env(char *test_root, Array_str *env) {
     env->rows[1] = nullptr;
 
 exit:
-    if (env_var != nullptr) {
+    if (env_var) {
         free((void *)env_var);
     }
     return ret;

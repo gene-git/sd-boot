@@ -13,7 +13,7 @@
 bool is_kernel_sd_boot_managed(Array_str *pkgs_arr, KernelInfo *info) {
     bool good_kernel = false;
 
-    if (info == nullptr || info->package == nullptr || info->package[0] == '\0') {
+    if (!info || !info->package || info->package[0] == '\0') {
         goto exit;
     }
     for (size_t i = 0; i < pkgs_arr->num_rows; i++) {

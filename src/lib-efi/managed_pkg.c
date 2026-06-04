@@ -13,7 +13,7 @@
 bool is_efi_pkg_sd_boot_managed(Array_str *pkgs_arr, const char *pkg) {
     bool is_managed = false;
 
-    if (pkg == nullptr || pkg[0] == '\0') {
+    if (!pkg || pkg[0] == '\0') {
         goto exit;
     }
 

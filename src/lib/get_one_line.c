@@ -31,7 +31,7 @@ char *get_one_line(char **ptr_p) {
     /*
      * over-write newline with null and move ptr to next char.
      */
-    if (*ptr_p != nullptr) {
+    if (*ptr_p) {
         (*ptr_p)[0] = '\0';
         (*ptr_p)++;
     } 

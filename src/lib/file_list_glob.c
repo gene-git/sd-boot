@@ -18,13 +18,12 @@ int file_list_glob(const char *pattern, Array_str *files) {
     int ret = 0;
     glob_t gstruct = {};
 
-    if (pattern == nullptr || pattern[0] == '\0') {
+    if (!pattern || pattern[0] == '\0') {
         goto exit;
     }
 
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
-    ret = glob(pattern, 0, nullptr, &gstruct);
-    if (ret == 0) {
+    if (glob(pattern, 0, nullptr, &gstruct) == 0) {
         files->num_rows = gstruct.gl_pathc;
         ret = array_str_new(files->num_rows, files);
         if (ret != 0) {

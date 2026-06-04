@@ -19,13 +19,13 @@ int copy_file(const char *src, const char *dst) {
     FILE *fptr_dst = nullptr;
 
     fptr_src = fopen(src, "rb");
-    if (fptr_src == nullptr) {;
+    if (!fptr_src) {;
         perror(nullptr);
         goto exit;
     }
 
     fptr_dst = fopen(dst, "wb");
-    if (fptr_dst == nullptr) {;
+    if (!fptr_dst) {;
         perror(nullptr);
         goto exit;
     }
@@ -69,12 +69,12 @@ int copy_file(const char *src, const char *dst) {
     }
 
 exit:
-    if (fptr_src != nullptr && fclose(fptr_src) != 0) {
+    if (fptr_src && fclose(fptr_src) != 0) {
         ret = -1;
         perror(nullptr);
     };
 
-    if (fptr_dst != nullptr && fclose(fptr_dst) != 0) {
+    if (fptr_dst && fclose(fptr_dst) != 0) {
         ret = -1;
         perror(nullptr);
     };

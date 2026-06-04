@@ -70,7 +70,7 @@ static int initialize(int argc, char *argv[], struct Work *work) {
 
     work->conf.oper = KI_BAD;
     work->conf.oper_str = strdup(oper_str);
-    if (work->conf.oper_str == nullptr) {
+    if (!work->conf.oper_str) {
         msg(MSG_ERR, "! sd-boot: mem allocation error %s\n", oper_str);
         ret = 1;
         goto exit;

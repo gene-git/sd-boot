@@ -23,7 +23,7 @@ int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin) {
     /*
      * Sanity check
      */
-    if (! plugin->is_kernel || plugin->kernel_version == nullptr || plugin->kernel_version[0] == '\0') {
+    if (! plugin->is_kernel || !plugin->kernel_version || plugin->kernel_version[0] == '\0') {
         goto exit;
     }
 

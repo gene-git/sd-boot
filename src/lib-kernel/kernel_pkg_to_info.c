@@ -12,7 +12,8 @@
 #include "sd-boot.h"
 
 static void clean_up(size_t num, KernelInfo **infos_p) {
-    if (infos_p == nullptr || num == 0) {
+
+    if (!infos_p || num == 0) {
         return;
     }
 
@@ -35,7 +36,7 @@ int kernel_pkg_to_info(const char *pkg, KernelInfo *info) {
     info->package = nullptr;
     info->vers = nullptr;
 
-    if (pkg == nullptr) {
+    if (!pkg) {
         return 0;
     }
 
@@ -47,7 +48,7 @@ int kernel_pkg_to_info(const char *pkg, KernelInfo *info) {
         goto exit;
     }
     for (size_t i = 0; i < num_infos; i++) {
-        if (infos[i].package != nullptr) {
+        if (infos[i].package) {
             if (strcmp(infos[i].package, pkg) == 0) {
 
                 info->image = infos[i].image;

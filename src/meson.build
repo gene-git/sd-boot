@@ -60,14 +60,15 @@ inc_dir = include_directories('include')
 
 lib_sources = files(
     'lib/array_str.c',
+    'lib/array_str_add.c',
     'lib/array_str_move.c',
     'lib/check_permission.c',
-    'lib/config.c',
     'lib/copy_file.c',
+    'lib/current_datetime.c',
     'lib/dev_info.c',
     'lib/dir_dup_links.c',
     'lib/dynamic_string.c',
-    'lib/env.c',
+    'lib/count_envp_argv.c',
     'lib/file_list_glob.c',
     'lib/find_efi_current.c',
     'lib/get_one_line.c',
@@ -97,6 +98,16 @@ lib_sources = files(
     'lib/trim_string.c',
     'lib/ukify_os_release.c',
     #
+    'lib-config/clean_config.c',
+    'lib-config/config.c',
+    'lib-config/config_files.c',
+    'lib-config/convert_config.c',
+    'lib-config/ki_install_conf.c',
+    'lib-config/load_config_toml.c',
+    'lib-config/load_config_yaml.c',
+    'lib-config/load_kernel_install.c',
+    'lib-config/save_config_yaml.c',
+    #
     'lib-efi/efi_image.c',
     'lib-efi/efi_tool_add.c',
     'lib-efi/efi_tool_inspect.c',
@@ -123,11 +134,15 @@ lib_sources = files(
 #
 # Libs
 #
+blkid_dep = dependency('blkid', required: true)
+yaml_dep = dependency('yaml-0.1', required: true)
+
 sd_boot_lib = library('sd_boot',
   sources: lib_sources,
   include_directories: inc_dir,
   c_args: my_cflags,
   link_args: my_ldflags,
+  dependencies: yaml_dep,
   install: true,
   install_dir: '/usr/lib'
 )
@@ -136,8 +151,6 @@ sd_boot_dep = declare_dependency(
   link_with: sd_boot_lib,
   include_directories: inc_dir
 )
-
-blkid_dep = dependency('blkid', required: true)
 
 #
 # Executables
@@ -153,7 +166,7 @@ find_boot_mounts = executable('sd-boot-find-boot-mounts',
 
 efifs_update = executable('sd-boot-efifs-update',
   sources: 'tools/efifs-update.c',
-  dependencies: sd_boot_dep,
+  dependencies: [sd_boot_dep, yaml_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -162,7 +175,7 @@ efifs_update = executable('sd-boot-efifs-update',
 
 efi_tool_update_triggers = executable('sd-boot-efi-tool-update-triggers',
   sources: 'tools-efi/efi-tool-update-triggers.c',
-  dependencies: sd_boot_dep,
+  dependencies: [sd_boot_dep, yaml_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -171,7 +184,7 @@ efi_tool_update_triggers = executable('sd-boot-efi-tool-update-triggers',
 
 efi_tool_update = executable('sd-boot-efi-tool-update',
   sources: 'tools-efi/efi-tool-update.c',
-  dependencies: sd_boot_dep,
+  dependencies: [sd_boot_dep, yaml_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -180,7 +193,7 @@ efi_tool_update = executable('sd-boot-efi-tool-update',
 
 kernel_update_triggers = executable('sd-boot-kernel-update-triggers',
   sources: 'tools-kernel/kernel-update-triggers.c',
-  dependencies: sd_boot_dep,
+  dependencies: [sd_boot_dep, yaml_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -189,7 +202,7 @@ kernel_update_triggers = executable('sd-boot-kernel-update-triggers',
 
 kernel_update = executable('sd-boot-kernel-update',
   sources: 'tools-kernel/kernel-update.c',
-  dependencies: sd_boot_dep,
+  dependencies: [sd_boot_dep, yaml_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -198,11 +211,11 @@ kernel_update = executable('sd-boot-kernel-update',
 
 loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
   sources: 'tools-plugins/loaderentry-modify.c',
-  dependencies: sd_boot_dep,
+  dependencies: [sd_boot_dep, yaml_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/etc/kernel/install.d'
+  install_dir: '/usr/lib/kernel/install.d'
 )
 
 #
@@ -213,7 +226,9 @@ install_data('data/etc/dracut.conf.d/010-dracut.conf', install_dir: '/etc/dracut
 install_data('data/etc/kernel/install.conf', install_dir: '/etc/kernel')
 install_data('data/etc/kernel/ukify.conf', install_dir: '/etc/kernel')
 
+# to be removed in the future release
 install_data('data/etc/sd-boot/config', install_dir: '/etc/sd-boot')
+
 install_data('data/etc/sd-boot/edk2-shell.image', install_dir: '/etc/sd-boot')
 install_data('data/etc/sd-boot/efi-tool.packages', install_dir: '/etc/sd-boot')
 install_data('data/etc/sd-boot/kernel.packages', install_dir: '/etc/sd-boot')
@@ -226,6 +241,8 @@ install_data('data/hooks/90-sd-boot-kernel-install.hook', install_dir: '/usr/sha
 install_data('data/hooks/99-sd-boot-efifs-install.hook', install_dir: '/usr/share/libalpm/hooks')
 install_data('data/hooks/99-sd-boot-efi-tool-install.hook', install_dir: '/usr/share/libalpm/hooks')
 
+
+install_data('data/share/config.yaml.sample', install_dir: '/usr/share/sd-boot')
 install_data('data/share/Changelog.rst', install_dir: '/usr/share/sd-boot')
 install_data('data/share/loader.conf', install_dir: '/usr/share/sd-boot')
 install_data('data/share/Readme.rst', install_dir: '/usr/share/sd-boot')

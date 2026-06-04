@@ -42,13 +42,13 @@ int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]) {
         num_boot_root = count_envp_argv(conf->info.env_boot_root.rows);
     }
     size_t num = 0;
-    if (envp != nullptr) {
+    if (envp) {
         num = count_envp_argv(envp);
     }
 
     size_t num_envp_full = num_boot_root + num + 1;
     envp_full = (char **)calloc(num_envp_full, sizeof(char *));
-    if (envp_full == nullptr) {
+    if (!envp_full) {
         ret = -1;
         goto exit;
     }
@@ -67,7 +67,7 @@ int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]) {
     int num_args = count_envp_argv(args);
 
     argv = (char **) calloc(num_args + 2, sizeof(char *));
-    if (argv == nullptr) {
+    if (!argv) {
         msg(MSG_ERR, "  ! sd-boot: Error allocating memory for kenrel-install\n");
         ret = -1;
         goto exit;
@@ -97,10 +97,10 @@ int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]) {
     }
 
 exit:
-    if (envp_full != nullptr) {
+    if (envp_full) {
         free((void *)envp_full);
     }
-    if (argv != nullptr) {
+    if (argv) {
         free((void *)argv);
     }
     return ret;

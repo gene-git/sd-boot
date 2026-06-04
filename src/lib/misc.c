@@ -16,7 +16,7 @@ void strip_file_extension(char *filename, const char *ext) {
      */
     char *dot = strrchr(filename, '.');
 
-    if (dot != nullptr && strncmp(dot, ext, PATH_MAX) == 0) {
+    if (dot && strncmp(dot, ext, PATH_MAX) == 0) {
         *dot = '\0';
     }
 }
@@ -31,7 +31,7 @@ int str_to_int(char *str, int low_value, int high_value) {
      */
     int val = 0;
 
-    if (str == nullptr || str[0] == '\0') {
+    if (!str || str[0] == '\0') {
         return val;
     }
     char *endptr = nullptr;

@@ -63,12 +63,12 @@ int makepath(const char *path, mode_t mode) {
     size_t plen = 0;
     //mode_t pmode = 0;
 
-    if (path == nullptr || path[0] == '\0' || strcmp(path, "/") == 0) {
+    if (!path || path[0] == '\0' || strcmp(path, "/") == 0) {
         goto exit;
     }
 
     tmp = strdup(path);
-    if (tmp == nullptr) {
+    if (!tmp) {
         perror(nullptr);
         ret = -1; 
         goto exit;
@@ -99,7 +99,7 @@ int makepath(const char *path, mode_t mode) {
     }
 
 exit:
-    if (tmp != nullptr) {
+    if (tmp) {
         free((void *)tmp);
     }
     return ret;
