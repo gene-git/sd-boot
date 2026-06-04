@@ -6,12 +6,35 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.4.1 (2026-06-03)
-	57 commits.
+	3.6.2 (2026-04-21) -> 5.6.0 (2026-06-04)
+	59 commits.
 
 Commits
 =======
 
+
+* 2026-06-04  : **5.6.0**
+
+.. code-block:: text
+
+              - **5.6.0**
+            
+                * The loader entry plugin is now installed in /usr/lib/kernel/install.d.
+                  This allows administrators to over-ride in /etc/kernel/install.d/xxx.
+            
+                  i.e. /usr/lib/kernel/install.d/95-sd-boot-loaderentry-modify.install
+            
+                * Switch /etc/sd-boot/config to /etc/sd-boot/config.yaml
+                  Yaml config will be auto created from existing config.
+                  This adds a new dependency on *libyaml*.
+            
+                * Package dependencies updated.
+                * Some code tidy up. Simplify style used to check for nullptr.
+ 2026-06-03   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-06-03  : **5.4.1**
 
