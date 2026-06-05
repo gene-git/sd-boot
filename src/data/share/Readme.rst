@@ -23,67 +23,14 @@ Recent Changes
 * Package dependencies updated.
 * Some code tidy up. Simplify style used to check for nullptr.
 
-**5.4.1**
-
-* Some code clean ups
-
-**5.4.0**
-
-* Fix bug failing to create /var/lib/sd-boot
-  Resolves issue #1 reported by @coolreader18
-
-**5.3.0
-
-* Fix missing checkdepends() - test suite relies on edk2-shell.
-  Fixes build failing when edk2-shell not installed. 
-  Thanks to @coolreader18 for aur report.
-* Avoid another double "//"
-
-**5.2.0**
-
-* Shadow "install.conf" for non-kernels now disables initrd generator in addition to 
-  setting layout = bls. Also fixes missing "newline" bug.
-
-**5.1.0**
-
-* Avoid double "//" in efi tool shadow directory path name.
-* Error messages to stderr instead of stdout.
-* Code structure re-org.
-* More code tidy ups.
-* Add standalone tools (installed in /usr/bin):
-
-  * sd-boot-efi-tool-update <oper> <package-name>
-  * sd-boot-kernel-update <oper> <package-name>
-
-  Where <oper> is add or remove or inspect (see man kernel-install).
-  Note that <package-name> must be already installed via pacman.
-* Improve way shadow "install.conf" is created. If file exists and is correct then
-  dont write it again. 
-
-**4.9.1**
-
-* Fix broken efi tool installation when using "uki" layout.
-
-  efi tool installs only work in bls layout. kernel-install (as of systemd version 260)
-  provides no clear way to specify the layout at run time. We work around this for 
-  (non-kernel) efi tools by using a "shadow" kernel-install config with bls layout.
-
-  Please reinstall any efi tools (e.g. pacman -Syu edk2-shell) to ensure latest version
-  is installed in $BOOT.
-
-* Efi tool ALPM hook now triggers on sd-boot.
-
-* Set default layout to "uki" in /etc/kernel/install.conf
-
-  May need to be changed manually.
-
-See Changelog for more history.
+Please see Changelog for more history (found in */usr/share/sd-boot/*).
+Or for recent changes: *pacman -Qc sd-boot*.
 
 Todo:
 -----
 
-* When switching from layyout from bls to uki, previous kernel is not removed 
-  since it  was installed using bls layout while *kernel-install remove*
+* When switching layout from bls to uki, previous kernel is not removed 
+  since it was installed using bls layout while *kernel-install remove*
   is now using uki layout. This leaves the previous bls kernel install instead of 
   removing it. Same would be true switching layout from uki back to bls. 
 
@@ -129,6 +76,7 @@ sd-boot provides:
 - pacman alpm hooks
 - kernel-install plugin(s)
 - suite of tools that do the real work.
+- Command line installers for kernels and efi tools.
 
 Both kernels and bootable efi tools can be installed by sd-boot. 
 
