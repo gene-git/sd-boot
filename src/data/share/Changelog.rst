@@ -6,17 +6,29 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> HEAD (2026-06-05)
-	61 commits.
+	3.6.2 (2026-04-21) -> 5.6.2 (2026-06-06)
+	63 commits.
 
 Commits
 =======
 
 
-* 2026-06-05  : **HEAD**
+* 2026-06-06  : **5.6.2**
 
 .. code-block:: text
 
+              - **5.6.2**
+            
+                * Install sd-boot-find-boot-mounts in /usr/bin.
+                * Documentation
+                    * Add man pages for command line tools.
+                    * Update readme.
+                * No functional change.
+ 2026-06-05   ⋯
+
+.. code-block:: text
+
+              - Update Changelog
               - Tweak readme file
  2026-06-04   ⋯
 
