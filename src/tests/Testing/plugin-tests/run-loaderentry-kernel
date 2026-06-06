@@ -45,7 +45,7 @@ _EOE_
 #
 # Run plugin
 #
-plugin="__root__/etc/kernel/install.d/95-sd-boot-loaderentry-modify.install"
+plugin="__root__/usr/lib/kernel/install.d/95-sd-boot-loaderentry-modify.install"
 
 if [[ "$do_valgrind" == "yes" ]] ; then
     opt="--leak-check=full"

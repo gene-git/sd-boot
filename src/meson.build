@@ -161,7 +161,7 @@ find_boot_mounts = executable('sd-boot-find-boot-mounts',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/lib/sd-boot'
+  install_dir: '/usr/bin'
 )
 
 efifs_update = executable('sd-boot-efifs-update',
@@ -250,6 +250,19 @@ install_data('data/share/License/License-gpl-2.0.txt', install_dir: '/usr/share/
 install_data('data/share/License/License.rst', install_dir: '/usr/share/sd-boot/License')
 
 install_data('data/share/License/License.rst', install_dir: '/usr/share/licenses/sd-boot')
+
+install_data('data/man/man8/sd-boot-efifs-update.8.gz', install_dir: '/usr/share/man/man8')
+install_data('data/man/man8/sd-boot-efi-tool-update.8.gz', install_dir: '/usr/share/man/man8')
+install_data('data/man/man8/sd-boot-find-boot-mounts.8.gz', install_dir: '/usr/share/man/man8')
+install_data('data/man/man8/sd-boot-kernel-update.8.gz', install_dir: '/usr/share/man/man8')
+
+#
+# build man pages
+# - if want meson to build them.
+#   Requires python-docutils
+#
+#man_dir = meson.current_source_dir() / 'data/man'
+#meson.add_install_script(man_dir / 'build-man-pages.sh')
 
 #
 # Tests: set up
