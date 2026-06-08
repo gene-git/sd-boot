@@ -18,7 +18,6 @@
  */
 #include <linux/limits.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <yaml.h>
 
@@ -26,9 +25,49 @@
 
 enum Constants { VERB_MAX = 2 };
 
-static int parse_config(yaml_document_t *document, yaml_node_t *node, SdBoot *conf) {
+static int save_one(yaml_document_t *document, char *key_value, yaml_node_t *val_node, SdBoot *conf) {
     int ret = 0;
     char *value = nullptr;
+    yaml_node_t *item_node = nullptr;
+    yaml_node_item_t *item = nullptr;
+
+    switch (val_node->type) {
+        case YAML_SCALAR_NODE:
+            if (strcmp(key_value, "verb") == 0) {
+                value = (char *)val_node->data.scalar.value;
+                conf->verb = str_to_int(value, 0, VERB_MAX);
+            }
+            break;
+
+        case YAML_SEQUENCE_NODE:
+            if (strcmp(key_value, "skip_kernel_plugins") == 0) {
+                for (item = val_node->data.sequence.items.start;
+                        item < val_node->data.sequence.items.top; item++) {
+                    item_node = yaml_document_get_node(document, *item);
+
+                    if (item_node->type != YAML_SCALAR_NODE) {
+                        break;;
+                    }
+
+                    value = (char *)item_node->data.scalar.value;
+                    ret = array_str_add((const char *)value, &conf->skip_kernel_plugins);
+                    if (ret != 0) {
+                        goto exit;
+                    }
+                }
+            }
+            break;
+
+        default:
+            break;
+    }
+
+exit:
+    return ret;
+}
+
+static int parse_config(yaml_document_t *document, yaml_node_t *node, SdBoot *conf) {
+    int ret = 0;
 
     /*
      * sanity check
@@ -52,40 +91,12 @@ static int parse_config(yaml_document_t *document, yaml_node_t *node, SdBoot *co
          * scalar keys for current node
          */
         char *key_value = (char *)key_node->data.scalar.value;
-        yaml_node_t *item_node = nullptr;
-        yaml_node_item_t *item = nullptr;
 
         yaml_node_t *val_node = yaml_document_get_node(document, pair->value);
 
-        switch (val_node->type) {
-            case YAML_SCALAR_NODE:
-                if (strcmp(key_value, "verb") == 0) {
-                    value = (char *)val_node->data.scalar.value;
-                    conf->verb = str_to_int(value, 0, VERB_MAX);
-                }
-                break;
-
-            case YAML_SEQUENCE_NODE:
-                if (strcmp(key_value, "skip_kernel_plugins") == 0) {
-                    for (item = val_node->data.sequence.items.start;
-                            item < val_node->data.sequence.items.top; item++) {
-                        item_node = yaml_document_get_node(document, *item);
-
-                        if (item_node->type != YAML_SCALAR_NODE) {
-                            continue;
-                        }
-
-                        value = (char *)item_node->data.scalar.value;
-                        ret = array_str_add(value, &conf->skip_kernel_plugins);
-                        if (ret != 0) {
-                            goto exit;
-                        }
-                    }
-                }
-                break;
-
-            default:
-                continue;
+        ret = save_one(document, key_value, val_node, conf); 
+        if (ret != 0) {
+            goto exit;
         }
     }
 

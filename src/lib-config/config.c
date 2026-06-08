@@ -12,11 +12,7 @@
 #include <limits.h>
 #include <linux/limits.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <strings.h>
 
 #include "sd-boot.h"
 
@@ -101,19 +97,13 @@ int load_config(SdBoot *conf) {
         /*
          * No configs - copy sample
          */
-        ret = copy_file(file_info.yaml_sample, file_info.yaml_file);
-        if (ret != 0) {
-            ret = 0;
-        }
+        (void)copy_file(file_info.yaml_sample, file_info.yaml_file);
 
     } else if (file_info.have_yaml) {
         /*
          * yaml
          */
-        ret = load_config_yaml(conf);
-        if (ret != 0) {
-            ret = 0;
-        } 
+        (void)load_config_yaml(conf);
 
     } else if (file_info.have_toml) {
         /*

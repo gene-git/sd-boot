@@ -1,190 +1,341 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
-/*
- * Identify the Mount Points for:
- *   EFI (where ESP is mounted)
- *   XBOOTLDR (if there is an XBOOTLDR partition)
+/**
+ * Identify ESP and XBOOTLDR partitions
+ * Flag those that are used in current boot.
  *
- * Parses output of systemd's bootctl.
+ * Approach:
  *
- * See https://www.kernel.org/pub/linux/utils/util-linux/v2.27/libblkid-docs/index.html
+ * Identify the Active ESP directly via LoaderDevicePartUUID.
+ * Identify the parent disk of that active ESP (e.g., nvme0n1).
+ * Active Flag Logic:
+ *
+ * ESP: 
+ * - active if its partition UUID matches LoaderDevicePartUUID exactly.
+ *
+ * XBOOTLDR: 
+ * - active if on same physical disk as the active ESP. 
+ *  (Per Freedesktop Boot Loader Specification, a companion XBOOTLDR partition must 
+ *   share the same physical drive structure as the booting ESP to be parsed by systemd-boot).
+ * Cross-Disk ESP Fallback: 
+ * - If ESP on a different disk but is actively mounted under /efi or /boot, 
+ *   - catch it via real-time mount paths. ￼
  */
-#include <blkid/blkid.h>
-#include <fcntl.h>
-#include <mntent.h>
-#include <stdbool.h>
-#include <stddef.h>
+#include <libmount/libmount.h> 
+#include <libudev.h>
+#include <stdbool.h> 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <unistd.h>
+#include <sys/stat.h> 
+#include <sys/types.h> 
 
 #include "sd-boot.h"
 
-enum Constants {
-    CHUNK = 32,
-};
-
+enum MiscConstants { BUF_LEN = 128, };
 
 /**
- * Get partition GUID.
- * Caller must free memory returned.
+ * Get active boot partition UUID from efivars.
  */
-static char *get_partition_guid(const char *device) {
-    int ret = 0;
-    int fdes = 0; 
-    const char *type_guid = nullptr;
-    char *guid = nullptr;
-    blkid_probe probe = nullptr;
-    
-    /* 
-     * Try opening the path to mount
-     * - requires root 
-     */
-    fdes = open(device, O_RDONLY | O_CLOEXEC);
-    if (fdes < 0) {
+char *get_active_esp_uuid(void) {
+    char efi_var_path[BUF_LEN] = {};
+    char *uuid_str = nullptr;
+    const char *efi_vars = "/sys/firmware/efi/efivars/";
+    const char *loader_device_uuid = "LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f";
+
+    if (snprintf(efi_var_path, sizeof(efi_var_path), "%s%s", efi_vars, loader_device_uuid) < 0) {
         goto exit;
     }
 
-    probe = blkid_new_probe();
-    if (!probe) {
-        fdes = 0;
-        goto exit;
-    }
+    uuid_str = read_efi_var_string(efi_var_path);
 
-    ret = blkid_probe_set_device(probe, fdes, 0, 0) ;
-    if (ret < 0) {
-        goto exit;
-        //blkid_free_probe(probe);
-        //close(fdes);
-        //return nullptr;
-    }
+exit:
+    return uuid_str;
+}
 
-    /*
-     * pull partition layout metadata from the parent disk
-     */
-    ret = blkid_probe_enable_partitions(probe, 1);
-    if (ret < 0) {
-        goto exit;
+/*
+ * Obvious dirs to skip which are not
+ * ESP or XBOOTLDR mounts
+ */
+static bool skip_mount(const char *path) {
+    const char *names[] = {
+        "/dev/",
+        "/dev",
+        "/sys/",
+        "/sys",
+        "/proc/",
+        "/proc",
+        "/run/",
+        "/run",
+        "/tmp/",
+        "/tmp",
     };
+    const size_t num_names = sizeof(names) / sizeof(names[0]);
 
-    ret = blkid_probe_set_partitions_flags(probe, BLKID_PARTS_ENTRY_DETAILS);
-    if (ret < 0) {
-        goto exit;
-    };
-
-    /*
-     * Gather results of probe.
-     *  0 on success, 
-     *  1 if nothing is detected, 
-     * -2 if ambivalent result is detected and 
-     * -1 on case of error.
-     */
-    ret = blkid_do_safeprobe(probe);
-    if (ret == 1 || ret == -1) {
-        goto exit;
+    if (path == nullptr) {
+        return true;
     }
 
-    /*
-     * Get the partition entry type (guid)
-     */
-    ret = blkid_probe_lookup_value(probe, "PART_ENTRY_TYPE", &type_guid, nullptr);
-    if (ret < 0) {
-        goto exit;
+    if (strcmp(path, "/") == 0) {
+        return true;
     }
 
-    if (type_guid) {
-        guid = strdup(type_guid);
+    for (size_t i = 0 ; i < num_names; i++) {
+        const char *name = names[i];
+        if (strncmp(path, name, strlen(name)) == 0) {
+            return true;
+        }
+     }
+
+    return false;
+}
+
+/**
+ * Use active partition UUID to resolve its parent physical disk device number (dev_t).
+ * Return: The dev_t device identifier of the parent disk, or 0 on failure.
+ */
+static dev_t active_parent_dev_t(struct udev *udev, struct libmnt_table *mount_table, const char *active_uuid) {
+    dev_t dev = 0;
+    dev_t parent_dev = 0;
+    struct libmnt_iter *iter = nullptr;
+    struct libmnt_fs *mount_entry = nullptr;
+    struct udev_device *device = nullptr;
+    struct udev_device *parent_device = nullptr;
+
+    if (!udev || !mount_table || !active_uuid) { 
+        return dev;
+    }
+
+    iter = mnt_new_iter(MNT_ITER_FORWARD);
+    if (!iter) {
+        goto exit;
+    }
+    while (mnt_table_next_fs(mount_table, iter, &mount_entry) == 0) {
+        const char *src = mnt_fs_get_srcpath(mount_entry);
+        const char *target = mnt_fs_get_target(mount_entry);
+
+        if (skip_mount(target)) {
+            continue;
+        }
+
+        struct stat stat_buf = {};
+        if (stat(src, &stat_buf) < 0) {
+            continue;
+        }
+
+        device = udev_device_new_from_devnum(udev, 'b', stat_buf.st_rdev);
+        if (!device) {
+            continue;
+        }
+
+        const char *p_guid = udev_device_get_property_value(device, "ID_PART_ENTRY_UUID");
+        if (p_guid && strcasecmp(p_guid, active_uuid) == 0) {
+            parent_device = udev_device_get_parent_with_subsystem_devtype(device, "block", "disk");
+            if (parent_device) {
+                parent_dev = udev_device_get_devnum(parent_device);
+            }
+            udev_device_unref(device);
+            device = nullptr;
+            break;
+        }
+        udev_device_unref(device);
+        device = nullptr;
     }
 
 exit:
-    if (probe) {
-        blkid_free_probe(probe);
+    if (iter) {
+        mnt_free_iter(iter);
     }
-    if (fdes > 0) {
-        close(fdes);
+    if (device) {
+        udev_device_unref(device);
     }
-    return guid;
+    return parent_dev;
+}
+
+/*
+ * Is partition active
+ */
+static bool is_active(bool is_esp, bool is_xboot, const char *guid,
+                      const char *active_uuid, dev_t parent_num, dev_t active_num) {
+
+    /*
+     * ESP match from the motherboard NVRAM
+     */
+    if (is_esp && active_uuid && strcasecmp(guid, active_uuid) == 0) {
+        return true;
+    }
+
+    if (is_xboot && active_num != 0 && parent_num == active_num) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * @brief Evaluates an extracted partition device node against system criteria.
+ */
+static void process_partition_node(struct udev *udev, struct libmnt_fs *mount_entry,
+                                    const char *active_uuid, dev_t active_esp_dev_t, BootMounts *boot_mounts) {
+    struct udev_device *dev = nullptr;
+    struct udev_device *parent = nullptr;
+    const char *GPT_ESP_TYPE = "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
+    const char *GPT_XBOOTLDR_TYPE = "bc13c2ff-59e6-4262-a352-b275fd6f7172";
+    struct stat stat_buf = {};
+
+    const char *src = mnt_fs_get_srcpath(mount_entry);
+
+    const char *target = mnt_fs_get_target(mount_entry);
+    if (!src || skip_mount(target)) {
+        goto exit;
+    }
+
+    if (stat(src, &stat_buf) < 0) {
+        goto exit;
+    }
+
+    dev = udev_device_new_from_devnum(udev, 'b', stat_buf.st_rdev);
+    if (!dev) {
+        goto exit;
+    }
+
+    const char *p_type = udev_device_get_property_value(dev, "ID_PART_ENTRY_TYPE");
+    const char *p_guid = udev_device_get_property_value(dev, "ID_PART_ENTRY_UUID");
+
+    if (!p_type || !p_guid) {
+        goto exit;
+    }
+
+    bool is_esp = (bool)(strcasecmp(p_type, GPT_ESP_TYPE) == 0);
+    bool is_xboot = (bool)(strcasecmp(p_type, GPT_XBOOTLDR_TYPE) == 0);
+
+    if (is_esp || is_xboot) {
+        dev_t parent_devnum = 0;
+        parent = udev_device_get_parent_with_subsystem_devtype(dev, "block", "disk");
+        if (parent) {
+            parent_devnum = udev_device_get_devnum(parent);
+        }
+
+        bool active = is_active(is_esp, is_xboot, p_guid, active_uuid, parent_devnum, active_esp_dev_t);
+
+        MountInfo new_mount = {};
+        new_mount.device = strdup(src);
+        new_mount.mount = strdup(target ? target : " - ");
+        new_mount.active = active;
+
+        if (boot_mounts_add_mount(is_esp, new_mount, boot_mounts) != 0){
+            free((void *)new_mount.device);
+            free((void *)new_mount.mount);
+        }
+    }
+
+exit:
+    if (dev) {
+        udev_device_unref(dev);
+    }
 }
 
 
-
-int find_efi_xbootldr_mounts(Array_str *efi, Array_str *xbootldr) {
-    /*
-     * Locate the Mount Points for:
-     *   EFI (where ESP is mounted)
-     *   XBOOTLDR (if there is an XBOOTLDR partition)
-     * Requires libblkid
-     *
-     * Allocates and returns an array of efi mount points and
-     * array of xbootldr mount points.
-     *
-     * Call must free the arrays.
-     */ 
+static int initialize(struct libmnt_table **mount_table_p, struct udev **udev_p) {
     int ret = 0;
-    FILE *fptr = nullptr;
-    char *guid = nullptr;
+    struct libmnt_table *mount_table = nullptr;
+    struct udev *udev = nullptr;
 
     /*
-     * Loop on mounts (other than devices) and check partition type.
+    mounts->num_efis = 0;
+    mounts->num_xbootldrs = 0;
+    mounts->efis = nullptr;
+    mounts->xbootldrs = nullptr;
+    */
+
+    /*
+     * - Load active mounts into libmount table.
+     * - parse /proc/mounts
      */
-    fptr = setmntent("/proc/mounts", "r");
-    if (fptr == nullptr) {
-        perror(nullptr);
-        msg(MSG_ERR, "  sd-boot: Error opening /proc/mounts\n");
+    mount_table = mnt_new_table();
+    if (!mount_table) {
         ret = -1;
         goto exit;
     }
+    *mount_table_p = mount_table;
 
-    struct mntent *entry = {};
-    const char *skip_dev = "/dev/";
-    const size_t len_skip_dev = strlen(skip_dev);
-    const char *ESP_GUID = "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
-    const char *XBOOTLDR_GUID = "bc13c2ff-59e6-4262-a352-b275fd6f7172";
+    if (mnt_table_parse_mtab(mount_table, nullptr) < 0) {
+        ret = -1;
 
-    while ((entry = getmntent(fptr)) != nullptr) {  // NOLINT(concurrency-mt-unsafe)
-        /*
-         * Skip non-relevant
-         */
-        if (strncmp(entry->mnt_fsname, skip_dev, len_skip_dev) != 0) {
-            continue;
-        }
-
-        /*
-         * Get partition entry type
-         */
-        guid = get_partition_guid(entry->mnt_fsname);
-        if (!guid) {
-            continue;
-        }
-
-        if (strcasecmp(guid, ESP_GUID) == 0) {
-            ret = array_str_add(entry->mnt_dir, efi);
-            if (ret != 0) {
-                msg(MSG_ERR, "  sd-boot: memory alloc error\n");
-                goto exit;
-            }
-
-        } else if (strcasecmp(guid, XBOOTLDR_GUID) == 0) {
-            ret = array_str_add(entry->mnt_dir, xbootldr);
-            if (ret != 0) {
-                msg(MSG_ERR, "  sd-boot: memory alloc error\n");
-                goto exit;
-            }
-        }
-        free((void *)guid);
-        guid = nullptr;
+        goto exit;
     }
+
+    udev = udev_new();
+    if (!udev) {
+        ret = -1;
+        goto exit;
+    }
+    *udev_p = udev;
+exit:
+    if (ret != 0 && mount_table) {
+        mnt_free_table(mount_table);
+    }
+    return ret;
+}
+
+/**
+ * Check system block topologies, identifying every ESP and XBOOTLDR partition.
+ * - check whats mounted using libmount (and /proc/mounts)
+ * returns 
+ *  - 0 on a success else -1
+ */
+int find_boot_mounts(BootMounts *boot_mounts) {
+    int ret = 0;
+    struct libmnt_table *mount_table = nullptr;
+    struct udev *udev = nullptr;
+    char *active_esp_uuid = nullptr;
+    struct libmnt_iter *iter = nullptr;
+    struct libmnt_fs *mount_entry = nullptr;
+
+    if (!boot_mounts) {
+        return -1;
+    }
+
+    ret = initialize(&mount_table, &udev);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    active_esp_uuid = get_active_esp_uuid();
+    dev_t active_esp_dev_t = 0;
+    active_esp_dev_t = active_parent_dev_t(udev, mount_table, active_esp_uuid);
+
+    /*
+     * walk the mount table (/proc/mounts)
+     */
+    iter = mnt_new_iter(MNT_ITER_FORWARD);
+    if (!iter) {
+        goto exit;
+    }
+    while (mnt_table_next_fs(mount_table, iter, &mount_entry) == 0) {
+        process_partition_node(udev, mount_entry, active_esp_uuid, active_esp_dev_t, boot_mounts);
+    }
+
 
 exit:
-    if (fptr != nullptr) {
-        endmntent(fptr);
+    if (iter) {
+        mnt_free_iter(iter);
     }
-    if (guid != nullptr) {
-        free((void *)guid);
+
+    if (mount_table) {
+        mnt_free_table(mount_table);
     }
-    
+
+    if (udev) {
+        udev_unref(udev);
+    }
+
+    if (active_esp_uuid) {
+        free((void *)active_esp_uuid);
+    }
+
     return ret;
 }
 

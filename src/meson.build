@@ -63,12 +63,15 @@ lib_sources = files(
     'lib/array_str_add.c',
     'lib/array_str_move.c',
     'lib/check_permission.c',
+    'lib/boot_mounts.c',
+    'lib/find_boot_mounts.c',
     'lib/copy_file.c',
     'lib/current_datetime.c',
     'lib/dev_info.c',
     'lib/dir_dup_links.c',
     'lib/dynamic_string.c',
     'lib/count_envp_argv.c',
+    'lib/efi_var.c',
     'lib/file_list_glob.c',
     'lib/find_efi_current.c',
     'lib/get_one_line.c',
@@ -134,15 +137,16 @@ lib_sources = files(
 #
 # Libs
 #
-blkid_dep = dependency('blkid', required: true)
+mount_dep = dependency('mount', required: true)
 yaml_dep = dependency('yaml-0.1', required: true)
+udev_dep = dependency('libudev', required: true)
 
 sd_boot_lib = library('sd_boot',
   sources: lib_sources,
   include_directories: inc_dir,
   c_args: my_cflags,
   link_args: my_ldflags,
-  dependencies: yaml_dep,
+  dependencies: [mount_dep, udev_dep, yaml_dep],
   install: true,
   install_dir: '/usr/lib'
 )
@@ -156,8 +160,8 @@ sd_boot_dep = declare_dependency(
 # Executables
 #
 find_boot_mounts = executable('sd-boot-find-boot-mounts',
-  sources: ['tools/find-boot-mounts.c', 'lib/find_boot_mounts.c'],
-  dependencies: [sd_boot_dep, blkid_dep],
+  sources: ['tools/find-boot-mounts.c'],
+  dependencies: [sd_boot_dep, mount_dep, udev_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,

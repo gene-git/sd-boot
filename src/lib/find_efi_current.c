@@ -7,136 +7,50 @@
  *
  * Parses output of systemd's bootctl.
  */
-#include <stdbool.h>
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "sd-boot.h"
 
-enum BufSize {
-    BUF_SIZE = 1024,
-};
-
-static void extract_efi_xbootldr(char *buf, size_t size, MountPoints *mounts) {
-    /*
-     * extract mount points:
-     * - efi from string: "ESP: <efi> ..."
-     * - xbootldr from string: "XBOOTLDR: <xbootldr> ..."
-     * NB this modifies content of buf
-     *
-     * Only extract the first instance.
-     */
-    if (!buf || !mounts) {
-        return;
-    }
-    char *token = nullptr;
-    char *save_ptr = nullptr;
-    size_t length = 0;
-
-    const char *efi_key = "ESP:";
-    const char *xbt_key = "XBOOTLDR:";
-
-    token = strtok_r(buf, " ", &save_ptr);
-    if (token) {
-        /*
-         * check if token matches a key
-         */
-        if (strncmp(efi_key, (const char *)token, strlen(efi_key)) == 0) {
-            if (mounts->efi_dir[0] == '\0') {
-                token = strtok_r(nullptr, " ", &save_ptr);
-                if (token) {
-                    length = strnlen(token, size);
-                    strncpy(mounts->efi_dir, token, length);
-                }
-            }
-
-        } else if (strncmp(xbt_key, (const char *)token, strlen(xbt_key)) == 0) {
-            if (mounts->xbootldr_dir[0] == '\0') {
-                token = strtok_r(nullptr, " ", &save_ptr);
-                if (token) {
-                    length = strnlen(token, size);
-                    strncpy(mounts->xbootldr_dir, token, length);
-                }
-            }
-        }
-        // token = strtok_r(nullptr, " ", &save_ptr);
-    }
-}
-
 
 int find_efi_current_boot(MountPoints *mounts) {
     /*
      * Locate the ESP mount point (efi) for current boot
      * With multiple disks, there can be multiple ESPs some/all may be mounted.
-     * Instead we rely on bootctl to identofy  the relevant EFI for us.
-     * Parses output of systemd's bootctl.
      */ 
     int ret = 0;
-    int child_ret = 0;
+    BootMounts boot_mounts = {};
 
     if (!mounts) {
         return 1;
     }
+
     mounts->efi_dir[0] = '\0';
     mounts->xbootldr_dir[0] = '\0';
 
-    char *output = nullptr;
-    char *ptr = nullptr;
-    char *line = nullptr;
-    char *line_tmp = nullptr;
-    char *argv[] = {"/usr/bin/bootctl", nullptr};
-    char *envp[] = {nullptr};
-
-    ret = run_cmd_output(argv, envp, &output, &child_ret) ;
+    ret = find_boot_mounts(&boot_mounts);
     if (ret != 0) {
-        msg(MSG_ERR, "  ! sd-boot: failed get efi from bootctl\n");
-        return -1;
-    }
-
-    if (!output || output[0] == 0) {
         goto exit;
     }
 
-    /*
-     * Break bootctl output into lines.
-     */
-    char *cleaned = nullptr;
-    size_t line_len = 0;
-
-    /*
-     * nb: dont change line inside loop.
-     * - trim_string moves chars around so make copy of line
-     */
-    ptr = output;
-    while ((line = get_one_line(&ptr))) {
-
-        line_tmp = strdup(line);
-        if (!line_tmp) {
-            msg(MSG_ERR, "  ! sd-boot: memory allocation fail\n");
-            goto exit;
+    for (size_t i = 0; i < boot_mounts.num_efis; i++) {
+        if (boot_mounts.efis[i].active) {
+            (void)strncpy(mounts->efi_dir, boot_mounts.efis[i].mount, PATH_MAX);
+            break;
         }
-        line_len = (size_t) strlen(line_tmp);
-        cleaned = trim_string(line_tmp, line_len);
-        line_len = strlen(cleaned);
+    }
 
-        extract_efi_xbootldr(cleaned, line_len, mounts);
 
-        free((void *)line_tmp);
-        line_tmp = nullptr;
-
-        if (mounts->efi_dir[0] != '\0' && mounts->xbootldr_dir[0] != '\0') {
+    for (size_t i = 0; i < boot_mounts.num_xbootldrs; i++) {
+        if (boot_mounts.xbootldrs[i].active) {
+            (void)strncpy(mounts->xbootldr_dir, boot_mounts.xbootldrs[i].mount, PATH_MAX);
             break;
         }
     }
 
 exit:
-    if (output) {
-        free((void *)output);
-    }
-    if (line_tmp) {
-        free((void *) line_tmp);
-    }
-    
+    boot_mounts_free(&boot_mounts);
     return ret;
 }

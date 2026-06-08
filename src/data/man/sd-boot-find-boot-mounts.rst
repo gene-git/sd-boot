@@ -27,7 +27,7 @@ Displays the list of all ESP and XBOOTLDR partitions.
 Those used in the currently booted system are marked with an asterisk, which 
 is helpful when there is more than one ESP or XBOOTLDR partition.
 
-This must be run as root since partition probing requires elevated privileges.
+No special privileges are required and can be run by any user.
 
 ARGUMENTS
 =========

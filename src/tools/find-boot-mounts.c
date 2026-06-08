@@ -10,62 +10,46 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "sd-boot.h"
 
 enum Const { BUF = 8 };
 
+
+static void print_row(char *ptype, MountInfo *mount) {
+    char *active = nullptr;
+    if (mount->active) {
+        active = "✔";
+    } else {
+        active = " ";
+    }
+    msg(MSG_VERB, "%20s %-30s %s %s\n", mount->device, mount->mount, active, ptype);
+}
+
 int main() {
     /*
      * print the efi 
      */
-    int ret = 0;
-    Array_str efis = {};
-    Array_str xbts = {};
-    MountPoints mounts = {};
-    
-    /*
-     * Warn if not root
-     */
-    if (geteuid() != 0) {
-        msg(MSG_ERR, "! Warning: Must run as root\n");
-    }
+    BootMounts boot_mounts = {};
 
     /*
      * Get current boot efi
      */
-    (void)find_efi_current_boot(&mounts);
-
-    char *efi_curr = mounts.efi_dir;
-    char *xbt_curr = mounts.xbootldr_dir;
-
-    ret = find_efi_xbootldr_mounts(&efis, &xbts);
-    if (ret == 0) {
-        msg(MSG_VERB, "EFI:\n");
-        for (size_t i = 0; i < efis.num_rows; i++) {
-            if (efi_curr[0] != '\0' && strcmp(efi_curr, efis.rows[i]) == 0) {
-                msg(MSG_VERB, "\t* %s\n", efis.rows[i]);
-            } else {
-                msg(MSG_VERB, "\t  %s\n", efis.rows[i]);
-            }
-        }
-
-        msg(MSG_VERB, "XBOOTLDR:\n");
-        for (size_t i = 0; i < xbts.num_rows; i++) {
-            if (xbt_curr[0] != '\0' && strcmp(xbt_curr, xbts.rows[i]) == 0) {
-                msg(MSG_VERB, "\t* %s\n", xbts.rows[i]);
-            } else {
-                msg(MSG_VERB, "\t  %s\n", xbts.rows[i]);
-            }
-        }
-
-    } else {
+    if (find_boot_mounts(&boot_mounts) != 0) {
         msg(MSG_ERR, "Failed to locate EFI or xbootldr mount points\n");
+        return 1;
     }
 
-    array_str_free(&efis);
-    array_str_free(&xbts);
+    msg(MSG_VERB, "Active in current boot marked with ✔\n");
+    for (size_t i = 0; i < boot_mounts.num_efis; i++) {
+        print_row("EFI", &boot_mounts.efis[i]);
+    }
+
+    for (size_t i = 0; i < boot_mounts.num_xbootldrs; i++) {
+        print_row("XBOOTLDR", &boot_mounts.xbootldrs[i]);
+    }
+
+    boot_mounts_free(&boot_mounts);
 
     return 0;
 }

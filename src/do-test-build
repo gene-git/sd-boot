@@ -42,3 +42,6 @@ if [[ "$do_debug" == "y" ]] ; then
     /usr/bin/meson test -C build/release --setup=standard
 fi
 
+echo "Rebuilding man pages"
+./data/man/build-man-pages.sh
+

@@ -6,6 +6,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <yaml.h>
 
 #include "sd-boot.h"
@@ -77,7 +78,7 @@ int save_yaml_config(SdBoot *conf, const char *hdr, const char *path) {
     /*
      * Write any header
      */
-    ret = write_header((const char *)hdr, fptr);
+    ret = write_header(hdr, fptr);
     if (ret != 0) {
         goto exit;
     }
@@ -110,7 +111,10 @@ int save_yaml_config(SdBoot *conf, const char *hdr, const char *path) {
      * verb
      */
     char val_str[MAX_VAL_LEN] = {};
-    snprintf(val_str, MAX_VAL_LEN, "%d", conf->verb);
+    if (snprintf(val_str, MAX_VAL_LEN, "%d", conf->verb) < 0) {
+        ret = -1;
+        goto exit;
+    }
 
     yaml_str = (yaml_char_t *)"verb";
     int verb_key = yaml_document_add_scalar(&document, nullptr, yaml_str, -1, YAML_PLAIN_SCALAR_STYLE); 
@@ -157,7 +161,7 @@ exit:
     yaml_emitter_delete(&emitter);
 
     if (fptr) {
-        fclose(fptr);
+        (void)fclose(fptr);
     }
     return ret;
 }

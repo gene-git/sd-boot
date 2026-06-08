@@ -9,6 +9,14 @@ sd-boot
 Recent Changes
 ==============
 
+**5.7.1**
+
+* Update sd-boot-find-boot-mounts 
+  - now works for non-root users 
+  - udev/libmount instead of low level libblk
+  - Adds systemd-libs dependency.
+  - Simpler, more robust and significantly faster.
+
 **5.6.2**
 
 * Install sd-boot-find-boot-mounts in /usr/bin.

@@ -7,7 +7,7 @@
 
 #include "sd-boot.h"
 
-int array_str_add(char *string, Array_str *arr) {
+int array_str_add(const char *string, Array_str *arr) {
     int ret = 0;
     size_t n_row = 0;
 
