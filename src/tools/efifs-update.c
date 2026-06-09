@@ -59,9 +59,15 @@ int main(int argc, char *argv[]) {
     /*
      * locate efi
      */
-    MountPoints mounts = {};
-    if (find_efi_current_boot(&mounts) != 0) {
-        msg(MSG_ERR, "! sd-boot: failed find EFI mount point\n");
+    MountInfo efi_info = {};
+    MountInfo xbootldr_info = {};
+    if (find_boot_mounts_current(&efi_info, &xbootldr_info) != 0) {
+        ret = 1;
+        goto exit;
+    }
+
+    if (efi_info.current != True) {
+        msg(MSG_ERR, "! sd-boot: n current EFI mount identofied\n");
         ret = 1;
         goto exit;
     }
@@ -75,7 +81,7 @@ int main(int argc, char *argv[]) {
         goto exit;
     }
 
-    if (snprintf(dst, PATH_MAX, "%s%s%s", conf.info.root, mounts.efi_dir, "/EFI/systemd/drivers/") < 0) {
+    if (snprintf(dst, PATH_MAX, "%s%s%s", conf.info.root, efi_info.mount, "/EFI/systemd/drivers/") < 0) {
         perror(nullptr);
         ret = 1;
         goto exit;
@@ -116,6 +122,8 @@ int main(int argc, char *argv[]) {
     }
 
 exit:
+    mount_info_free(&efi_info);
+    mount_info_free(&xbootldr_info);
     clean_config(&conf);
     return ret;
 }

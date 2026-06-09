@@ -16,7 +16,9 @@ default: $(MAN_PAGES)
 OPTS = --strict --no-raw --no-generator
 
 %.8.gz: %.rst
-	/usr/bin/sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@DATE@/$(DATE)/g" $< | rst2man $(OPTS) | /usr/bin/gzip > man8/$@
+	@echo "$<"
+	@/usr/bin/sed -e "s/@VERSION@/$(VERSION)/g" -e "s/@DATE@/$(DATE)/g" $< \
+		| rst2man $(OPTS) | /usr/bin/gzip > man8/$@
 
 clean:
 	rm -f $(MAN_PAGES)

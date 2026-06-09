@@ -19,7 +19,7 @@ echo ""
 
 echo " cppcheck:"
 
-libs=(lib lib-efi lib-kernel)
+libs=(lib lib-config lib-efi lib-kernel)
 tools=(tools tools-efi tools-kernel tools-plugins)
 /usr/bin/cppcheck "${libs[@]}" "${tools[@]}"   2>&1 > "$log_dir/cppcheck"
 

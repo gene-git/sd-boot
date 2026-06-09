@@ -59,7 +59,7 @@ exit:
  * Obvious dirs to skip which are not
  * ESP or XBOOTLDR mounts
  */
-static bool skip_mount(const char *path) {
+static bool skip_mount(struct libmnt_fs *entry) {
     const char *names[] = {
         "/dev/",
         "/dev",
@@ -74,17 +74,26 @@ static bool skip_mount(const char *path) {
     };
     const size_t num_names = sizeof(names) / sizeof(names[0]);
 
-    if (path == nullptr) {
+    if (!mount_is_block_device(entry)) {
+        return true;
+    }
+    const char *target = mnt_fs_get_target(entry);
+
+    if (!target) {
         return true;
     }
 
-    if (strcmp(path, "/") == 0) {
+    if (strcmp(target, "/") == 0) {
+        return true;
+    }
+
+    if (mnt_fs_get_option(entry, "bind", nullptr, nullptr) == 0) {
         return true;
     }
 
     for (size_t i = 0 ; i < num_names; i++) {
         const char *name = names[i];
-        if (strncmp(path, name, strlen(name)) == 0) {
+        if (strncmp(target, name, strlen(name)) == 0) {
             return true;
         }
      }
@@ -114,14 +123,9 @@ static dev_t active_parent_dev_t(struct udev *udev, struct libmnt_table *mount_t
     }
     while (mnt_table_next_fs(mount_table, iter, &mount_entry) == 0) {
         const char *src = mnt_fs_get_srcpath(mount_entry);
-        const char *target = mnt_fs_get_target(mount_entry);
-
-        if (skip_mount(target)) {
-            continue;
-        }
-
         struct stat stat_buf = {};
-        if (stat(src, &stat_buf) < 0) {
+
+        if (skip_mount(mount_entry) || stat(src, &stat_buf) < 0) {
             continue;
         }
 
@@ -175,20 +179,27 @@ static bool is_active(bool is_esp, bool is_xboot, const char *guid,
 }
 
 /**
- * @brief Evaluates an extracted partition device node against system criteria.
+ * Extract the mount info of esp and xbootldr partitions.
+ * - skip non-block filesystems. 
  */
-static void process_partition_node(struct udev *udev, struct libmnt_fs *mount_entry,
-                                    const char *active_uuid, dev_t active_esp_dev_t, BootMounts *boot_mounts) {
+static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry,
+        const char *active_uuid, dev_t active_esp_dev_t, BootMounts *boot_mounts) {
     struct udev_device *dev = nullptr;
     struct udev_device *parent = nullptr;
     const char *GPT_ESP_TYPE = "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
     const char *GPT_XBOOTLDR_TYPE = "bc13c2ff-59e6-4262-a352-b275fd6f7172";
     struct stat stat_buf = {};
 
+    // const char *fs_root = mnt_fs_get_root(mount_entry);
     const char *src = mnt_fs_get_srcpath(mount_entry);
-
     const char *target = mnt_fs_get_target(mount_entry);
-    if (!src || skip_mount(target)) {
+
+    /*
+     * Skip
+     * - special targets
+     * - bind mounts
+     */
+    if (!src || skip_mount(mount_entry)) {
         goto exit;
     }
 
@@ -223,7 +234,8 @@ static void process_partition_node(struct udev *udev, struct libmnt_fs *mount_en
         MountInfo new_mount = {};
         new_mount.device = strdup(src);
         new_mount.mount = strdup(target ? target : " - ");
-        new_mount.active = active;
+        new_mount.active = (TriState) active;
+        new_mount.current = Unknown;
 
         if (boot_mounts_add_mount(is_esp, new_mount, boot_mounts) != 0){
             free((void *)new_mount.device);
@@ -285,6 +297,20 @@ exit:
  * - check whats mounted using libmount (and /proc/mounts)
  * returns 
  *  - 0 on a success else -1
+ *
+ *  Our approach identifes every ESP and XBOOTLDR and
+ *  whether they are active or not. Active means the boot loader
+ *  saved the ESP info to nvram.
+ *
+ *  Sepaeately we get which ESP and XBOOTDLR are currently mounted as
+ *  determined by bootctl.
+ *
+ *  On a multi ESP system these may not match. Bootctl status in this instance will issue a warning
+ *  WARNING: The boot loader reports a different partition UUID than the detected ESP
+ *
+ *  So active is nvram based and current what bootctl returns. This mismatch seems to happen
+ *  on lenovo machines where in spite of nvram boot order specifying the correct boot order
+ *  the bios may boot from a different ESP.
  */
 int find_boot_mounts(BootMounts *boot_mounts) {
     int ret = 0;
@@ -315,7 +341,15 @@ int find_boot_mounts(BootMounts *boot_mounts) {
         goto exit;
     }
     while (mnt_table_next_fs(mount_table, iter, &mount_entry) == 0) {
-        process_partition_node(udev, mount_entry, active_esp_uuid, active_esp_dev_t, boot_mounts);
+        process_one_mount(udev, mount_entry, active_esp_uuid, active_esp_dev_t, boot_mounts);
+    }
+
+    /*
+     * We got active not lets mark current as seen by bootctl.
+     */
+    ret = boot_mounts_mark_current(boot_mounts);
+    if (ret != 0) {
+        goto exit;
     }
 
 

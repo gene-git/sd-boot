@@ -14,12 +14,7 @@ static void free_content(size_t num_0, size_t num_1, MountInfo *mount) {
     }
 
     for (size_t i = num_0; i < num_1; i++) {
-        if (mount[i].device) {
-            free((void *)mount[i].device);
-        }
-        if (mount[i].mount) {
-            free((void *)mount[i].mount);
-        }
+        mount_info_free(&mount[i]);
     }
 }
 
@@ -74,7 +69,8 @@ static int realloc_one(size_t num_new, size_t *num_p, MountInfo **mounts_p) {
         for (size_t i = *num_p; i < num_new; i++) {
             mounts[i].device = nullptr;
             mounts[i].mount = nullptr;
-            mounts[i].active = false;
+            mounts[i].active = Unknown;
+            mounts[i].current = Unknown;
         }
         *num_p = num_new;
     }

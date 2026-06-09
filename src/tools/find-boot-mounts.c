@@ -16,14 +16,33 @@
 enum Const { BUF = 8 };
 
 
-static void print_row(char *ptype, MountInfo *mount) {
-    char *active = nullptr;
-    if (mount->active) {
-        active = "✔";
-    } else {
-        active = " ";
+static void print_header() {
+    msg(MSG_VERB, "%70s\n", "(c)urrent (a)ctive");
+    msg(MSG_VERB, "%20s %-30s (%s %s) %s\n", "Device", "Mount", "c", "a", "type");
+}
+
+static char *marker(TriState state, char *t_str, char *f_str, char *u_str) {
+    switch (state) {
+        case True:
+            return t_str;
+            break;
+
+        case False:
+            return f_str;
+            break;
+
+        case Unknown:
+        default:
+            return u_str;
+            break;
     }
-    msg(MSG_VERB, "%20s %-30s %s %s\n", mount->device, mount->mount, active, ptype);
+}
+
+static void print_row(char *ptype, MountInfo *mount) {
+    char *active = marker(mount->active, "✔", " ", "?");
+    char *current = marker(mount->current, "✔", " ", " ");
+
+    msg(MSG_VERB, "%20s %-30s (%s %s) %s\n", mount->device, mount->mount, current, active, ptype);
 }
 
 int main() {
@@ -35,12 +54,12 @@ int main() {
     /*
      * Get current boot efi
      */
+    print_header();
     if (find_boot_mounts(&boot_mounts) != 0) {
         msg(MSG_ERR, "Failed to locate EFI or xbootldr mount points\n");
         return 1;
     }
 
-    msg(MSG_VERB, "Active in current boot marked with ✔\n");
     for (size_t i = 0; i < boot_mounts.num_efis; i++) {
         print_row("EFI", &boot_mounts.efis[i]);
     }

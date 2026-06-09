@@ -6,6 +6,7 @@
 #ifndef SD_BOOT_H
 #define SD_BOOT_H
 
+#include <libmount/libmount.h>
 #include <linux/limits.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -260,18 +261,34 @@ typedef struct {
 
 /*
  * Mount Points : efi and xbootldr partitions.
- * - efi_active / xbootldr_active point the the 
- *   active in each list (or null if no active)
+ *
+ * With mulitple ESP partitions (multiple disks), 
+ * the currently mounted ESP mount may differ from that used to 'boot'
+ * and saved to nvram by the boot loader we show both views. 
+ *
+ * We report these using:
+ * - current = for currently mounted 
+ * - active = as reported by boot loader and saved to nvram.
+ *
+ * For currently mounted determination we use bootctl.
+ * 
+ * - efi - visible to all users.
+ * - xbootldr - requires root 
+ *
+ * Provided by udev/libmount:
+ * - all ESP and XBOOTLDR mount points.
  */
-typedef struct {
-    char efi_dir[PATH_MAX + 1];
-    char xbootldr_dir[PATH_MAX + 1];
-} MountPoints;
+typedef enum TriState: signed char {
+    Unknown = -1,
+    False = 0,
+    True = 1,
+} TriState;
 
 typedef struct MountInfo {
     char *device;
     char *mount;
-    bool active;
+    TriState active;
+    TriState current;
 } MountInfo;
 
 typedef struct BootMounts {
@@ -304,9 +321,18 @@ int array_str_resize(size_t num_rows, Array_str *arr);
 int array_str_free(Array_str *arr);
 int array_str_move(Array_str *arr_1, Array_str *arr_2);
 int array_str_add(const char *string, Array_str *arr) ;
+
+void mount_info_free(MountInfo *mount_info);
+int mount_info_copy(MountInfo *src, MountInfo *dst);
+
 int boot_mounts_alloc(size_t num_efis, size_t num_xbootldrs, BootMounts *boot_mounts);
 int boot_mounts_add_mount(bool is_esp, MountInfo this_mount, BootMounts *mounts);
 void boot_mounts_free(BootMounts *boot_mounts);
+bool mount_is_block_device(struct libmnt_fs *entry);
+int find_boot_mounts(BootMounts *mounts);
+int find_boot_mounts_current(MountInfo *efi, MountInfo *xbootldr);
+int boot_mounts_mark_current(BootMounts *boot_mounts);
+
 bool check_permission(SdBoot *conf);
 int copy_file(const char *src, const char *dst);
 char *read_efi_var_string(const char *efi_path);
@@ -318,8 +344,6 @@ int dynamic_str_alloc(size_t num, Dynamic_str *str);
 int combined_env(size_t num1, char **envp1, size_t num2, char **envp2, char ***envp_p);
 int count_envp_argv(char *const args[]);
 int file_list_glob(const char *pattern, Array_str *files);
-int find_efi_current_boot(MountPoints *mounts);
-int find_boot_mounts(BootMounts *mounts);
 char *get_one_line(char **state_p); 
 int get_plugin_list(char *etc_root, Array_str *plugins);
 int read_kv_elems(const char *path, size_t num, KvElem *elem, size_t *num_found_p);
