@@ -6,17 +6,60 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> HEAD (2026-06-08)
-	65 commits.
+	3.6.2 (2026-04-21) -> 5.8.0 (2026-06-09)
+	67 commits.
 
 Commits
 =======
 
 
-* 2026-06-08  : **HEAD**
+* 2026-06-09  : **5.8.0**
 
 .. code-block:: text
 
+              - **5.8.0**
+            
+                * sd-boot-find-boot-mounts: Handling Multiple ESP partitions (multi-disk).
+            
+                  sd-boot-find-boot-mounts has been improved to display additional information.
+            
+                  On systems with multiple ESP partitions where the motherboard boot loader boots
+                  from a different partition than the expected partition leads to some output ambiguity.
+            
+                  This should not happen and on most machines it will not.
+                  But it can and when it does then *bootctl status* displays:
+            
+                    WARNING: The boot loader reports a different partition UUID than the detected ESP.
+            
+                  To resolve this we use bootctl to detect the "current" ESP.
+            
+                  Ive seen this on happen 2 lenovo machines. What seems to be going on is that
+                  the nvram boot order can sometimes be ignored by the motherboard which choses to
+                  boot from a different ESP. This in turn is saved to nvram.
+            
+                  This ESP is not the one requested to be used to boot from which leads to
+                  this tension between the two.
+            
+                  This may be a bug / feature of (some) lenovo motherboard firmware.
+            
+                  NB: This does not affect any update/install/remove functionality; just
+                  the information displayed by sd-boot-find-boot-mounts.
+            
+                  To highlight this sd-boot-find-boot-mounts now displays both
+                  *active* partitions (those detected by motherboard to nvram) as well
+                  as the expected or *current* partitions.
+            
+                  See *man sd-boot-find-boot-mounts* for some additional information such as how to
+                  manually identify this (quirky) case.
+            
+                * Tune sd-boot-find-mounts
+                  Skip working on any non-block filesystems while looping over scanned mounts.
+
+* 2026-06-08  : **5.7.1, origin/master**
+
+.. code-block:: text
+
+              - update Changelog
               - **5.7.1**
             
                 * Update sd-boot-find-boot-mounts
