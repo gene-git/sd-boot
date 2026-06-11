@@ -6,12 +6,28 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.8.0 (2026-06-09)
-	67 commits.
+	3.6.2 (2026-04-21) -> 5.8.1 (2026-06-11)
+	69 commits.
 
 Commits
 =======
 
+
+* 2026-06-11  : **5.8.1**
+
+.. code-block:: text
+
+              - **5.8.1**
+            
+                * Man page update.
+                  Update sd-boot-find-boot-mounts man page with additional information about
+                  multiple ESP partitions and possible mismatch of nvram with current ESP as observed
+                  on some machines.
+ 2026-06-09   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-06-09  : **5.8.0**
 
@@ -55,7 +71,7 @@ Commits
                 * Tune sd-boot-find-mounts
                   Skip working on any non-block filesystems while looping over scanned mounts.
 
-* 2026-06-08  : **5.7.1, origin/master**
+* 2026-06-08  : **5.7.1**
 
 .. code-block:: text
 
