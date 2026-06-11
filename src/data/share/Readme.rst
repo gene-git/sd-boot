@@ -9,6 +9,13 @@ sd-boot
 Recent Changes
 ==============
 
+**5.8.1**
+
+* Man page update.
+  Update sd-boot-find-boot-mounts man page with additional information about
+  multiple ESP partitions and possible mismatch of nvram with current ESP as observed
+  on some machines.
+
 **5.8.0**
 
 * sd-boot-find-boot-mounts: Handling Multiple ESP partitions (multi-disk).
@@ -46,36 +53,6 @@ Recent Changes
 
 * Tune sd-boot-find-mounts
   Skip working on any non-block filesystems while looping over scanned mounts.
-
-**5.7.1**
-
-* Update sd-boot-find-boot-mounts 
-  - now works for non-root users 
-  - udev/libmount instead of low level libblk
-  - Adds systemd-libs dependency.
-  - Simpler, more robust and significantly faster.
-
-**5.6.2**
-
-* Install sd-boot-find-boot-mounts in /usr/bin.
-* Documentation
-    * Add man pages for command line tools.
-    * Update readme.
-* No functional change.
-
-**5.6.0**
-
-* The loader entry plugin is now installed in /usr/lib/kernel/install.d.
-  This allows administrators to over-ride in /etc/kernel/install.d/xxx.
-
-  i.e. /usr/lib/kernel/install.d/95-sd-boot-loaderentry-modify.install
-
-* Switch /etc/sd-boot/config to /etc/sd-boot/config.yaml
-  Yaml config will be auto created from existing config.
-  This adds a new dependency on *libyaml*.
-
-* Package dependencies updated.
-* Some code tidy up. Simplify style used to check for nullptr.
 
 Please see Changelog for more history (found in */usr/share/sd-boot/*).
 Or for recent changes: *pacman -Qc sd-boot*.
