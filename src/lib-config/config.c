@@ -14,9 +14,9 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
 #include "sd-boot.h"
-
-enum Constants { VERB_MAX = 2 };
 
 /**
  * read config files
@@ -68,29 +68,18 @@ exit:
     return ret;
 }
 
-int load_config(SdBoot *conf) {
-    int ret = 0;
+/*
+ * Read sd-boot config
+ * - try yaml first 
+ * - if no yaml, read toml (if available) and then convert to yaml.
+ *   Conversion errors are non-fatal.
+ */
+static void read_config_file(SdBoot *conf) {
+
     struct ConfigFiles file_info = {};
 
-    /*
-     * load development info
-     * - env SDB_DEV_TEST activated dev / testing 
-     *   using a separaate root tree (non-root)
-     * Initializes conf->info.root used below.
-     */
-    if (init_devinfo(&conf->info) != 0) {
-        return -1;
-    }
-
-    /*
-     * Load sd-boot config
-     * - try yaml first 
-     * - if no yaml, read toml (if available) and convert to yaml.
-     *   Conversion errors are non-fatal.
-     */
-    ret = config_file_info(conf, &file_info);
-    if (ret != 0) {
-        goto exit;
+    if (config_file_info(conf, &file_info) != 0) {
+        return;
     }
 
     if (!file_info.have_yaml && !file_info.have_toml) {
@@ -107,11 +96,72 @@ int load_config(SdBoot *conf) {
 
     } else if (file_info.have_toml) {
         /*
-         * toml - convert to yaml
+         * (Old) toml - convert to yaml
          */
         if (load_config_toml(conf) == 0) { 
             convert_config(conf);
         }
+    }
+}
+
+int load_config(SdBoot *conf) {
+    int ret = 0;
+
+    /*
+     * Initialize conf->root, test mode (SDB_DEV_TEST) etc
+     * - also sets env variable BOOT_ROOT in conf->env_boot_root
+     */
+    if (config_init(conf) != 0) {
+        return -1;
+    }
+
+    /*
+     * Load sd-boot config
+     */
+    read_config_file(conf);
+
+    /*
+     * Check availibility
+     */
+    conf->unshare_available = unshare_available();
+    conf->efivars_available = efivars_available();
+
+    /*
+     * Plugins:
+     * update 
+     *   - conf->all_plugins
+     *   - conf->active_plugins
+     * - must do after config is read since it has list of plugins to skip.
+     */
+    ret = get_all_plugins(conf);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    ret = get_active_plugins(conf);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    /*
+     * Environment variables
+     * - KERNEL_INSTALL_PLUGINS: set to the list of active plugins
+     * - limitied PATH
+     */
+    ret = ki_plugin_env_init(conf);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    /*
+     * Env var:
+     * - PATH
+     * - for test pass additional variables. e.g.
+     *   LD_LIBRARY_PATH for running tests in non-production)
+     */
+    ret = config_set_base_env(conf->test, &conf->env_base);
+    if (ret != 0) {
+        goto exit;
     }
 
     /*

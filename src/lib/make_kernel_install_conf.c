@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "sd-boot-msg.h"
 #include "sd-boot.h"
 
 enum Const {

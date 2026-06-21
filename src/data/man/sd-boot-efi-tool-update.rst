@@ -18,7 +18,7 @@ Install or remove an efi tool to $BOOT
 SYNOPSIS
 ========
 
-``sd-boot-efi-tool-update`` ``add`` | ``remove`` ``<package-name>``
+``sd-boot-efi-tool-update`` ``add`` | ``remove`` ``<package_name>``
 
 DESCRIPTION
 ===========
@@ -30,6 +30,16 @@ Takes two arguments: *add* | *remove* and the package name providing the tool.
 
 The package must be one that is listed as managed by sd-boot and
 the path to the efi file to be installed must be provided.
+
+Since these tools are not kernels, these are installed using *BLS* layout, even 
+when layout is set to *UKI* in */etc/kernel/install.conf*. This ensures that
+the tools are installed to::
+
+    /boot/<machine-id>/<package_name>/
+
+and that boot loader entry files are appropriately created in::
+
+    /boot/loader/entries/<machine_name-pacmage_name>.conf
 
 ARGUMENTS
 =========

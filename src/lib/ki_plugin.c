@@ -37,6 +37,8 @@
 #include <strings.h>
 
 #include "sd-boot.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
 
 enum Constants {
     MAX_STR = PATH_MAX,

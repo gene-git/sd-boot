@@ -7,10 +7,11 @@
  */
 #include <stdbool.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-config.h"
 
 bool check_permission(SdBoot *conf) {
-    if (!conf->info.test && conf->info.euid != 0) {
+    if (!conf->test && conf->euid != 0) {
         msg(MSG_ERR, "! root permission requiredd.\n");
         return false;
     }

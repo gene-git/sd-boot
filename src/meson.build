@@ -13,6 +13,7 @@
 #
 # meson test -C build/release --setup=standard [test_x]
 # meson test -C build/release --setup=valgrind [test_x]
+#  '-fno-tree-vectorize',       # Fixes the Valgrind size 32 AVX false positive
 #
 project('sd-boot', 'c',
   version: files('version.txt'),
@@ -33,14 +34,12 @@ my_cflags = [
   '-fstack-clash-protection',  # Prevents stack-clash exploits
   '-fcf-protection',           # Control-flow enforcement
   '-fvisibility=default',      # Ensures global functions remain exported
-  '-Wall',
-  '-Wextra',
   '-Wpedantic',
   '-Wshadow'
 ]
 
 if get_option('buildtype') != 'debug'
-  my_cflags += ['-O2', '-Wp,-D_FORTIFY_SOURCE=3']
+  my_cflags += ['-Wp,-D_FORTIFY_SOURCE=3']
 endif
 
 my_ldflags = [
@@ -52,90 +51,30 @@ my_ldflags = [
   '-Wl,-z,pack-relative-relocs',
 ]
 
+#
+# Apply cflags/ldflags
+#
+add_project_arguments(my_cflags, language: 'c')
+add_project_link_arguments(my_ldflags, language: 'c')
+
 
 #
 # Source code
 #
-inc_dir = include_directories('include')
+#my_inc_dir = include_directories('include')
 
-lib_sources = files(
-    'lib/array_str.c',
-    'lib/array_str_add.c',
-    'lib/array_str_move.c',
-    'lib/check_permission.c',
-    'lib/boot_mounts.c',
-    'lib/boot_mounts_current.c',
-    'lib/find_boot_mounts.c',
-    'lib/find_boot_mounts_current.c',
-    'lib/copy_file.c',
-    'lib/current_datetime.c',
-    'lib/dev_info.c',
-    'lib/dir_dup_links.c',
-    'lib/dynamic_string.c',
-    'lib/count_envp_argv.c',
-    'lib/efi_var.c',
-    'lib/file_list_glob.c',
-    'lib/get_one_line.c',
-    'lib/get_plugin_list.c',
-    'lib/keyval.c',
-    'lib/ki_oper.c',
-    'lib/ki_plugin.c',
-    'lib/ki_plugin_test_env.c',
-    'lib/ki_run.c',
-    'lib/loaderentry_modify_file.c',
-    'lib/make_kernel_install_conf.c',
-    'lib/make_dir.c',
-    'lib/make_symlink.c',
-    'lib/misc.c',
-    'lib/mount_info.c',
-    'lib/mount_is_block_device.c',
-    'lib/msg.c',
-    'lib/package_version_installed.c',
-    'lib/package_versions.c',
-    'lib/path_add_slash.c',
-    'lib/read_file.c',
-    'lib/read_one_line.c',
-    'lib/read_triggers.c',
-    'lib/remove_file.c',
-    'lib/rm_rf.c',
-    'lib/run_cmd.c',
-    'lib/run_cmd_output.c',
-    'lib/string_in_list.c',
-    'lib/trim_string.c',
-    'lib/ukify_os_release.c',
-    #
-    'lib-config/clean_config.c',
-    'lib-config/config.c',
-    'lib-config/config_files.c',
-    'lib-config/convert_config.c',
-    'lib-config/ki_install_conf.c',
-    'lib-config/load_config_toml.c',
-    'lib-config/load_config_yaml.c',
-    'lib-config/load_kernel_install.c',
-    'lib-config/save_config_yaml.c',
-    #
-    'lib-efi/efi_image.c',
-    'lib-efi/efi_tool_add.c',
-    'lib-efi/efi_tool_inspect.c',
-    'lib-efi/efi_tool_remove.c',
-    'lib-efi/ki_efi_conf_bls.c',
-    'lib-efi/ki_efi_env.c',
-    'lib-efi/ki_plugin_efi_env.c',
-    'lib-efi/loaderentry_efi.c',
-    'lib-efi/managed_pkg.c',
-    #
-    'lib-kernel/is_kernel_image.c',
-    'lib-kernel/kernel_add_remove.c',
-    'lib-kernel/kernel_info_all.c',
-    'lib-kernel/kernel_info.c',
-    'lib-kernel/kernel_inspect.c',
-    'lib-kernel/kernel_pkg_to_info.c',
-    'lib-kernel/kernel_triggers.c',
-    'lib-kernel/ki_kernel_env.c',
-    'lib-kernel/loaderentry_kernel.c',
-    'lib-kernel/managed_kernel.c',
-    'lib-kernel/parse_kernel_triggers.c',
-    )
+inc_dir = []
+lib_sources = []
+
+subdir('lib')
+subdir('lib-cmd')
+subdir('lib-config')
+subdir('lib-efi')
+subdir('lib-kernel')
+subdir('lib-msg')
+subdir('lib-mounts')
+subdir('lib-package')
+subdir('lib-utils')
 
 #
 # Libs
@@ -234,7 +173,7 @@ install_data('data/etc/kernel/install.conf', install_dir: '/etc/kernel')
 install_data('data/etc/kernel/ukify.conf', install_dir: '/etc/kernel')
 
 # to be removed in the future release
-install_data('data/etc/sd-boot/config', install_dir: '/etc/sd-boot')
+install_data('data/etc/sd-boot/config.yaml', install_dir: '/etc/sd-boot')
 
 install_data('data/etc/sd-boot/edk2-shell.image', install_dir: '/etc/sd-boot')
 install_data('data/etc/sd-boot/efi-tool.packages', install_dir: '/etc/sd-boot')

@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include "sd-boot-msg.h"
 #include "sd-boot.h"
 
 #define IS_PRINT(c) ((c) >= 32 && (c) <= 128)

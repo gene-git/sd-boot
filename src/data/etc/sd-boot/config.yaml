@@ -1,0 +1,15 @@
+#
+# /etc/sd-boot/config.yaml
+#
+# Config settings for installing kernels via sd-boot tools
+# verb: integer value:
+#    0 = verbose is turned off
+#    1 = Useful info about the install
+#    2 = Additional info such as which trigger(s) (file or package) caused an update.
+#    3 = Also pass "-v" to kernel-install
+#
+# Note: this file replaces /etc/sd-boot/config
+#       Going forward, please make any changes to this file
+#
+verb: 1
+skip_kernel_plugins: []

@@ -16,7 +16,9 @@
 #include <string.h>
 #include <strings.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
 
 enum Constants { VERB_MAX = 2 };
 
@@ -55,7 +57,7 @@ int load_kernel_install_conf(SdBoot *conf) {
     elems[2].type = CONF_STR;
     elems[2].val.v_str[0] = '\0';
 
-    if (snprintf(path, sizeof(path), "%s%s", conf->info.root, "etc/kernel/install.conf") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s", conf->root, "etc/kernel/install.conf") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;

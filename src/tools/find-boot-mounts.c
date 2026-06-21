@@ -11,7 +11,9 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-config.h"
+#include "sd-boot-mounts.h"
 
 enum Const { BUF = 8 };
 
@@ -46,18 +48,25 @@ static void print_row(char *ptype, MountInfo *mount) {
 }
 
 int main() {
+    int ret = 0;
     /*
      * print the efi 
      */
     BootMounts boot_mounts = {};
+    SdBoot conf = {};
+
+    if (load_config(&conf) != 0) {
+        msg(MSG_ERR, "! sd-boot: warning - no config file loaded\n");
+    }
 
     /*
      * Get current boot efi
      */
     print_header();
-    if (find_boot_mounts(&boot_mounts) != 0) {
+    if (find_boot_mounts(&conf, &boot_mounts) != 0) {
         msg(MSG_ERR, "Failed to locate EFI or xbootldr mount points\n");
-        return 1;
+        ret = 1;
+        goto exit;
     }
 
     for (size_t i = 0; i < boot_mounts.num_efis; i++) {
@@ -68,7 +77,8 @@ int main() {
         print_row("XBOOTLDR", &boot_mounts.xbootldrs[i]);
     }
 
+exit:
     boot_mounts_free(&boot_mounts);
-
-    return 0;
+    config_clean(&conf);
+    return ret;
 }

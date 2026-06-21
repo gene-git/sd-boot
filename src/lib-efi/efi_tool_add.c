@@ -10,6 +10,58 @@
 #include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-efi.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-package.h"
+#include "sd-boot-utils.h"
+
+static int remove_prev_vers(SdBoot *conf, const char *pkg, char *prev, char *curr, Array_str *env_arr) {
+
+    int ret = 0;
+    char version[EFI_ROW_MAX] = {};
+    Array_str arg_arr = {};
+
+    if (*prev == '\0' || strcmp(curr, prev) == 0) {
+        return 0;
+    }
+
+    msg(MSG_NORMAL, "  ↳ sd-boot: removing prev %s %s\n", pkg, prev);
+
+    if (snprintf(version, EFI_ROW_MAX-1, "%s-%s", pkg, prev) < 0) {
+        msg(MSG_ERR, "  ! sd-boot: efi tool: error making prev version\n");
+        ret = -1;
+        goto exit;
+    }
+
+    /*
+     * Build argv
+     */
+    ret = array_str_new(2, &arg_arr);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    arg_arr.rows[0] = strdup("remove");
+    arg_arr.rows[1] = strdup(version);
+
+    if (!arg_arr.rows[0] || !arg_arr.rows[1]) {
+        ret = -1;
+        goto exit;
+    }
+
+    array_str_refresh_row_len(&arg_arr);
+
+    ret = kernel_install_run(conf, &arg_arr, env_arr);
+    if (ret != 0) {
+        msg(MSG_ERR, "  ! sd-boot: error removing prev vers %s\n", version);
+        ret = -1;
+        goto exit;
+    }
+exit:
+    array_str_free(&arg_arr);
+    return ret;
+}
 
 
 int efi_tool_add(SdBoot *conf, const char *pkg) {
@@ -20,9 +72,10 @@ int efi_tool_add(SdBoot *conf, const char *pkg) {
     PackageVersion pkg_vers = {};
     char *curr = nullptr;
     char *prev = nullptr;
-    char version[ROW_MAX] = {};
+    char version[EFI_ROW_MAX] = {};
     char *efi_image = nullptr;
     Array_str env_arr = {};
+    Array_str arg_arr = {};
 
     msg(MSG_NORMAL, "⦁ sd-boot: Updating bootable efi tool %s\n", pkg);
 
@@ -59,31 +112,14 @@ int efi_tool_add(SdBoot *conf, const char *pkg) {
      * - version string is = "<package>-<prev>"
      *   i.e. augment version string with package name
      */
-    if (*prev != '\0' && strncmp(curr, prev, MAX_VAL_LEN-1) != 0) {
-
-        msg(MSG_NORMAL, "  ↳ sd-boot: removing prev %s %s\n", pkg, prev);
-
-        if (snprintf(version, ROW_MAX-1, "%s-%s", pkg, prev) < 0) {
-            msg(MSG_ERR, "  ! sd-boot: efi tool: error making prev version\n");
-            ret = -1;
-            goto exit;
-        }
-        char *cmd_args[] = {"remove", version, nullptr};
-
-        ret = kernel_install_run(conf, cmd_args, env_arr.rows);
-        if (ret != 0) {
-            msg(MSG_ERR, "  ! sd-boot: error removing prev vers %s\n", version);
-            ret = -1;
-            goto exit;
-        }
+    ret = remove_prev_vers(conf, pkg, prev, curr, &env_arr);
+    if (ret != 0) {
+        goto exit;
     }
 
     /*
      * Install new (current) version
-     */
-
-    /*
-     * get the efi image path
+     * - need efi image path
      */
     efi_image = package_to_efi_image(conf, pkg);
     if (!efi_image) {
@@ -95,7 +131,7 @@ int efi_tool_add(SdBoot *conf, const char *pkg) {
     /*
      * version = <package>-<curr>
      */
-    if (snprintf(version, ROW_MAX-1, "%s-%s", pkg, curr) < 0) {
+    if (snprintf(version, EFI_ROW_MAX-1, "%s-%s", pkg, curr) < 0) {
         msg(MSG_ERR, "  ! sd-boot: efi tool: error making curr vers\n");
         ret = -1;
         goto exit;
@@ -103,8 +139,24 @@ int efi_tool_add(SdBoot *conf, const char *pkg) {
 
     msg(MSG_NORMAL, "  ↳ sd-boot: adding %s %s\n", pkg, curr);
 
-    char *cmd_args[] = {"add", version, efi_image, nullptr};
-    ret = kernel_install_run(conf, cmd_args, env_arr.rows);
+    array_str_free(&arg_arr);
+    ret = array_str_new(3, &arg_arr); 
+    if (ret != 0) {
+        goto exit;
+    }
+
+    arg_arr.rows[0] = strdup("add");
+    arg_arr.rows[1] = strdup(version);
+    arg_arr.rows[2] = strdup(efi_image);
+
+    if (!arg_arr.rows[0] || !arg_arr.rows[1] || !arg_arr.rows[2]) {
+        ret = -1;
+        goto exit;
+    }
+
+    array_str_refresh_row_len(&arg_arr);
+
+    ret = kernel_install_run(conf, &arg_arr, &env_arr);
     if (ret != 0) {
         msg(MSG_ERR, "  ! sd-boot: error installing efi tool\n");
         ret = -1;
@@ -115,6 +167,7 @@ exit:
     if (efi_image) {
         free((void *)efi_image);
     }
+    array_str_free(&arg_arr);
     array_str_free(&env_arr);
     return ret;
 }

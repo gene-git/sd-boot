@@ -13,7 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
 
 enum Constants { VERB_MAX = 2 };
 

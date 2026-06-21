@@ -15,11 +15,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 int ki_plugins_efi_update_env(char *root, Array_str *env) {
     /*
-     * Set up the plugin environment passed to kernel-install:
+     * Set up the plugin environment variable to be passed to kernel-install:
      *
      * - efi tools are not kernels.
      *   limit the plugins to loader entry items only.
@@ -74,14 +75,14 @@ int ki_plugins_efi_update_env(char *root, Array_str *env) {
         goto exit;
     }
 
-    ret = array_str_new(2, env);
+    ret = array_str_new(1, env);
     if (ret != 0) {
         goto exit;
     }
 
     env->rows[0] = env_var;
     env_var = nullptr;
-    env->rows[1] = nullptr;
+    array_str_refresh_row_len(env);
 
 exit:
     if (env_var) {

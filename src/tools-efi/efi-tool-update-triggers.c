@@ -19,11 +19,15 @@
 #include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-efi.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 struct Work {
     SdBoot conf;
     const char *pkg;
-    char pkg_vers[MAX_VAL_LEN];
+    char pkg_vers[KV_MAX_VAL_LEN];
     bool is_sd_boot_managed;
 
     Array_str trigs_arr;
@@ -33,7 +37,7 @@ struct Work {
 static void work_clean(struct Work *work) {
     array_str_free(&work->trigs_arr);
     array_str_free(&work->pkgs_arr);
-    clean_config(&work->conf);
+    config_clean(&work->conf);
 }
 
 static int initialize(int argc, char *argv[], struct Work *work) {
@@ -52,6 +56,7 @@ static int initialize(int argc, char *argv[], struct Work *work) {
     if (load_config(&work->conf) != 0) {
         msg(MSG_ERR, "- sd-boot: warning failed to load config file\n");
     }
+    work->conf.is_efi_tool = true;
 
     const char *oper_str = argv[1];
 
@@ -130,8 +135,8 @@ int main(int argc, char *argv[]) {
      * Triggers are efi tool package name
      */
     for (size_t i = 0; i < work.trigs_arr.num_rows; i++) {
-        char pkg[MAX_VAL_LEN] = {};
-        strncpy(pkg, work.trigs_arr.rows[i], MAX_VAL_LEN-1);
+        char pkg[KV_MAX_VAL_LEN] = {};
+        strncpy(pkg, work.trigs_arr.rows[i], KV_MAX_VAL_LEN-1);
 
         if (!is_efi_pkg_sd_boot_managed(&work.pkgs_arr, pkg)) {
             continue;

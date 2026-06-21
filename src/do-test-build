@@ -5,11 +5,13 @@
 
 do_release="y"
 do_debug="n"
+do_debugoptimized="n"
 
 if [[ "$do_release" == "y" ]] ; then
     echo "-------------------------------"
     echo "Building : release"
     echo ""
+    #  -Dextra_cflags="-fno-tree-vectorize"
     /usr/bin/meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared
     /usr/bin/meson compile -C build/release
 
@@ -39,7 +41,27 @@ if [[ "$do_debug" == "y" ]] ; then
     echo ""
     echo "  tests with valgrind"
     echo ""
-    /usr/bin/meson test -C build/release --setup=standard
+    /usr/bin/meson test -C build/debug --setup=valgrind
+fi
+
+if [[ "$do_debugoptimized" == "y" ]] ; then
+    echo "-------------------------------"
+    echo "Building : debug"
+    echo ""
+    #-Db_sanitize=address,undefined
+    options="-buildtype=debugoptimized -Ddefault_library=static -Dstrip=false -Db_sanitize=address,undefined"
+    /usr/bin/meson setup --reconfigure build/debugoptimized $options
+    /usr/bin/meson compile -C build/debugoptimized
+
+    echo ""
+    echo "  tests standard"
+    echo ""
+    /usr/bin/meson test -C build/debugoptimized
+
+    echo ""
+    echo "  tests with valgrind"
+    echo ""
+    /usr/bin/meson test -C build/debugoptimized --setup=valgrind
 fi
 
 echo "Rebuilding man pages"

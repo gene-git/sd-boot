@@ -18,7 +18,7 @@ Install (or remove) a kernel to (or from) boot partition
 SYNOPSIS
 ========
 
-``sd-boot-kernel-update``  ``add`` | ``remove`` ``<pacmage_name>``
+``sd-boot-kernel-update``  ``add`` | ``remove`` ``<package_name>``
 
 DESCRIPTION
 ===========

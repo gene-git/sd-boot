@@ -15,18 +15,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 struct Work {
     SdBoot conf;
     const char *pkg;
-    //char pkg_vers[MAX_VAL_LEN];
     Triggers trigs;
     Array_str pkgs_arr;
 };
 
 void work_clean(struct Work *work) {
-    clean_config(&work->conf);
+    config_clean(&work->conf);
     free_triggers(&work->trigs);
     array_str_free(&work->pkgs_arr);
 }

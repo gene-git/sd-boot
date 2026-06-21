@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-kernel.h"
 
 static void clean_up(size_t num, KernelInfo **infos_p) {
 

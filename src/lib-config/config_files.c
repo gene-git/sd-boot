@@ -8,7 +8,7 @@
 #include <linux/limits.h>
 #include <stdio.h>
 
-#include "sd-boot.h"
+#include "sd-boot-config.h"
 
 int yaml_config_path(SdBoot *conf, char *path) {
 
@@ -16,7 +16,7 @@ int yaml_config_path(SdBoot *conf, char *path) {
         return -1;
     }
 
-    if (snprintf(path, PATH_MAX, "%s%s", conf->info.root, "etc/sd-boot/config.yaml") < 0) {
+    if (snprintf(path, PATH_MAX, "%s%s", conf->root, "etc/sd-boot/config.yaml") < 0) {
         perror(nullptr);
         return -1;
     }
@@ -30,7 +30,7 @@ int yaml_config_sample_path(SdBoot *conf, char *path) {
         return -1;
     }
 
-    if (snprintf(path, PATH_MAX, "%s%s", conf->info.root, "usr/share/sd-boot/config.yaml.sample") < 0) {
+    if (snprintf(path, PATH_MAX, "%s%s", conf->root, "usr/share/sd-boot/config.yaml.sample") < 0) {
         perror(nullptr);
         return -1;
     }
@@ -44,7 +44,7 @@ int toml_config_path(SdBoot *conf, char *path) {
         return -1;
     }
 
-    if (snprintf(path, PATH_MAX, "%s%s", conf->info.root, "etc/sd-boot/config") < 0) {
+    if (snprintf(path, PATH_MAX, "%s%s", conf->root, "etc/sd-boot/config") < 0) {
         perror(nullptr);
         return -1;
     }

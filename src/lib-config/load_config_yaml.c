@@ -21,7 +21,8 @@
 #include <string.h>
 #include <yaml.h>
 
-#include "sd-boot.h"
+#include "sd-boot-utils.h"
+#include "sd-boot-config.h"
 
 enum Constants { VERB_MAX = 2 };
 
@@ -46,11 +47,11 @@ static int save_one(yaml_document_t *document, char *key_value, yaml_node_t *val
                     item_node = yaml_document_get_node(document, *item);
 
                     if (item_node->type != YAML_SCALAR_NODE) {
-                        break;;
+                        break;
                     }
 
                     value = (char *)item_node->data.scalar.value;
-                    ret = array_str_add((const char *)value, &conf->skip_kernel_plugins);
+                    ret = array_str_add_string((const char *)value, &conf->skip_kernel_plugins);
                     if (ret != 0) {
                         goto exit;
                     }

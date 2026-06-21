@@ -3,7 +3,7 @@
 /**
  * Initilize the directory used for "shadow" install.conf for kernel-install
  *
- * Both the normal and shadow directoroes are relative to conf->info.root.
+ * Both the normal and shadow directoroes are relative to conf->root.
  *
  * Initializes:
  *  - kernel_conf_dir
@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-config.h"
 
 int ki_install_conf_init(SdBoot *conf) {
     int ret = 0;
@@ -22,7 +22,7 @@ int ki_install_conf_init(SdBoot *conf) {
     /*
      * The normal /etc/kernel/install.conf
      */
-    if (snprintf(path, sizeof(path), "%s%s", conf->info.root, "etc/kernel") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s", conf->root, "etc/kernel") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;
@@ -36,7 +36,7 @@ int ki_install_conf_init(SdBoot *conf) {
      * Used by efi tool to make a shadow /etc/kernel with
      * layout set to bls.
      */
-    if (snprintf(path, sizeof(path), "%s%s", conf->info.root, "var/lib/sd-boot/kernel_conf_bls") < 0) {
+    if (snprintf(path, sizeof(path), "%s%s", conf->root, "var/lib/sd-boot/kernel_conf_bls") < 0) {
         perror(nullptr);
         ret = -1;
         goto exit;

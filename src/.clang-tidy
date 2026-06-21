@@ -21,6 +21,7 @@ Checks: '*,
   -altera-struct-pack-align,
   -bugprone-suspicious-realloc-usage,
   -bugprone-easily-swappable-parameters, #,-warnings-as-errors,
+  -llvm-header-guard,
   '
 WarningsAsErrors: 'bugprone-*'
 

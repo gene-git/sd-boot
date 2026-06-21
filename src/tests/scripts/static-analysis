@@ -19,8 +19,23 @@ echo ""
 
 echo " cppcheck:"
 
-libs=(lib lib-config lib-efi lib-kernel)
-tools=(tools tools-efi tools-kernel tools-plugins)
+libs=(
+    lib 
+    lib-cmd 
+    lib-config 
+    lib-efi 
+    lib-kernel
+    lib-mounts
+    lib-msg
+    lib-package
+    lib-utils
+)
+tools=(
+    tools 
+    tools-efi 
+    tools-kernel 
+    tools-plugins
+)
 /usr/bin/cppcheck "${libs[@]}" "${tools[@]}"   2>&1 > "$log_dir/cppcheck"
 
 echo " clang-tidy:"
@@ -32,7 +47,7 @@ shopt -s nullglob
 c_files=()
 for i in "${libs[@]}" "${tools[@]}"
 do
-    c_files+=("$i"/*.c)
+    c_files+=("$i"/*.[ch])
 done
 /usr/bin/clang-tidy -p build/release "${c_files[@]}" > "$log_dir/clang-tidy" 2>&1
 

@@ -11,8 +11,14 @@
  * See man kernel-install for "boot_root"
  */
 #include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 
 /**
@@ -20,8 +26,8 @@
   */
 int kernel_inspect(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     int ret = 0;
-    char **envp = nullptr;
-    Array_str env = {};
+    Array_str arg_arr = {};
+    Array_str env_arr = {};
 
     if (!info->vers || info->vers[0] == '\0') {
         msg(MSG_ERR, "  ! sd-boot: kernel update failed to get kernel version\n");
@@ -39,22 +45,26 @@ int kernel_inspect(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     /*
      * inspect the (current) version
      */
-    const char *cmd_args_arr[] = {"inspect", info->vers, info->image, nullptr};
-    char **cmd_args = (char **)cmd_args_arr;
+    ret = array_str_new(3, &arg_arr);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    arg_arr.rows[0] = strdup("inspect");
+    arg_arr.rows[1] = strdup(info->vers);
+    arg_arr.rows[2] = strdup(info->image);
+
+    if (!arg_arr.rows[0] || !arg_arr.rows[1] || !arg_arr.rows[2]) {
+        ret = -1;
+        goto exit;
+    }
 
     /*
      * env provided by us:
-     *  PATH
      *  KERNEL_INSTALL_PLUGINS (empty if not testing)
-     *  (Note: BOOT_ROOT is handled in kernel_install_run).
      */
-    ret = ki_kernel_update_env(conf, &env);
-    if (ret != 0) {
-        return ret;
-    }
-    envp = env.rows;
 
-    ret = kernel_install_run(conf, cmd_args, envp);
+    ret = kernel_install_run(conf, &arg_arr, &conf->env_active_plugins);
     if (ret != 0) {
         msg(MSG_ERR, "  ! sd-boot: error inspecting kernel\n");
         ret = 1;
@@ -63,7 +73,8 @@ int kernel_inspect(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     msg(MSG_NORMAL, "  ↳ sd-boot: Completed kernel inspect %s\n", info->package);
 
 exit:
-    array_str_free(&env);
+    array_str_free(&arg_arr);
+    array_str_free(&env_arr);
     return ret;
 }
 

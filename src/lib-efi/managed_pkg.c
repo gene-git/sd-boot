@@ -8,7 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
 
 bool is_efi_pkg_sd_boot_managed(Array_str *pkgs_arr, const char *pkg) {
     bool is_managed = false;
@@ -30,7 +31,7 @@ exit:
 int load_efi_tool_packages(SdBoot *conf, Array_str *arr) {
     char path[PATH_MAX] = {};
 
-    if (snprintf(path, PATH_MAX, "%s%s", conf->info.root, "etc/sd-boot/efi-tool.packages") < 0) {
+    if (snprintf(path, PATH_MAX, "%s%s", conf->root, "etc/sd-boot/efi-tool.packages") < 0) {
         perror(nullptr);
         return -1;
     }

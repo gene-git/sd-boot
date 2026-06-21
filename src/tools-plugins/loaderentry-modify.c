@@ -15,8 +15,13 @@
  *  - options ..       => remove this line (these are kernel options only)
  */
 #include <stddef.h>
+#include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-efi.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
 
 /*
  * main entry
@@ -49,6 +54,13 @@ int main(int argc, const char *argv[]) {
     }
 
     /*
+     * Modify loader entry only applicable to "add"
+     */
+    if (strcmp(plugin.command, "add") != 0) {
+        goto exit;
+    }
+
+    /*
      * call appropriate function to do the work.
      */
     if (plugin.is_kernel) {
@@ -62,7 +74,7 @@ int main(int argc, const char *argv[]) {
     }
 
 exit:
-    clean_config(&conf);
+    config_clean(&conf);
     plugin_free(&plugin);
 
     return ret;

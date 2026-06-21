@@ -16,6 +16,7 @@ if [[ "$1" == "valgrind" ]] ; then
     prog="$1"
     shift 1
     valgrind_args="--leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1"
+    valgrind_args+=" --vex-iropt-register-updates=allregs-at-mem-access"
     prog="/usr/bin/valgrind $valgrind_args $prog"
 else
     prog="$1"

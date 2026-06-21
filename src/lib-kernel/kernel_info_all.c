@@ -12,7 +12,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-utils.h"
 
 int kernel_info_all(size_t *num_info_p, KernelInfo **info_p) {
     int ret = 0;

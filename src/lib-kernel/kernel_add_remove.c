@@ -17,6 +17,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "sd-boot-config.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-package.h"
+#include "sd-boot-utils.h"
 #include "sd-boot.h"
 
 /*
@@ -37,6 +42,114 @@ static bool does_kernel_version_exist(const char *kernel_version) {
     return false;
 }
 
+
+/*
+ * remove prev version 
+ * - skip on update where prev = curr
+ * - version string is = "<package>-<prev>"
+ *   i.e. augment version string with package name
+ * - an alpm remove hook may have been run. 
+ *   check if the kernel image exists and display message.
+ *   Still call kernel-install remove in case it has any housekeeping
+ *   or other tasks to do.
+ */
+static int remove_prev_version(SdBoot *conf, char *prev, char *curr) {
+    int ret = 0;
+    Array_str arg_arr = {};
+
+    if (conf->oper != KI_ADD || prev[0] == '\0' || strcmp(curr, prev) == 0) {
+        return 0;
+    }
+
+    msg(MSG_NORMAL, "  ↳ sd-boot: removing prev version %s\n", prev);
+
+    if (!does_kernel_version_exist(prev)) {
+        msg(MSG_NORMAL, "           : prev version already removed\n");
+    }
+
+    ret = array_str_new(2, &arg_arr);
+    if (ret != 0) {
+        goto exit;
+    }
+    arg_arr.rows[0] = strdup("remove");
+    arg_arr.rows[1] = strdup(prev);
+
+    if (!arg_arr.rows[0] || !arg_arr.rows[1]) {
+        ret = -1;
+        goto exit;
+    }
+    array_str_refresh_row_len(&arg_arr);
+
+    ret = kernel_install_run(conf, &arg_arr, &conf->env_active_plugins);
+    if (ret != 0) {
+        msg(MSG_ERR, "  ! sd-boot: error removing prev kernel %s\n", prev);
+        ret = 1;
+        goto exit;
+    }
+exit:
+    array_str_free(&arg_arr);
+    return ret;
+}
+
+
+/*
+ * Prep args and env.
+ * For add we use env_plugins already initialized.
+ * For remove we use empty env.
+ */
+static int init_arg_env(SdBoot *conf, KernelInfo *info, Array_str *arg_arr, Array_str **env_arr_p) {
+
+    int ret = 0;
+
+    switch (conf->oper) {
+        case KI_REMOVE:
+
+            ret = array_str_new(2, arg_arr);
+            if (ret != 0) {
+                goto exit;
+            }
+
+            arg_arr->rows[0] = strdup("remove");
+            arg_arr->rows[1] = strdup(info->vers);
+
+            if (!arg_arr->rows[0] || !arg_arr->rows[1]) {
+                ret = -1;
+                goto exit;
+            }
+            break;
+
+        case KI_ADD:
+
+            ret = array_str_new(3, arg_arr);
+            if (ret != 0) {
+                goto exit;
+            }
+
+            arg_arr->rows[0] = strdup("add");
+            arg_arr->rows[1] = strdup(info->vers);
+            arg_arr->rows[2] = strdup(info->image);
+
+            if (!arg_arr->rows[0] || !arg_arr->rows[1] || !arg_arr->rows[2]) {
+                ret = -1;
+                goto exit;
+            }
+            break;
+
+        default:
+            goto exit;
+    }
+
+    array_str_refresh_row_len(arg_arr);
+
+    /*
+     * Env is list of active plugins
+     */
+    *env_arr_p = &conf->env_active_plugins;
+
+exit:
+    return ret;
+}
+
 /**
   * Update one kernel package
   * - oper ~ add or remove
@@ -45,9 +158,9 @@ int kernel_add_remove(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     int ret = 0;
     char *curr = nullptr;
     char *prev = nullptr;
-    char **envp = nullptr;
     PackageVersion pkg_vers = {};
-    Array_str env = {};
+    Array_str arg_arr = {};
+    Array_str *env_ptr = nullptr;
 
     if (!info->vers || info->vers[0] == '\0') {
         msg(MSG_ERR, "  ! sd-boot: kernel update failed to get kernel version\n");
@@ -79,64 +192,32 @@ int kernel_add_remove(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     prev = pkg_vers.previous;
 
     /*
-     * remove prev version 
-     * - skip on update where prev = curr
-     * - version string is = "<package>-<prev>"
-     *   i.e. augment version string with package name
-     * - an alpm remove hook may have been run. 
-     *   check if the kernel image exists and display message.
-     *   Still call kernel-install remove in case it has any housekeeping
-     *   or other tasks to do.
+     * If adding new version, remove previous
      */
-    if (conf->oper == KI_ADD && prev[0] != '\0' && strcmp(curr, prev) != 0) {
-        msg(MSG_NORMAL, "  ↳ sd-boot: removing prev version %s\n", prev);
-
-        if (!does_kernel_version_exist(prev)) {
-            msg(MSG_NORMAL, "           : prev version already removed\n");
-        }
-
-        char *cmd_args[] = {"remove", prev, nullptr};
-
-        ret = kernel_install_run(conf, cmd_args, nullptr);
+    if (conf->oper == KI_ADD) {
+        ret = remove_prev_version(conf, prev, curr);
         if (ret != 0) {
-            msg(MSG_ERR, "  ! sd-boot: error removing prev kernel %s\n", prev);
-            ret = 1;
             goto exit;
         }
     }
 
     /*
-     * Install the new (current) version
+     * Install the new version
+     * - set up argv, envp
+     * - env includes KERNEL_INSTALL_PLUGINS
      */
-    const char *cmd_args_add[] = {"add", info->vers, info->image, nullptr};
-    const char *cmd_args_remove[] = {"remove", info->vers, nullptr};
-    char **cmd_args = nullptr;
-
-    switch (conf->oper) {
-        case KI_REMOVE:
-            cmd_args = (char **)cmd_args_remove;
-            break;
-
-        case KI_ADD:
-            cmd_args = (char **)cmd_args_add;
-            break;
-
-        default:
-            goto exit;
-    }
-    /*
-     * env provided by us:
-     *  PATH
-     *  KERNEL_INSTALL_PLUGINS (empty if not testing)
-     *  (Note that BOOT_ROOT is handled in kernel_install_run).
-     */
-    ret = ki_kernel_update_env(conf, &env);
+    ret = init_arg_env(conf, info, &arg_arr, &env_ptr);
     if (ret != 0) {
-        return ret;
+        goto exit;
     }
-    envp = env.rows;
 
-    ret = kernel_install_run(conf, cmd_args, envp);
+    /*
+     * env variables:
+     *  add => KERNEL_INSTALL_PLUGINS (empty if not testing)
+     *  remove => empty 
+     * Note that PATH, BOOT_ROOT are handled in kernel_install_run).
+     */
+    ret = kernel_install_run(conf, &arg_arr, env_ptr);
     if (ret != 0) {
         msg(MSG_ERR, "  ! sd-boot: error installing kernel\n");
         ret = 1;
@@ -145,7 +226,7 @@ int kernel_add_remove(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info) {
     msg(MSG_NORMAL, "  ↳ sd-boot: Completed kernel update %s\n", info->package);
 
 exit:
-    array_str_free(&env);
+    array_str_free(&arg_arr);
     return ret;
 }
 

@@ -9,7 +9,14 @@
 #include <string.h>
 #include <yaml.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
+
+enum Const {
+    CONF_DATE_LEN = 32,
+    CONF_MAX_VAL_LEN = 256,
+};
 
 
 /*
@@ -41,12 +48,12 @@ static int write_header(const char *hdr, FILE *fptr) {
         "# Note: this file replaces /etc/sd-boot/config\n"
         "#       Going forward, please make any changes to this file\n"
         "#\n";
-    char datetime[DATE_LEN] = {};
-    char comment[MAX_VAL_LEN] = {};
-    if (current_datetime_str(DATE_LEN, datetime) != 0) {
+    char datetime[CONF_DATE_LEN] = {};
+    char comment[CONF_MAX_VAL_LEN] = {};
+    if (current_datetime_str(CONF_DATE_LEN, datetime) != 0) {
         datetime[0] = '\0';
     }
-    if (snprintf(comment, MAX_VAL_LEN, "%s# auto created from config %s\n#\n", note, datetime) > 0) {
+    if (snprintf(comment, CONF_MAX_VAL_LEN, "%s# auto created from config %s\n#\n", note, datetime) > 0) {
         bytes = strlen(comment);
         written = fwrite(comment, sizeof(char), bytes, fptr);
         if (written < bytes) {
@@ -110,8 +117,8 @@ int save_yaml_config(SdBoot *conf, const char *hdr, const char *path) {
     /*
      * verb
      */
-    char val_str[MAX_VAL_LEN] = {};
-    if (snprintf(val_str, MAX_VAL_LEN, "%d", conf->verb) < 0) {
+    char val_str[CONF_MAX_VAL_LEN] = {};
+    if (snprintf(val_str, CONF_MAX_VAL_LEN, "%d", conf->verb) < 0) {
         ret = -1;
         goto exit;
     }

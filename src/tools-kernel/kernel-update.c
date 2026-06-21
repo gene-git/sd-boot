@@ -17,6 +17,10 @@
 #include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 
 static void usage() {
@@ -35,7 +39,7 @@ struct Work {
 };
 
 static void work_clean(struct Work *work) {
-    clean_config(&work->conf);
+    config_clean(&work->conf);
     kernel_info_free(&work->info);
     array_str_free(&work->pkgs_arr);
 }

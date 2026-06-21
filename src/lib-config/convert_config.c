@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-config.h"
 
 enum Constants { CHUNK = 4096 };
 

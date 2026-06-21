@@ -9,7 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-utils.h"
 
 enum Constants {
     CHUNK = 16,

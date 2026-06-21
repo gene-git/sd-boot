@@ -27,7 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-efi.h"
+#include "sd-boot-utils.h"
 
 int ki_efi_update_env(SdBoot *conf, Array_str *env) {
     /*
@@ -39,19 +41,19 @@ int ki_efi_update_env(SdBoot *conf, Array_str *env) {
      * Caller responsible for free'ing mem in "env"
      */
     int ret = 0;
-    Array_str kernel_conf_env = {};
 
     /*
-     * set up special efi plugins environ to use that sets which plugins are permitted.
+     * set up special efi plugins environment that sets which plugins are permitted.
+     * - KERNEL_INSTALL_PLUGINS=(list of plugins)
      */
-    ret = ki_plugins_efi_update_env(conf->info.root, env);
+    ret = ki_plugins_efi_update_env(conf->root, env);
     if (ret != 0) {
         ret = 1;
         goto exit;
     }
 
     /*
-     * If layout is not bls then, make a "copy" (symlinks aside from install.conf)
+     * If layout is not bls then, make a "copy" (symlinks other than install.conf)
      *  of /etc/kernel but with layout set to "bls" (in install.conf)
      */
     if (conf->is_uki) {
@@ -72,21 +74,20 @@ int ki_efi_update_env(SdBoot *conf, Array_str *env) {
             goto exit;
         }
 
-        ret = array_str_new(2, &kernel_conf_env);
+        size_t ind_new = env->num_rows;
+        ret = array_str_resize(env->num_rows + 1, env);
         if (ret != 0) {
             goto exit;
         }
-        kernel_conf_env.rows[0] = strdup(buf);
-        kernel_conf_env.rows[1] = nullptr;
 
-        /*
-         * Append kernel_install to env
-         */
-        ret = array_str_move(&kernel_conf_env, env);
+        env->rows[ind_new] = strdup(buf);
+        if (!env->rows[ind_new]) {
+            ret = -1;
+            goto exit;
+        }
     }
 
 exit:
-    array_str_free(&kernel_conf_env);
     return ret;
 }
 

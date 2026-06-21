@@ -16,6 +16,8 @@
 #include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
 
 /*
  * Creates the source and destination "install.conf"
@@ -57,7 +59,13 @@ int ki_make_kernel_conf_bls(SdBoot *conf) {
     if (ret != 0) {
         goto exit;
     }
+
     skip.rows[0] = strdup("install.conf");
+    if (!skip.rows[0]) {
+        ret = -1;
+        goto exit;
+    }
+    array_str_refresh_row_len(&skip);
 
     /*
      * Make new kernel conf dir

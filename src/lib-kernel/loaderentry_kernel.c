@@ -10,6 +10,10 @@
 #include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-config.h"
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin) {
     /*

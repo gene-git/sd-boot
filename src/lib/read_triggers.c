@@ -15,6 +15,8 @@
 #include <sys/poll.h>
 #include <unistd.h>
 
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 #include "sd-boot.h"
 
 enum ReadInfo {

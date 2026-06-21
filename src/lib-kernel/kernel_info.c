@@ -16,7 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot.h"
+//#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+#include "sd-boot-kernel.h"
 
 /**
  * Kernel Module dir to kernel package name

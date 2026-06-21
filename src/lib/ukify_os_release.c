@@ -12,6 +12,8 @@
 #include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 enum Constants {
     MEM_CHUNK = 1024,

@@ -4,104 +4,283 @@
  *
  * Wrapper to run kernel-install
  *
- * - In development mode, the outputs go to the testing root (conf->info.root)
+ * - In development mode, the outputs go to the testing root (conf->root)
  * - dev mode is active whenev euid is non-root and the env SBD_DEV_TEST is set.
  */
-#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
+#include "sd-boot-cmd.h"
+#include "sd-boot-config.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 #include <sd-boot.h>
 
-int kernel_install_run(SdBoot *conf, char *const args[], char *const envp[]) {
+
+/*
+ * Solely for 90-loaderentry.install in test dev area
+ * Set BOOT_MNT same as BOOT_ROOT
+ */
+static char *env_boot_mnt(SdBoot *conf) {
+    char *var = nullptr;
+    const char *env_name = "BOOT_MNT";
+    size_t len = 0;
+    
+    if (!conf->env_boot_root.rows) {
+        return var;
+    }
+
+    /*
+     * boot_root includes the '=' sign
+     */
+    const char *boot_root_env = conf->env_boot_root.rows[0];
+    const char *boot_root = strchr(boot_root_env, '=');
+    if (!boot_root) {
+        return var;
+    }
+
+    len = strlen(env_name) + strlen(boot_root) + 1;
+
+    var = calloc(len, sizeof(char));
+    if (var) {
+        strlcat(var, env_name, len);
+        strlcat(var, boot_root, len);
+    }
+    return var;
+}
+
+/*
+ * Environ: Combine 
+ * - BOOT_ROOT
+ * - PATH
+ * - envp provided by caller
+ */
+static int env_init(SdBoot *conf, Array_str *envp, Array_str *env_all) {
+    int ret = 0;
+    char *env_var = nullptr;
+
+    ret = array_str_copy_rows(&conf->env_base, env_all);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    ret = array_str_copy_rows(&conf->env_boot_root, env_all);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    ret = array_str_copy_rows(envp, env_all);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    /*
+     * loader entry helper for test
+     * 90-loaderentry.install - gets confused when in test mode only
+     * - when in test mode it tries to identify the root of EFI filesystem using
+     *   stat -c %m "$KERNEL_INSTALL_BOOT_ROOT"
+     * - this leafs to very long path to efi executable that is odd.
+     * - fix this by providing BOOT_MNT env variable with the correct boot root
+     * Not crucial since test mode only tests the file paths - nothing is 'booted'
+     * from this directory.
+     */
+    if (conf->test && (conf->is_efi_tool || !conf->is_uki)) {
+        env_var = env_boot_mnt(conf);
+        if (env_var) {
+            size_t num = env_all->num_rows;
+            ret = array_str_resize(num + 1, env_all);
+            if (ret != 0) {
+                goto exit;
+            }
+            env_all->rows[num] = env_var;
+            env_var = nullptr;
+        }
+    }
+
+    /*
+     * Wrap it up
+     */
+    ret = array_str_null_terminate(env_all);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    array_str_refresh_row_len(env_all);
+
+exit:
+    if (env_var) {
+        free((void *)env_var);
+    }
+    return ret;
+}
+
+
+/*
+ * --esp-path=<path to EFI>
+ * --boot-path=<..>
+ */
+static void esp_boot_path_option_test(SdBoot *conf, char **opt_esp, char **opt_boot) {
+    size_t len = 0;
+    const char *o_esp = "--esp-path=";
+    const char *o_boot = "--boot-path=";
+    const char *efi = "boot";
+    size_t base_len = 0;
+
+    base_len = strlen(conf->root) + strlen(efi) + 1;
+
+    /*
+     * --esp-path=
+     */
+    len = strlen(o_esp) + base_len;
+    *opt_esp = calloc(len, sizeof(char));
+    if (*opt_esp == nullptr) {
+        return;
+    }
+    strlcat(*opt_esp, o_esp, len);
+    strlcat(*opt_esp, conf->root, len);
+    strlcat(*opt_esp, efi, len);
+
+    /*
+     * --boot-path=
+     */
+    len = strlen(o_boot) + base_len;
+    *opt_boot = calloc(len, sizeof(char));
+    if (*opt_boot == nullptr) {
+        return;
+    }
+
+    strlcat(*opt_boot, o_boot, len);
+    strlcat(*opt_boot, conf->root, len);
+    strlcat(*opt_boot, efi, len);
+
+}
+
+/*
+ * Argv 
+ */
+static int arg_init(SdBoot *conf, Array_str *argp, Array_str *arg_all) {
+
+    int ret = 0;
+
+    ret = array_str_new(1, arg_all); 
+    if (ret != 0) {
+        goto exit;
+    }
+
+    arg_all->rows[0] = strdup("/usr/bin/kernel-install");
+    if (!arg_all->rows[0]) {
+        ret = -1;
+        goto exit;
+    }
+
+    ret = array_str_copy_rows(argp, arg_all);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    /*
+     * When verb >= 3 pass "-v" to kernel-install
+     *
+     */
+    if (conf->verb >= 3) {
+        size_t num = arg_all->num_rows;
+        ret = array_str_resize(num + 1, arg_all);
+        if (ret != 0) {
+            goto exit;
+        }
+        arg_all->rows[num] = strdup("-v");
+        if (!arg_all->rows[num]) {
+            ret = -1;
+            goto exit;
+        }
+    }
+
+    /*
+     * In test / dev mode set ESP path for kernel-install
+     */
+    bool avoid = true;
+    if (conf->test && !avoid) {
+        char *opt_esp = nullptr;
+        char *opt_boot = nullptr;
+
+        esp_boot_path_option_test(conf, &opt_esp, &opt_boot);
+
+
+        if (opt_esp && opt_boot) {
+
+            size_t num = arg_all->num_rows;
+
+            ret = array_str_resize(num + 2, arg_all);
+            if (ret != 0) {
+                goto exit;
+            }
+
+            arg_all->rows[num] = opt_esp;
+            arg_all->rows[num + 1] = opt_boot;
+        }
+    }
+
+    ret = array_str_null_terminate(arg_all);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    array_str_refresh_row_len(arg_all);
+
+exit:
+    return ret;
+}
+
+int kernel_install_run(SdBoot *conf, Array_str *argp, Array_str *envp) {
     /*
      * Runs:
      *   kernel-install add <vers> <image>
      *   kernel-install remove <vers>
      *
      * Args:
-     *  args = The arguments to pass to kernel-install - null terminated list
-     *  envp = the environment variables to pass on - null terminated
-     * In dev mode the program execed is kernel-install-test
-     * which merely displays it's arguments. We want to still
-     * run an external program for better test coverage.
+     *  args = The arguments to pass to kernel-install.
+     *  envp = the environment variables to pass on.
      *
      * Returns 
-     * 0 = all well
-     * otherise some problem occurred.
+     *  0 = all well
      */
     int ret = 0;
-    char **envp_full = nullptr;
-    char **argv = nullptr;
+    Array_str env_all = {};
+    Array_str arg_all = {};
 
     /*
-     * combine input environ with develop
-     * - BOOT_ROOT env for testing.
+     * Env variables
      */
-    size_t num_boot_root = 0;
-    if (conf->info.env_boot_root.rows) {
-        num_boot_root = count_envp_argv(conf->info.env_boot_root.rows);
-    }
-    size_t num = 0;
-    if (envp) {
-        num = count_envp_argv(envp);
-    }
-
-    size_t num_envp_full = num_boot_root + num + 1;
-    envp_full = (char **)calloc(num_envp_full, sizeof(char *));
-    if (!envp_full) {
-        ret = -1;
-        goto exit;
-    }
-    for (size_t i = 0; i < num_boot_root; i++) {
-        envp_full[i] = conf->info.env_boot_root.rows[i];
-    }
-    for (size_t i = 0; i < num; i++) {
-        envp_full[i + num_boot_root] = envp[i];
-    }
-    envp_full[num_envp_full - 1] = nullptr;
-
-    /*
-     * Build argv to run
-     * - leave room for cmd and null
-     */
-    int num_args = count_envp_argv(args);
-
-    argv = (char **) calloc(num_args + 2, sizeof(char *));
-    if (!argv) {
-        msg(MSG_ERR, "  ! sd-boot: Error allocating memory for kenrel-install\n");
-        ret = -1;
+    ret = env_init(conf, envp, &env_all);
+    if (ret != 0) {
         goto exit;
     }
 
     /*
-     * use system kernel-install
+     * Argv 
+     * - cmd, arg1, arg2, ... 
+     * - use system installed kernel-install
      */
-    char *cmd = "/usr/bin/kernel-install";
-
-    int cnt = 0;
-    argv[0] = cmd;
-    for (cnt = 0; cnt < num_args; cnt++) {
-        argv[cnt+1] = args[cnt];
+    ret = arg_init(conf, argp, &arg_all);
+    if (ret != 0) {
+        goto exit;
     }
-    argv[cnt+1] = nullptr;
 
     /*
      * Run kernel-install
      */
     int child_ret = 0;
-    ret = run_cmd(argv, envp_full, &child_ret);
+
+    ret = run_cmd(arg_all.rows, env_all.rows, &child_ret);
     if (ret != 0) {
-        msg(MSG_ERR, "  ! Error running %s\n", cmd);
+        msg(MSG_ERR, "  ! Error running %s\n", arg_all.rows[0]);
         ret = -1;
         goto exit;
     }
 
 exit:
-    if (envp_full) {
-        free((void *)envp_full);
-    }
-    if (argv) {
-        free((void *)argv);
-    }
+    array_str_free(&env_all);
+    array_str_free(&arg_all);
+
     return ret;
 }

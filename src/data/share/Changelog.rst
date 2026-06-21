@@ -6,12 +6,95 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.8.1 (2026-06-11)
-	69 commits.
+	3.6.2 (2026-04-21) -> 5.9.0 (2026-06-21)
+	71 commits.
 
 Commits
 =======
 
+
+* 2026-06-21  : **5.9.0**
+
+.. code-block:: text
+
+              - **5.9.0**
+            
+                * Kernel plugins can now be de-activated in */etc/sd-boot/config.yaml*
+                  See the *Skipping Kernel Plugins* section below for more detail.
+            
+                * With uki layout and ukify as the uki_generator, the *91-sbctl.install* plugin
+                  is not needed and is now automatically disabled.
+            
+                  Because ukify handles signing the uki image file, there is no need for the
+                  sbctl plugin in this case, even if it does nothing.
+                  This is a precaution to guarantee the image is signed exactly once.
+            
+                * Drop */etc/sd-boot/config*
+            
+                  Old (toml format) config has been replaced by or auto migrated to *config.yaml* in version 5.5.0.
+                  Any older config file would already have been auto converted.
+            
+                * More Code Reorg
+            
+                  - split header files
+                  - additional sub directories
+                  - meson.build file per subdir
+                  - Array_str consistently used for all argv/envp lists.
+            
+                * Drop a loop which led to a benign valgrind complaint of a benign UMR
+            
+                  An unitialized memory read (UMR) can happen with optimized code and this one
+                  stems from AVX over-runs.
+            
+                  Confirmed by compiling the file using scalar version of loop (no-tree-vectorize).
+                  After removing the vectorization, th valgrind UMR goes away.
+            
+                  While this UMR is benign, we chose to remove the loop entirely since
+                  we want all code to be valgrind clean.
+            
+                * Use clean environment whenever execve() runs any executable.
+            
+                  When running in test mode, the Environment is expanded
+                  with a few additional variables (like LD_LIBRARY_PATH). This one
+                  ensures that newly build shared libraries are used during tests.
+                  When not in testing mode, only the clean base environment is used.
+            
+                * Additional verbose control:
+            
+                  In /etc/sd-boot/config.yaml, setting verb >= 3 adds the "-v" option to *kernel-install*.
+                  This provides a simple way to get more detailed infomation. It can be quite verbose
+                  so avoid unless needed.
+            
+                * Test mode: Loader Entry Change
+            
+                  - Applies only to:
+                     - test mode for efi tools and kernels using bls layout.
+            
+                  - 90-loaderentry.install plugin locates the boot / esp mount point.
+            
+                    However, in test mode, this belongs to the root of the testing directory.
+                    This results in the loader entry file content having quite long path names.
+                    This is cosmetic as it never actually used. The test goal is to validate the output
+                    not boot from it.
+            
+                    In normal production use this is all fine.
+            
+                    It works by test mode providing an additional env variable to the plugin.
+            
+                * Tools that need EFI mount point but there is none.
+            
+                  - If the testing environment (chroot for example) prevents identifyig the ESP mount,
+                    point, then these tests are now skipped.
+            
+                  - Affect sd-boot-efifs-update and sd-boot-efi-tool-update.
+            
+                * Building in chroot
+                  - With above changes the tests in PKGBUILD check() should work in a chroot.
+ 2026-06-11   ⋯
+
+.. code-block:: text
+
+              - update Changelog
 
 * 2026-06-11  : **5.8.1**
 
