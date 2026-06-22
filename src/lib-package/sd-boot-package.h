@@ -12,13 +12,17 @@
 #include "sd-boot-config.h"
 #include "sd-boot-utils.h"
 
+enum PackageConst {
+    PKG_LEN = KV_MAX_VAL_LEN + 1,
+};
+
 /*
  * Package Version
  */
 typedef struct {
-    char pkg[KV_MAX_VAL_LEN+1];
-    char current[KV_MAX_VAL_LEN+1];
-    char previous[KV_MAX_VAL_LEN+1];
+    char pkg[PKG_LEN];
+    char current[PKG_LEN];
+    char previous[PKG_LEN];
 } PackageVersion;
 
 /*

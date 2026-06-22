@@ -91,30 +91,23 @@ exit:
     return ret;
 }
 
-int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_vers) {
-    /*
-     * Read the package version file which populates 
-     * - pkg_vers->current
-     * - pkg_vers->previous
-     * Returns:
-     *  -1 = error
-     *   0 = all good
-     *   1 = no file no version
-    */ 
+/*
+ * File has 2 rows:
+ * current = xxx
+ * previoius = xxx
+ *
+ * Returns (same as read_kv_elems:
+ *   -1 = error
+ *    0 = success reading num_elems
+ *    1 = no file to read
+ */
+static int read_package_version_file(SdBoot *conf, const char *pkg, char *current, char *previous) {
     int ret = 0;
-    int sret = 0;
     size_t num_elems = 2;
     KvElem *elem = nullptr;
 
-    if (pkg == nullptr || *pkg == '\0' || pkg_vers == nullptr) {
-        ret = -1;
-        goto exit;
-    }
-    
-    strncpy(pkg_vers->pkg, pkg, KV_MAX_VAL_LEN-1);
-
-    sret = alloc_kv_elems(num_elems, &elem);
-    if (sret != 0) {
+    ret = alloc_kv_elems(num_elems, &elem);
+    if (ret != 0) {
         msg(MSG_ERR, "  ! sd-boot: mem alloc fail in read_package_versions\n");
         ret = -1;
         goto exit;
@@ -126,7 +119,7 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
 
     elem[1].key = "previous";
     elem[1].type = CONF_STR;
-    elem[0].val.v_str[0] = '\0';
+    elem[1].val.v_str[0] = '\0';
 
     char path[PATH_MAX] = {};
     if (package_vers_filename(pkg, conf->root, path, sizeof(path)) != 0) {
@@ -134,9 +127,9 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
         goto exit;
     }
 
-    size_t num_elems_read = 0;
-    sret = read_kv_elems(path, num_elems, elem, &num_elems_read);
-    switch (sret) {
+    size_t num_read = 0;
+    ret = read_kv_elems(path, num_elems, elem, &num_read);
+    switch (ret) {
         case -1:
             msg(MSG_ERR, "  ! sd-boot: read_package_versions error reading file\n");
             ret = -1;
@@ -144,11 +137,19 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
             break;
 
         case 0:
-            // all good
-            if (num_elems_read > 0) {
-                strncpy(pkg_vers->current, elem[0].val.v_str, KV_MAX_VAL_LEN);
-                if (num_elems_read > 1) {
-                    strncpy(pkg_vers->previous, elem[1].val.v_str, KV_MAX_VAL_LEN);
+            /*
+             *  all good
+             */
+            if (num_read > 0) {
+                if (strlcpy(current, elem[0].val.v_str, PKG_LEN) >= PKG_LEN) {
+                    ret = -1;
+                    goto exit;
+                }
+                if (num_read > 1) {
+                    if (strlcpy(previous, elem[1].val.v_str, PKG_LEN) >= PKG_LEN) {
+                        ret = -1;
+                        goto exit;
+                    }
                 }
             }
             ret = 0;
@@ -156,15 +157,44 @@ int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_ver
 
         case 1:
         default:
-            // no package file available
+            /* 
+             * no package file available
+             */
             ret = 1;
             break;
     }
-
 exit:
-    if (elem != nullptr) {
+    if (elem) {
         free((void *)elem);
     }
+    return ret;
+}
+
+/*
+ * Read the package version file which populates 
+ * - pkg_vers->current
+ * - pkg_vers->previous
+ * Returns:
+ *  -1 = error
+ *   0 = all good
+ *   1 = no file no version
+ */ 
+int read_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_vers) {
+    int ret = 0;
+
+    if (!pkg || *pkg == '\0' || !pkg_vers) {
+        ret = -1;
+        goto exit;
+    }
+    
+    if (strlcpy(pkg_vers->pkg, pkg, PKG_LEN) >= PKG_LEN) {
+        ret = -1;
+        goto exit;
+    }
+
+    ret = read_package_version_file(conf, pkg, pkg_vers->current, pkg_vers->previous);
+
+exit:
     return ret;
 }
 
@@ -181,7 +211,11 @@ int update_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_v
      *   efi-tools do not.
      */
     int ret = 0;
-    strncpy(pkg_vers->pkg, pkg, KV_MAX_VAL_LEN-1);
+
+    if (strlcpy(pkg_vers->pkg, pkg, PKG_LEN) >= PKG_LEN) {
+        ret = -1;
+        goto exit;
+    }
 
     /*
      * read file so to get it's view of current and if it is
@@ -214,7 +248,7 @@ int update_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_v
      * For efi tools we choose to use the package version by 
      */
     if (pkg_vers->current[0] == '\0') {
-        sret = package_version_installed(conf, pkg, KV_MAX_VAL_LEN, pkg_vers->current);
+        sret = package_version_installed(conf, pkg, PKG_LEN, pkg_vers->current);
         if (sret != 0) {
             ret = -1;
             goto exit;
@@ -229,11 +263,20 @@ int update_package_versions(SdBoot *conf, const char *pkg, PackageVersion *pkg_v
         /*
          * If current different, than previous is now the old current.
          */
-        if (strncmp(pkg_vers->current, pkg_vers_now.current, KV_MAX_VAL_LEN+1) != 0) {
-            strncpy(pkg_vers->previous, pkg_vers_now.current, KV_MAX_VAL_LEN+1);
+        if (strcmp(pkg_vers->current, pkg_vers_now.current) != 0) {
+
+            if (strlcpy(pkg_vers->previous, pkg_vers_now.current, PKG_LEN) >= PKG_LEN) {
+                ret = -1;
+                goto exit;
+            }
             updated = true;
+
         } else {
-            strncpy(pkg_vers->previous, pkg_vers_now.previous, KV_MAX_VAL_LEN+1);
+            if (strlcpy(pkg_vers->previous, pkg_vers_now.previous, PKG_LEN) >= PKG_LEN) {
+                ret = -1;
+                goto exit;
+            }
+
         }
     } else {
         updated = true;

@@ -81,60 +81,95 @@ exit:
     return ret;
 }
 
-static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, char *row_out) {
-    //
-    // Process one line
-    // 
-    int ret = 0;
+/*
+ * Adjust title
+ * Returns:
+ *  -1 = error
+ *   0 = all good
+ *  mofified set true if row was modified.
+ */
+static int title_update(LoaderEntry *entry, size_t row_len, char *row_in, char *row_out, bool *modified) {
+    const char *tag = "title";
+    const size_t tag_len = strlen(tag);
+    *modified = false;
+
+    if (strncmp(row_in, tag, tag_len) == 0) {
+        if (snprintf(row_out, row_len, "%s      %s\n", tag, entry->title) < 0) {
+            return -1;
+        }
+        *modified = true;
+        return 0;
+    }
+    return 0;
+}
+
+/*
+ * Adjust efi tool entry:
+ *  -1 = error
+ *   0 = all good
+ *  mofified set true if row was modified.
+ */
+static int efi_tool_update(size_t row_len, char *row_in, char *row_out, bool *modified) {
     char *tag = nullptr;
     size_t tag_len = 0;
+    *modified = false;
+
+    /*
+     * "options" => drop
+     */
+    tag = "options";
+    tag_len = strlen(tag);
+    if (strncmp(row_in, tag, tag_len) == 0) {
+        row_out[0] = '\0';
+        *modified = true;
+        return 0;
+    }
+
+    /*
+     * "linux ... " => "efi ... "
+     */
+    tag = "linux";
+    tag_len = strlen(tag);
+    if (strncmp(row_in, tag, tag_len) == 0) {
+        if (snprintf(row_out, row_len, "%s%s\n", "efi  ", &row_in[tag_len]) < 0) {
+            return -1;
+        }
+        *modified = true;
+        return 0;
+    }
+
+    /*
+     * "uki ... " => "efi ... "
+     */
+    tag = "uki";
+    tag_len = strlen(tag);
+    if (strncmp(row_in, tag, tag_len) == 0) {
+        if (snprintf(row_out, row_len, "%s%s\n", "efi  ", &row_in[tag_len]) < 0) {
+            return -1;
+        }
+        *modified = true;
+        return 0;
+    }
+    return 0;
+}
+
+static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, char *row_out) {
+    /*
+     * Process one line
+     */ 
+    int ret = 0;
+    bool modified = false;
 
     if (entry->title && entry->title[0] != '\0') {
-        /*
-         * "title" => update
-         */
-        tag = "title";
-        tag_len = strlen(tag);
-        if (strncmp(row_in, tag, tag_len) == 0) {
-            if (snprintf(row_out, row_len, "%s      %s\n", tag, entry->title) < 0) {
-                ret = -1;
-            }
+        ret = title_update(entry, row_len, row_in, row_out, &modified);
+        if (ret < 0 || modified) {
             goto exit;
         }
     }
 
     if (entry->is_efi_tool) {
-        /*
-         * "options" => drop
-         */
-        tag = "options";
-        tag_len = strlen(tag);
-        if (strncmp(row_in, tag, tag_len) == 0) {
-            row_out[0] = '\0';
-            goto exit;
-        }
-
-        /*
-         * "linux ... " => "efi ... "
-         */
-        tag = "linux";
-        tag_len = strlen(tag);
-        if (strncmp(row_in, tag, tag_len) == 0) {
-            if (snprintf(row_out, row_len, "%s%s\n", "efi  ", &row_in[tag_len]) < 0) {
-                ret = -1;
-            }
-            goto exit;
-        }
-
-        /*
-         * "uki ... " => "efi ... "
-         */
-        tag = "uki";
-        tag_len = strlen(tag);
-        if (strncmp(row_in, tag, tag_len) == 0) {
-            if (snprintf(row_out, row_len, "%s%s\n", "efi  ", &row_in[tag_len]) < 0) {
-                ret = -1;
-            }
+        ret = efi_tool_update(row_len, row_in, row_out, &modified);
+        if (ret < 0 || modified) {
             goto exit;
         }
     }
@@ -142,21 +177,24 @@ static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, ch
     /*
      * no mods made 
      */
-    strncpy(row_out, row_in, row_len);
+    if (strlcpy(row_out, row_in, row_len) >= row_len) {
+        ret = -1;
+        goto exit;
+    }
 
 exit:
     return ret;
 }
 
+/*
+ * Loader entry path: <dir>/<file>
+ *
+ * Set the loader entry:
+ * - ^title xxx => "title <title>"
+ * - ^linux xxx => "efi xxx"
+ * - ^options xxx => remove
+ */
 int loaderentry_modify_file(LoaderEntry *entry) {
-    //
-    // Loader entry path: <dir>/<file>
-    //
-    // Set the loader entry:
-    // - ^title xxx => "title <title>"
-    // - ^linux xxx => "efi xxx"
-    // - ^options xxx => remove
-    //
     int ret = 0;
     char path[PATH_MAX] = {};
     char path_tmp[PATH_MAX] = {};

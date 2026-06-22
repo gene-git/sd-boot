@@ -68,7 +68,7 @@ static int add_kern_to_list(char *trig, Triggers *trigs) {
         /*
          * trigger paths lack leading "/"
          */
-        ret = path_add_slash(trig, & (trigs->info[count].image));
+        ret = path_add_slash(trig, &(trigs->info[count].image));
         if (ret != 0) {
             msg(MSG_ERR, "  ! sd-boot error adding slash to kernel path %s\n", trig);
             goto exit;

@@ -53,7 +53,7 @@ int package_version_installed(SdBoot *conf, const char *pkg, size_t len_vers, ch
     char *ptr = output;
     char *save_ptr = nullptr;
 
-    char tmp[KV_MAX_VAL_LEN+1] = {};
+    char tmp[PKG_LEN] = {};
     char *tmp_ptr = nullptr;
 
     token = strtok_r(ptr, " ", &save_ptr);
@@ -64,7 +64,11 @@ int package_version_installed(SdBoot *conf, const char *pkg, size_t len_vers, ch
                 if (!token) {
                     goto exit;
                 }
-                strlcpy(tmp, token, KV_MAX_VAL_LEN);
+
+                if (strlcpy(tmp, token, PKG_LEN) >= PKG_LEN) {
+                    ret = -1;
+                    goto exit;
+                }
                 tmp_ptr = trim_string(tmp, len_vers);
                 strlcpy(vers, tmp_ptr, len_vers);
                 break;

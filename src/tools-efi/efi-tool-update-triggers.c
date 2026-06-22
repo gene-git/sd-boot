@@ -22,12 +22,13 @@
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-msg.h"
+#include "sd-boot-package.h"
 #include "sd-boot-utils.h"
 
 struct Work {
     SdBoot conf;
     const char *pkg;
-    char pkg_vers[KV_MAX_VAL_LEN];
+    char pkg_vers[PKG_LEN];
     bool is_sd_boot_managed;
 
     Array_str trigs_arr;
@@ -135,8 +136,12 @@ int main(int argc, char *argv[]) {
      * Triggers are efi tool package name
      */
     for (size_t i = 0; i < work.trigs_arr.num_rows; i++) {
-        char pkg[KV_MAX_VAL_LEN] = {};
-        strncpy(pkg, work.trigs_arr.rows[i], KV_MAX_VAL_LEN-1);
+        char pkg[PKG_LEN] = {};
+
+        if (strlcpy(pkg, work.trigs_arr.rows[i], PKG_LEN) >= PKG_LEN) {
+            ret = 1;
+            goto exit;
+        }
 
         if (!is_efi_pkg_sd_boot_managed(&work.pkgs_arr, pkg)) {
             continue;

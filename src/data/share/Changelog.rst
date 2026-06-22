@@ -6,14 +6,23 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.9.0 (2026-06-21)
-	71 commits.
+	3.6.2 (2026-04-21) -> 5.10.0 (2026-06-22)
+	72 commits.
 
 Commits
 =======
 
 
-* 2026-06-21  : **5.9.0**
+* 2026-06-22  : **5.10.0**
+
+.. code-block:: text
+
+              - **5.10.0**
+            
+                * Replace remaining strncpy() with strlcpy()
+                * Small man page makefile tweak.
+
+* 2026-06-21  : **5.9.0, origin/master**
 
 .. code-block:: text
 

@@ -27,7 +27,11 @@ int path_add_slash(char *path, char **path_p) {
             return -1;
         }
         (*path_p)[0] = '/';
-        (void)strncpy(& (*path_p)[1], path, len+1);
+
+        size_t new_len = len + 1;
+        if (strlcpy(& (*path_p)[1], path, new_len) >= new_len) {
+            return -1;
+        }
     }
    
     return 0; 

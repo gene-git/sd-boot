@@ -9,6 +9,11 @@ sd-boot
 Recent Changes
 ==============
 
+**5.10.0**
+
+* Replace remaining strncpy() with strlcpy()
+* Small man page makefile tweak.
+  
 **5.9.0**
 
 * Kernel plugins can now be de-activated in */etc/sd-boot/config.yaml*
@@ -90,43 +95,6 @@ Recent Changes
   multiple ESP partitions and possible mismatch of nvram with current ESP as observed
   on some machines.
 
-**5.8.0**
-
-* sd-boot-find-boot-mounts: Handling Multiple ESP partitions (multi-disk).
-  
-  sd-boot-find-boot-mounts has been improved to display additional information.
-  
-  On systems with multiple ESP partitions where the motherboard boot loader boots 
-  from a different partition than the expected partition leads to some output ambiguity. 
-
-  This should not happen and on most machines it will not. 
-  But it can and when it does then *bootctl status* displays: 
-  
-    WARNING: The boot loader reports a different partition UUID than the detected ESP.
-
-  To resolve this we use bootctl to detect the "current" ESP. 
-  
-  I've seen this on happen 2 lenovo machines. What seems to be going on is that
-  the nvram boot order can sometimes be ignored by the motherboard which choses to 
-  boot from a different ESP. This in turn is saved to nvram. 
-  
-  This ESP is not the one requested to be used to boot from which leads to
-  this tension between the two. 
-  
-  This may be a bug / feature of (some) lenovo motherboard firmware.
-
-  NB: This does not affect any update/install/remove functionality; just 
-  the information displayed by sd-boot-find-boot-mounts. 
-
-  To highlight this sd-boot-find-boot-mounts now displays both
-  *active* partitions (those detected by motherboard to nvram) as well
-  as the expected or *current* partitions.
-
-  See *man sd-boot-find-boot-mounts* for some additional information such as how to 
-  manually identify this (quirky) case.
-
-* Tune sd-boot-find-mounts
-  Skip working on any non-block filesystems while looping over scanned mounts.
 
 Please see Changelog for more history (found in */usr/share/sd-boot/*).
 Or for recent changes: *pacman -Qc sd-boot*.

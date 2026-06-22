@@ -110,7 +110,10 @@ static int save_key_val(char *key, char *val, size_t num_elems, KvElem *elem) {
     if (elem[idx].type == CONF_INT) {
         elem[idx].val.v_int = str_to_int(val, elem[idx].lo_val_int, elem[idx].hi_val_int);
     } else {
-        strncpy(elem[idx].val.v_str, val, sizeof(elem[idx].val.v_str));
+        const size_t str_len = sizeof(elem[idx].val.v_str);
+        if (strlcpy(elem[idx].val.v_str, val, str_len) >= str_len) {
+            return -1;
+        }
     }
 
     return 0;
@@ -204,7 +207,11 @@ int read_kv_elems(const char *path, size_t num_elems, KvElem *elem, size_t *num_
     size_t num_found = 0;
 
     while ((num_read = getline(&line, &line_len, fptr)) > 0) {
-        strncpy(line_copy, line, line_len);
+
+        if (strlcpy(line_copy, line, line_len) >= line_len) {
+            ret = -1;
+            goto exit;
+        }
         if (key_check(num_read, line_copy, num_elems, elem)) {
             num_found++;
             if (num_found == num_elems) {

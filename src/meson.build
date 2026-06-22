@@ -197,10 +197,11 @@ install_data('data/share/License/License.rst', install_dir: '/usr/share/sd-boot/
 
 install_data('data/share/License/License.rst', install_dir: '/usr/share/licenses/sd-boot')
 
-install_data('data/man/man8/sd-boot-efifs-update.8.gz', install_dir: '/usr/share/man/man8')
-install_data('data/man/man8/sd-boot-efi-tool-update.8.gz', install_dir: '/usr/share/man/man8')
-install_data('data/man/man8/sd-boot-find-boot-mounts.8.gz', install_dir: '/usr/share/man/man8')
-install_data('data/man/man8/sd-boot-kernel-update.8.gz', install_dir: '/usr/share/man/man8')
+man8_dir = join_paths(get_option('mandir'), 'man8')
+install_data('data/man/man8/sd-boot-efifs-update.8.gz', install_dir: man8_dir)
+install_data('data/man/man8/sd-boot-efi-tool-update.8.gz', install_dir: man8_dir)
+install_data('data/man/man8/sd-boot-find-boot-mounts.8.gz', install_dir: man8_dir)
+install_data('data/man/man8/sd-boot-kernel-update.8.gz', install_dir: man8_dir)
 
 #
 # build man pages

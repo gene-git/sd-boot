@@ -35,7 +35,9 @@ static int init_test_root_dir(SdBoot *conf) {
         return -1;
     };
 
-    strncpy(top_dir, cwd_env, PATH_MAX);
+    if (strlcpy(top_dir, cwd_env, PATH_MAX) >= PATH_MAX) {
+        return -1;
+    }
     cwd_base = basename(cwd_env);
 
     /*
@@ -43,12 +45,14 @@ static int init_test_root_dir(SdBoot *conf) {
      *  ~ <cwd>/Testing/__root__/
      *  ~ <cwd>/__root__/   (if cwd ~/Testing)
      */ 
-    if (strncmp(cwd_base, testing, PATH_MAX) != 0) {
+    if (strcmp(cwd_base, testing) != 0) {
         if (snprintf(cwd_env, PATH_MAX, "%s/%s", top_dir, testing) < 0) {
             perror(nullptr);
             return -1;
         }
-        strncpy(top_dir, cwd_env, PATH_MAX);
+        if (strlcpy(top_dir, cwd_env, PATH_MAX) >= PATH_MAX) {
+            return -1;
+        }
     } 
 
     if (snprintf(root, PATH_MAX, "%s/__root__/", top_dir) < 0) {
