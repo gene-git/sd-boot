@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * sd-boot.h
+ * sd-boot-cmd.h
  */
 #ifndef SD_BOOT_CMD_H
 #define SD_BOOT_CMD_H

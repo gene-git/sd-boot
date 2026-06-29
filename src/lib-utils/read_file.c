@@ -107,7 +107,7 @@ int read_file(const char *path, Array_str *arr) {
     /*
      * Allocate a chunk of rows, then grow or shrink as needed.
      */
-    if (array_str_new(NUM_ROWS, arr) != 0) {
+    if (array_str_resize(NUM_ROWS, arr) != 0) {
         ret = -1;
         goto exit;
     }
@@ -129,6 +129,7 @@ int read_file(const char *path, Array_str *arr) {
         /*
          * ensure enough mem for new row
          */
+        n_row = arr->num_rows_used;
         arr->num_rows_used += 1;
         if (arr->num_rows_used > arr->num_rows) {
             ret = array_str_resize(arr->num_rows_used, arr);
@@ -140,7 +141,6 @@ int read_file(const char *path, Array_str *arr) {
         /*
          * save it
          */
-        n_row = arr->num_rows_used - 1;
         width = strnlen(ptr, PATH_MAX);
         arr->row_len[n_row] = width;
         arr->rows[n_row] = strdup(ptr);
@@ -159,6 +159,7 @@ int read_file(const char *path, Array_str *arr) {
             goto exit;
         }
     }
+    array_str_refresh_row_len(arr);
 
 exit:
     close_file(file);

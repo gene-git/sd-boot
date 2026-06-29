@@ -60,15 +60,18 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
     int ret = 0;
 
     /*
-     * Free up mem for now unused rows.
+     * Free up mem for unused rows.
      */
     for (size_t i = num_rows; i < arr->num_rows; i++) {
         if (arr->rows[i]) {
             free((void *)arr->rows[i]);
         }
     }
+    
 
-    // special case "free" so we dont rely on realloc to free
+    /*
+     *  special case "free" - avoid realloc or reallocarray() for free even though its fine 
+     */
     if (num_rows == 0) {
         if (arr->rows) {
             free((void *)arr->rows);
@@ -109,9 +112,9 @@ exit:
 }
 
 static int array_str_more_rows(size_t num_rows, Array_str *arr) {
-    //
-    // num_rows bigger
-    //
+    /*
+     * num_rows bigger
+     */
     int ret = 0;
     void *tmp_ptr = nullptr;
 
@@ -190,8 +193,6 @@ int array_str_resize(size_t num_rows, Array_str *arr) {
         }
     }
 
-    arr->num_rows = num_rows;
-
 exit:
     return ret;
 }
@@ -207,6 +208,7 @@ int array_str_free(Array_str *arr) {
  * Refresh row len
  */
 void array_str_refresh_row_len(Array_str *arr) {
+
     if (!arr) {
         return;
     }

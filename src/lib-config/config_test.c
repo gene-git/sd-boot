@@ -16,6 +16,7 @@
 #include <libgen.h>
 #include <linux/limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -60,8 +61,18 @@ static int init_test_root_dir(SdBoot *conf) {
         return -1;
     }
 
+    if (conf->test_root) {
+        free((void *)conf->test_root);
+        conf->test_root = nullptr;
+    }
+    if (conf->root) {
+        free((void *)conf->root);
+        conf->root = nullptr;
+    }
+
     conf->test_root = strdup(root);
     conf->root = strdup(root);
+
     return 0;
 }
 
@@ -70,8 +81,9 @@ static int init_test_root_dir(SdBoot *conf) {
  */
 static int init_env_boot_root(SdBoot *conf) {
     int ret = 0;
+    char *tmp_ptr = nullptr;
 
-    ret = array_str_new(1, &conf->env_boot_root);
+    ret = array_str_resize(1, &conf->env_boot_root);
     if (ret != 0) {
         goto exit;
     }
@@ -82,11 +94,13 @@ static int init_env_boot_root(SdBoot *conf) {
         ret = -1;
         goto exit;
     }
-    conf->env_boot_root.rows[0] = strdup(tmp_path);
-    if (conf->env_boot_root.rows[0] == nullptr) {
+    tmp_ptr = strdup(tmp_path);
+    if (!tmp_ptr) {
         ret = -1;
         goto exit;
     }
+    conf->env_boot_root.rows[0] = tmp_ptr;
+    tmp_ptr = nullptr;
     array_str_refresh_row_len(&conf->env_boot_root);
 
 exit:

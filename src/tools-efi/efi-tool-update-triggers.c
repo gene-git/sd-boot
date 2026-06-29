@@ -9,91 +9,51 @@
  *  sd-boot-efi-tool-update-triggers <oper>
  *  - <oper> is add or remove.
  *
+ * Similar to sd-boot-efi-tool-update except triggers are read from stdin
+ * instead of a package name on the command line.
+ *
  * The package name is read from stdin.
  *
  * Example of an efi tool package is edk2-shell.
  * Supports SDB_DEV_TEST which sets BOOT_ROOT to the testing tree.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-msg.h"
-#include "sd-boot-package.h"
-#include "sd-boot-utils.h"
+#include "sd-boot-tool.h"
 
-struct Work {
-    SdBoot conf;
-    const char *pkg;
-    char pkg_vers[PKG_LEN];
-    bool is_sd_boot_managed;
 
-    Array_str trigs_arr;
-    Array_str pkgs_arr;
-};
+static bool operation_supported(Operation oper) {
 
-static void work_clean(struct Work *work) {
-    array_str_free(&work->trigs_arr);
-    array_str_free(&work->pkgs_arr);
-    config_clean(&work->conf);
+    switch (oper) {
+        case KI_ADD:
+        case KI_REMOVE:
+            return true;
+            break;
+
+        default:
+            return false;
+            break;
+    }
 }
 
-static int initialize(int argc, char *argv[], struct Work *work) {
+
+static int initialize(int argc, char *argv[], Tool *tool) {
     int ret = 0;
 
-    if (argc < 2) {
-        msg(MSG_ERR, "! sd-boot: missing add or remove\n");
-        ret = 1;
-        goto exit;
-    }
-
-    /*
-     * load config
-     * - also sets verbosity level
-     */
-    if (load_config(&work->conf) != 0) {
-        msg(MSG_ERR, "- sd-boot: warning failed to load config file\n");
-    }
-    work->conf.is_efi_tool = true;
-
-    const char *oper_str = argv[1];
-
-    work->conf.oper = KI_BAD;
-    work->conf.oper_str = strdup(oper_str);
-    if (!work->conf.oper_str) {
-        msg(MSG_ERR, "! sd-boot: mem allocation error %s\n", oper_str);
-        ret = 1;
-        goto exit;
-    }
-
-    work->conf.oper = kernel_install_oper((const char *)work->conf.oper_str);
-    if (work->conf.oper == KI_BAD) {
-        msg(MSG_ERR, "! sd-boot: expect add or remove but got %s\n", work->conf.oper_str);
-        ret = 1;
-        goto exit;
-    }
-
-    /*
-     * Every trigger on stdin is a package name of the efi-tool
-     * - read them 
-     * - Each trigger is package name which must appear only once
-     *   duplictes could create problems
-     */
-    if (read_triggers(&work->trigs_arr) != 0) {
-        msg(MSG_ERR, "! sd-boot efi tool - error reading triggers\n");
-        ret = 1;
-        goto exit;
-    }
-
-    /*
-     * Get efi tools managed by sd-boot (if any)
-     */
-    ret = load_efi_tool_packages(&work->conf, &work->pkgs_arr);
+    tool->triggers = true;
+    ret = initialize_tool(SDB_EFI_TOOL, 2, argc, argv, tool);
     if (ret != 0) {
-        ret = 0;
+        msg(MSG_ERR, "!  sd-boot: efi-tool triggers failed to initialize\n");
+        ret = 1;
+        goto exit;
+    }
+
+    if (!operation_supported(tool->conf.oper)) {
+        msg(MSG_ERR, "  ! sd-boot: unsupported opertion: %s\n", tool->conf.oper_str);
+        ret = 1;
         goto exit;
     }
 
@@ -101,12 +61,13 @@ exit:
     return ret;
 }
 
+
 int main(int argc, char *argv[]) {
     /*
      * Install efi tool (like efi-shell or memtest86) into the efi.
      *
      * Takes one argument:
-     * - add or remove
+     * - <oper>
      *
      * - add:
      *   Add the bootable efi image using kernel-install into the efi..
@@ -117,7 +78,7 @@ int main(int argc, char *argv[]) {
      *   - remove an efi tool from the efi (also removed the loader entry)
      *
      * Triggers:
-     *  - package name of the tool.
+     *  - Provided by pacman from alpm hoooks and are read from stdin
      *
      * Input Files:
      *  - /etc/sd-boot/<package-name>.image
@@ -125,54 +86,31 @@ int main(int argc, char *argv[]) {
      */
 
     int ret = 0;
-    struct Work work = {};
+    Tool tool = {};
 
-    ret = initialize(argc, argv, &work);
+    ret = initialize(argc, argv, &tool);
     if (ret != 0) {
         goto exit;
     }
 
     /*
-     * Triggers are efi tool package name
+     * True if any pkginfo packages are managed by us.
      */
-    for (size_t i = 0; i < work.trigs_arr.num_rows; i++) {
-        char pkg[PKG_LEN] = {};
+    if (!tool.managed) {
+        goto exit;
+    }
 
-        if (strlcpy(pkg, work.trigs_arr.rows[i], PKG_LEN) >= PKG_LEN) {
-            ret = 1;
-            goto exit;
-        }
+    /*
+     * Do it
+     */
+    ret = efi_tool_update_execute(&tool);
+    if (ret != 0) {
+        ret = 1;
+        goto exit;
+    }
 
-        if (!is_efi_pkg_sd_boot_managed(&work.pkgs_arr, pkg)) {
-            continue;
-        }
-
-        switch (work.conf.oper) {
-            case KI_ADD:
-                ret = efi_tool_add(&work.conf, pkg);
-                if (ret != 0) {
-                    ret = 1;
-                    goto exit;
-                }
-                break;
-
-            case KI_REMOVE:
-                ret = efi_tool_remove(&work.conf, pkg);
-                if (ret != 0) {
-                    ret = 1;
-                    goto exit;
-                }
-                break;
-
-            default:
-                /*
-                 * not used
-                 */
-                break;
-            }
-        }
 exit:
-    work_clean(&work);
+    tool_free(&tool);
     return ret;
 }
 

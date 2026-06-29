@@ -17,7 +17,12 @@
 #
 project('sd-boot', 'c',
   version: files('version.txt'),
-  default_options: ['c_std=c23', 'warning_level=2'],
+  default_options: [
+    'c_std=c23', 
+    'warning_level=2',
+    'prefix=/usr', 
+    'mandir=share/man',
+    ],
 )
 
 my_cflags = [
@@ -38,7 +43,10 @@ my_cflags = [
   '-Wshadow'
 ]
 
-if get_option('buildtype') != 'debug'
+buildtype = get_option('buildtype')
+opt_level = get_option('optimization')
+# if buildtype not in ['debug', 'plain']
+if opt_level not in ['0', 'g', 'default']
   my_cflags += ['-Wp,-D_FORTIFY_SOURCE=3']
 endif
 
@@ -70,10 +78,12 @@ subdir('lib')
 subdir('lib-cmd')
 subdir('lib-config')
 subdir('lib-efi')
+subdir('lib-efifs')
 subdir('lib-kernel')
 subdir('lib-msg')
 subdir('lib-mounts')
 subdir('lib-package')
+subdir('lib-tool')
 subdir('lib-utils')
 
 #
@@ -167,10 +177,17 @@ loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
 #
 # Configs / Hooks
 #
-install_data('data/etc/dracut.conf.d/010-dracut.conf', install_dir: '/etc/dracut.conf.d')
+lib_dir = get_option('libdir')
+man_dir = get_option('mandir')
 
-install_data('data/etc/kernel/install.conf', install_dir: '/etc/kernel')
-install_data('data/etc/kernel/ukify.conf', install_dir: '/etc/kernel')
+dracut_dir = lib_dir / 'dracut/dracut.conf.d'
+kernel_dir = lib_dir / 'kernel/install.conf.d'
+man8_dir = man_dir / 'man8'
+
+install_data('data/usr/lib/dracut/dracut.conf.d/010-sd-boot-dracut.conf', install_dir: dracut_dir)
+
+install_data('data/usr/lib/kernel/install.conf.d/010-sd-boot-install.conf', install_dir: kernel_dir)
+install_data('data/usr/lib/kernel/install.conf.d/010-sd-boot-ukify.conf', install_dir: kernel_dir)
 
 # to be removed in the future release
 install_data('data/etc/sd-boot/config.yaml', install_dir: '/etc/sd-boot')
@@ -197,7 +214,6 @@ install_data('data/share/License/License.rst', install_dir: '/usr/share/sd-boot/
 
 install_data('data/share/License/License.rst', install_dir: '/usr/share/licenses/sd-boot')
 
-man8_dir = join_paths(get_option('mandir'), 'man8')
 install_data('data/man/man8/sd-boot-efifs-update.8.gz', install_dir: man8_dir)
 install_data('data/man/man8/sd-boot-efi-tool-update.8.gz', install_dir: man8_dir)
 install_data('data/man/man8/sd-boot-find-boot-mounts.8.gz', install_dir: man8_dir)
@@ -220,19 +236,23 @@ install_data('data/man/man8/sd-boot-kernel-update.8.gz', install_dir: man8_dir)
 #
 
 source_dir = meson.current_source_dir()
-build_dir = source_dir / 'build'
+build_dir = source_dir / 'build' / buildtype
 testing_dir = source_dir / 'tests/Testing'
 
 run_one_test = find_program(source_dir / 'tests/scripts/run-one-test')
 
+#
+# Before running meson tests initialize the test root dir
+# ../scripts/test-initialize <source-dir> <build-dir>
+#
 add_test_setup('standard',
-  exe_wrapper: ['../scripts/init-test-setup', source_dir, build_dir],
+  exe_wrapper: ['../scripts/run-one-wrapper'],
   env: { 'SDB_DEV_TEST': 'true', },
-  is_default: true # apply to all tests
+  is_default: true # apply to all tests if setup not specified
 )
 
 add_test_setup('valgrind',
-  exe_wrapper: ['../scripts/init-test-setup', source_dir, build_dir, 'valgrind',],
+  exe_wrapper: ['../scripts/run-one-wrapper', 'valgrind',],
   env: { 'SDB_DEV_TEST': 'true', },
   timeout_multiplier: 10 # Valgrind is slow - prevent false timeout failures
 )
@@ -242,45 +262,106 @@ add_test_setup('valgrind',
 # Standard tests
 #
 
-test('test_t1', run_one_test,
+#
+# find_boot_mounts
+#
+test('boot_mounts_t1', run_one_test,
   args:[find_boot_mounts, '-none-', 'add'],
   workdir: testing_dir,
+  suite: 'boot_mounts',
+  priority: 50,
+  is_parallel: false,
   )
 
-test('test_t2', run_one_test,
+#
+# efifs_update
+#
+test('efifs_t1', run_one_test,
   args:[efifs_update, '-none-', 'add'],
   workdir: testing_dir,
+  suite: 'efifs',
+  priority: 50,
+  is_parallel: false,
   )
 
-t3_input_file = files(testing_dir / 'Triggers/edk2-shell')
-test('test_t3', run_one_test,
-  args: [efi_tool_update_triggers, t3_input_file, 'add'],
+test('efifs_t2', run_one_test,
+  args:[efifs_update, '-none-', 'remove'],
   workdir: testing_dir,
+  suite: 'efifs',
+  priority: 30,
+  is_parallel: false,
   )
 
-test('test_t4', run_one_test,
+#
+# edk2-shell
+#
+edk2_shell_t1_input_file = files(testing_dir / 'Triggers/edk2-shell')
+test('edk2-shell_t1', run_one_test,
+  args: [efi_tool_update_triggers, edk2_shell_t1_input_file, 'add'],
+  workdir: testing_dir,
+  suite: 'edk2-shell',
+  priority: 50,
+  is_parallel: false,
+  )
+
+test('edk2-shell_t2', run_one_test,
+  args: [efi_tool_update, '-none-', 'remove', 'edk2-shell'],
+  workdir: testing_dir,
+  suite: 'edk2-shell',
+  priority: 40,
+  is_parallel: false,
+  )
+
+test('edk2-shell_t3', run_one_test,
   args: [efi_tool_update, '-none-', 'add', 'edk2-shell'],
   workdir: testing_dir,
+  suite: 'edk2-shell',
+  priority: 30,
+  is_parallel: false,
   )
 
-test('test_t4a', run_one_test,
+test('edk2-shell_t4', run_one_test,
   args: [efi_tool_update, '-none-', 'inspect', 'edk2-shell'],
   workdir: testing_dir,
+  suite: 'edk2-shell',
+  priority: 20,
+  is_parallel: false,
   )
 
-t5_input_file = files(testing_dir / 'Triggers/linux')
-test('test_t5', run_one_test,
-  args: [kernel_update_triggers, t5_input_file, 'add'],
+
+#
+# linux update
+#
+linux_t1_input_file = files(testing_dir / 'Triggers/linux')
+test('linux_t1', run_one_test,
+  args: [kernel_update_triggers, linux_t1_input_file, 'add'],
   workdir: testing_dir,
+  suite: 'linux',
+  priority: 50,
+  is_parallel: false,
   )
 
-test('test_t6', run_one_test,
+test('linux_t2', run_one_test,
+  args: [kernel_update, '-none-', 'remove', 'linux'],
+  workdir: testing_dir,
+  suite: 'linux',
+  priority: 40,
+  is_parallel: false,
+  )
+
+test('linux_t3', run_one_test,
   args: [kernel_update, '-none-', 'add', 'linux'],
   workdir: testing_dir,
+  suite: 'linux',
+  priority: 30,
+  is_parallel: false,
   )
 
-test('test_t6a', run_one_test,
+test('linux_t4', run_one_test,
   args: [kernel_update, '-none-', 'inspect', 'linux'],
   workdir: testing_dir,
+  suite: 'linux',
+  priority: 20,
+  is_parallel: false,
   )
 

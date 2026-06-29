@@ -7,14 +7,15 @@
 #include <unistd.h>
 
 
+/*
+ * Read from file descriptor one character at a time.
+ * Buf is null terminated 
+ * Return
+ * 0 if reached end of line
+ * 1 if reached end of file
+ * -1 (buf too small)
+ */
 int read_one_line_fd(int fdes, char *buf, size_t len) {
-    /*
-     * Read from file descriptor one character at a time.
-     * Return
-     * 0 if reached end of line
-     * 1 if reached end of file
-     * -1 (buf too small)
-     */
     char one_char = '\0';
     int ret = 0;
     size_t idx = 0;
@@ -29,42 +30,47 @@ int read_one_line_fd(int fdes, char *buf, size_t len) {
          */
         count = read(fdes, &one_char, 1);
 
+        /*
+         * end of file 
+         * - keep any characters in buf.
+         */
         if (count == 0) {
-            /*
-             * end of file
-             */
-            ret = 1;
+            if (idx > 0) {
+                buf[idx] = '\0';
+                ret = 0;
+            } else {
+                ret = 1;
+            }
             break;
         }
 
         if (count < 1) {
-            /* 
-             * error
-             */
             ret = -1;
             break;
 
-        } if (count > 0) {
-            /* 
-             * read 1 character
-             */
+        } 
+        
+        /*
+         * read one char
+         */
+        if (count > 0) {
             ret = 0;
         }
 
+        /*
+         * end of line
+         */
         if (one_char == '\n') {
-             /*
-              * end of line
-              */
             buf[idx] = '\0';
             break;
         }
 
+        /*
+         * buf size check
+         */
         if (idx < len - 1) {
             buf[idx++] = one_char;
         } else {
-            /* 
-             * buf too small
-             */
             ret = -1;
             break;
         }

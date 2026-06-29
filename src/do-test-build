@@ -2,68 +2,160 @@
 #
 # test builds
 # 
+# Args:
+#   [build_type [setup_type]]
+#
+# Must be run in the "src" directory doing:
+# - Does a fresh build
+# - initializes the test tree
+# - installs the build into the test tree.
+#
+# build_type: one of the supported build types: Defaults to "release".
+# It can be one of:
+#   - release
+#   - debug
+#   - debugoptimized
+#
+# Setup_type defaults to "standard"
+# It can be one of:
+#   - standard
+#   - valgrind
+# 
+# Note that some tests must be run serially.
+# For example a test to add and then remove an item cannot be run at same time.
+# The remove should be run after the add to ensure the remove path is fully tested.
+# 
 
-do_release="y"
-do_debug="n"
-do_debugoptimized="n"
+# -------------------------------------------------
+# Options
+#
+build_type="release"
+setup="standard"
 
-if [[ "$do_release" == "y" ]] ; then
-    echo "-------------------------------"
-    echo "Building : release"
-    echo ""
-    #  -Dextra_cflags="-fno-tree-vectorize"
-    /usr/bin/meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared
-    /usr/bin/meson compile -C build/release
+usage() {
+    echo "do-test-build [build_type [setup]]"
+    echo "  build_type: release or debug or debugoptimized (release)"
+    echo "  setup: set up test type: standard or valgrind (standard)"
+    echo "  Does a fresh build, installs to test tree and runs test suite"
+    exit
+}
 
-    echo ""
-    echo "  tests standard"
-    echo ""
-    /usr/bin/meson test -C build/release
-
-    echo ""
-    echo "  tests with valgrind"
-    echo ""
-    /usr/bin/meson test -C build/release --setup=valgrind
+if [[ -n "$1" ]] ; then
+    if [[ "$1" == "debug" || "$1" == "release" || "$1" == "debugoptimized" ]] ; then
+        build_type="$1"
+    else
+        usage
+    fi
 fi
 
-if [[ "$do_debug" == "y" ]] ; then
-    echo "-------------------------------"
-    echo "Building : debug"
-    echo ""
-    /usr/bin/meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static -Dstrip=false
-    /usr/bin/meson compile -C build/debug
-
-    echo ""
-    echo "  tests standard"
-    echo ""
-    /usr/bin/meson test -C build/debug
-
-    echo ""
-    echo "  tests with valgrind"
-    echo ""
-    /usr/bin/meson test -C build/debug --setup=valgrind
+setup="standard"
+if [[ -n "$2" ]]; then
+    if [[ "$2" == "standard" || "$2" == "valgrind" ]] ; then
+        setup="$2"
+    else
+        usage
+    fi
 fi
 
-if [[ "$do_debugoptimized" == "y" ]] ; then
+source_dir=$(/usr/bin/realpath ./)
+
+# -------------------------------------------------
+# Group tests into sets that can be run in parallel.
+#
+get_test_set() {
+    local num="$1"
+    local -n items="$2"
+
+    case "$num" in
+        1) 
+            items=()
+            items+=(sd-boot:boot_mounts_t1)
+            items+=(sd-boot:efifs_t1)
+            items+=(sd-boot:edk2-shell_t1)
+            items+=(sd-boot:linux_t1)
+            ;;
+
+        2) 
+            items=()
+            items+=(sd-boot:efifs_t2)
+            items+=(sd-boot:edk2-shell_t2)
+            items+=(sd-boot:linux_t2)
+            ;;
+
+        3) 
+            items=()
+            items+=(sd-boot:edk2-shell_t3)
+            items+=(sd-boot:linux_t3)
+            ;;
+
+        4) 
+            items=()
+            items+=(sd-boot:edk2-shell_t4)
+            items+=(sd-boot:linux_t4)
+            ;;
+    esac
+}
+
+# -------------------------------------------------
+# Build, install and run test sets
+#
+
+do_it() {
+    local _btype="$1"
+    local _libtype="$2"
+    local -a _other
+    _other=("${@:3}")
+
     echo "-------------------------------"
-    echo "Building : debug"
+    echo " Building : $_btype"
     echo ""
-    #-Db_sanitize=address,undefined
-    options="-buildtype=debugoptimized -Ddefault_library=static -Dstrip=false -Db_sanitize=address,undefined"
-    /usr/bin/meson setup --reconfigure build/debugoptimized $options
-    /usr/bin/meson compile -C build/debugoptimized
 
-    echo ""
-    echo "  tests standard"
-    echo ""
-    /usr/bin/meson test -C build/debugoptimized
+    opts=(--reconfigure build/"$_btype")
+    opts+=(--buildtype="$_btype")
+    opts+=(-Ddefault_library="$_libtype")
+    opts+=("${_other[@]}")
 
-    echo ""
-    echo "  tests with valgrind"
-    echo ""
-    /usr/bin/meson test -C build/debugoptimized --setup=valgrind
-fi
+    bdir="$source_dir/build/$_btype"
+    /usr/bin/rm -rf "$bdir"
 
-echo "Rebuilding man pages"
-./data/man/build-man-pages.sh
+    /usr/bin/meson setup "${opts[@]}"
+    /usr/bin/meson compile -C build/"$_btype"
+
+    ./tests/scripts/test-initialize "$_btype"
+
+    echo "  ---------------"
+    echo "  tests: $setup"
+    echo ""
+
+    declare -a test_set
+    for i in {1..4}; do
+        get_test_set "$i" test_set
+        logbase="test-set-$i"
+
+        /usr/bin/meson test "${test_set[@]}" -C build/"$_btype" --setup="$setup" --logbase "$logbase"
+    done
+    
+}
+
+# -------------------------------------------------
+# Do what was asked
+#
+case "$build_type" in
+    release) 
+        do_it release shared 
+        ;;
+
+    debug)
+        do_it debug static "-Dstrip=false"
+        ;;
+
+    debugoptimized)
+        do_it debugoptimized static "-Dstrip=false" "-Db_sanitize=address,undefined"
+        ;;
+    *)
+        usage
+esac
+
+#echo "Rebuilding man pages"
+#./data/man/build-man-pages.sh
 

@@ -84,7 +84,7 @@ static int env_init(SdBoot *conf, Array_str *envp, Array_str *env_all) {
      * Not crucial since test mode only tests the file paths - nothing is 'booted'
      * from this directory.
      */
-    if (conf->test && (conf->is_efi_tool || !conf->is_uki)) {
+    if (conf->test && (conf->tool_type == SDB_EFI_TOOL || !conf->is_uki)) {
         env_var = env_boot_mnt(conf);
         if (env_var) {
             size_t num = env_all->num_rows;

@@ -7,7 +7,6 @@
 #include <stdarg.h>
 #include <stdio.h>      
 
-//#include "sd-boot.h"
 #include "sd-boot-msg.h"
 
 /*

@@ -18,7 +18,7 @@ Install (or remove) a kernel to (or from) boot partition
 SYNOPSIS
 ========
 
-``sd-boot-kernel-update``  ``add`` | ``remove`` ``<package_name>``
+``sd-boot-kernel-update``  ``add`` | ``remove`` | ``inspect`` ``<package_name>``
 
 DESCRIPTION
 ===========
@@ -68,6 +68,8 @@ from stdin as provided by pacman.
 ARGUMENTS
 =========
 
+**Operation**
+
 * add <kernel_package_name> 
 
     Generate initrd and install the kernel provided in the package <kernel_package_name>
@@ -77,6 +79,14 @@ ARGUMENTS
 
     Remove the kernel from $BOOT. 
     
+* inspect
+
+    Disply information about an installed package.
+
+**Package Name**
+
+Can be a kernel package name or the string "--all--" which means all kernels managed by sd-boot.
+
 Note that this updates files in $BOOT. pacman is responsible for installing or removing the 
 package itself.
 
@@ -151,4 +161,8 @@ that contains one line::
 
     linux-custom
 
+
+To update all kernels managed by sd-boot::
+
+    sd-boot-kernel-update add "--all--"
 

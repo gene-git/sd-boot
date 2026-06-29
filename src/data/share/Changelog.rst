@@ -6,14 +6,43 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 5.10.0 (2026-06-22)
-	72 commits.
+	3.6.2 (2026-04-21) -> 5.11.0 (2026-06-29)
+	73 commits.
 
 Commits
 =======
 
 
-* 2026-06-22  : **5.10.0**
+* 2026-06-29  : **5.11.0**
+
+.. code-block:: text
+
+              - **5.11.0**
+            
+                * Remove *sd-boot* as a trigger in hooks - it is not needed.
+            
+                * Change location of dracut and kernel-install config files from /etc to:
+            
+                  - /usr/lib/kernel/install.conf.d/
+                  - /usr/lib/dracut/dracut.conf.d
+            
+                  They were incorrectly installed in /etc/dracut.conf.d and /etc/kernel/
+            
+                * Updating all managed packages.
+            
+                  - *sd-boot-kernel-update* and *sd-boot-efi-update* may now be applied to
+                    all kernels and efi-tools managed by sd-boot. This is done by using
+                    "--all--" as the package name instead of one specific package.
+            
+                * Code improvements.
+                  - more code reorg and simplifications.
+                  - additional checks reading triggers from stdin.
+                  - tests that must be run sequentially are now grouped into "suites".
+                    tests in each suite are run sequentially.
+                    Assists testing non-trivial "remove" by ensuring that an "add" is
+                    completed before the remove.
+
+* 2026-06-22  : **5.10.0, origin/master**
 
 .. code-block:: text
 
@@ -22,7 +51,7 @@ Commits
                 * Replace remaining strncpy() with strlcpy()
                 * Small man page makefile tweak.
 
-* 2026-06-21  : **5.9.0, origin/master**
+* 2026-06-21  : **5.9.0**
 
 .. code-block:: text
 

@@ -52,7 +52,6 @@ Target = ndctl
 Target = openssl
 Target = pam
 Target = procps-ng
-Target = sd-boot
 Target = systemd
 Target = systemd-libs
 Target = util-linux

@@ -24,10 +24,12 @@ libs=(
     lib-cmd 
     lib-config 
     lib-efi 
+    lib-efifs
     lib-kernel
     lib-mounts
     lib-msg
     lib-package
+    lib-tool
     lib-utils
 )
 tools=(

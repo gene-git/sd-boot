@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * sd-boot.h
+ * sd-boot-config.h
  */
 #ifndef SD_BOOT_CONFIG_H
 #define SD_BOOT_CONFIG_H
@@ -17,14 +17,25 @@
  *
  * Command line kernel-install operations
  */
-typedef enum KernelInstallOper {
+typedef enum {
     KI_BAD = 0,
     KI_ADD = 1,
     KI_REMOVE = 2,
     KI_INSPECT = 3,
     KI_ADD_ALL = 4,
     KI_LIST = 5,
-} KernelInstallOper;
+} Operation;
+
+/*
+ * Operations apply to either kernel or efi-tool
+ */
+typedef enum {
+    SDB_NONE,
+    SDB_EFIFS,
+    SDB_KERNEL,
+    SDB_EFI_TOOL,
+
+} ToolType;
 
 /*
  * Data taken from
@@ -50,9 +61,10 @@ typedef struct {
     char *layout;
     char *initrd_generator;
     char *uki_generator;
-    bool is_efi_tool;
 
-    KernelInstallOper oper;
+    ToolType tool_type;
+
+    Operation oper;
     char *oper_str;
 
     char *kernel_conf_dir;
@@ -117,7 +129,7 @@ int yaml_config_sample_path(SdBoot *conf, char *path);
 int load_config_toml(SdBoot *conf);
 int load_config_yaml(SdBoot *conf);
 void convert_config(SdBoot *conf);
-KernelInstallOper kernel_install_oper(const char *oper);
+Operation ki_operation(const char *oper);
 int ki_install_conf_init(SdBoot *conf);
 int load_kernel_install_conf(SdBoot *conf);
 int save_yaml_config(SdBoot *conf, const char *hdr, const char *path);

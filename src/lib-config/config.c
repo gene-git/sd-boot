@@ -123,7 +123,7 @@ int load_config(SdBoot *conf) {
     /*
      * Check availibility
      */
-    conf->unshare_available = unshare_available();
+    // conf->unshare_available = unshare_available();
     conf->efivars_available = efivars_available();
 
     /*

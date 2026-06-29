@@ -1,7 +1,3 @@
-#
-# 69-sd-boot-efifs-remove.hook
-#   When efi fs drivers updated copy to /efi/EFI/systemd/drivers/
-#
 [Trigger]
 Type = Path
 Operation = Remove

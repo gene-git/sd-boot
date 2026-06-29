@@ -2,24 +2,22 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  * Standalone tool to update a bootable efi program.
+ *
  * Usage:
  *  sd-boot-update-efi-tool <oper> <packge name> 
  *  - <oper> is one of: add, remove or inspect.
+ *  - <package name> is arch package name.
  *
- * The package must be already installed by pacman in the usual way. 
+ * The package must be already installed (by pacman) in the usual way. 
  * This tool installs the program provided by the package into /boot (or /efi).
- *
- * Supports SDB_DEV_TEST which sets BOOT_ROOT to the testing tree.
  */
 #include <stdbool.h>
-#include <string.h>
 
 #include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-msg.h"
-#include "sd-boot-package.h"
-#include "sd-boot-utils.h"
+#include "sd-boot-tool.h"
 
 static void usage() {
     msg(MSG_ERR, "! sd-boot-efi-tool-update: Usage:\n");
@@ -28,147 +26,100 @@ static void usage() {
     msg(MSG_ERR, "      <package-name> = name of package to update\n");
 }
 
-struct Work {
-    SdBoot conf;
-    const char *pkg;
-    char pkg_vers[KV_MAX_VAL_LEN];
-    bool is_sd_boot_managed;
-};
+/*
+ * Returns true for operations supported here
+ */
+static bool operation_supported(Operation oper) {
 
-static void work_clean(struct Work *work) {
-    config_clean(&work->conf);
+    switch (oper) {
+        case KI_ADD:
+        case KI_INSPECT:
+        case KI_REMOVE:
+            return true;
+            break;
+
+        default:
+            return false;
+            break;
+    }
 }
 
-static int initialize(int argc, char *argv[], struct Work *work) {
-    int ret = 0;
-    Array_str pkgs_arr = {};
 
-    if (argc < 3) {
+static int initialize(int argc, char *argv[], Tool *tool) {
+    int ret = 0;
+
+    tool->triggers = false;
+    ret = initialize_tool(SDB_EFI_TOOL, 3, argc, argv, tool);
+    if (ret != 0) {
         usage();
         ret = 1;
         goto exit;
     }
-    const char *oper_str = argv[1];
-    work->pkg = argv[2];
 
-    /*
-     * load config
-     * - also sets verbosity level
-     */
-    if (load_config(&work->conf) != 0) {
-        msg(MSG_ERR, "- sd-boot: warning failed to load config file\n");
-    }
-    work->conf.is_efi_tool = true;
-
-    /*
-     * Check package is installed
-     */
-    ret = package_version_installed(&work->conf, work->pkg, KV_MAX_VAL_LEN, work->pkg_vers);
-    if (ret != 0) {
+    if (!operation_supported(tool->conf.oper)) {
+        msg(MSG_ERR, "  ! sd-boot: unsupported opertion: %s\n", tool->conf.oper_str);
         ret = 1;
         goto exit;
     }
-
-
-    if (!check_permission(&work->conf)) {
-        ret = 1;
-        goto exit;
-    }
-
-    work->conf.oper = KI_BAD;
-    work->conf.oper_str = strdup(oper_str);
-    if (!work->conf.oper_str) {
-        msg(MSG_ERR, "! sd-boot: mem allocation error %s\n", oper_str);
-        ret = 1;
-        goto exit;
-    }
-
-    work->conf.oper = kernel_install_oper((const char *)work->conf.oper_str);
-    if (work->conf.oper == KI_BAD) {
-        msg(MSG_ERR, "! sd-boot: expect add or remove but got %s\n", work->conf.oper_str);
-        ret = 1;
-        goto exit;
-    }
-
-    /*
-     * Get list of efi tools managed by sd-boot (if any)
-     */
-    ret = load_efi_tool_packages(&work->conf, &pkgs_arr);
-    if (ret != 0) {
-        ret = 1;
-        goto exit;
-    }
-
-    work->is_sd_boot_managed = is_efi_pkg_sd_boot_managed(&pkgs_arr, work->pkg);
 
 exit:
-    array_str_free(&pkgs_arr);
     return ret;
 }
 
-int main(int argc, char *argv[]) {
-    /*
-     * Install efi tool (like efi-shell or memtest86) into the efi.
-     *
-     * Takes 2 argument:
-     * - oper = add or remove or inspect
-     * - package-name
-     *
-     * - add:
-     *   Add the bootable efi image using kernel-install into the efi..
-     *   Boot loader entry will be created fo bls layout.
-     *   If an older entry is present then it is removed
-     * 
-     * - inspect
-     *   Shows install information about the package 
-     *
-     * - remove
-     *   - remove an efi tool from the efi (and remove any loader entry (bls layout))
-     *
-     * Required data Files:
-     *  - /etc/sd-boot/<package-name>.image
-     *    Contains the path to the efi image file to be installed into boot_root.
-     */
-    int ret = 0;
-    struct Work work = {};
 
-    ret = initialize(argc, argv, &work);
+/*
+ * Installs efi tool (such as efi-shell or memtest86) into efi
+ *
+ * Takes 2 argument:
+ * - oper = add or remove or inspect
+ *   operations are those offewred by systemd kernel-install.
+ *
+ * - package-name
+ *   Special package name "--all--" applies to all kernels managed by sd-boot
+ *
+ * - add:
+ *   Add the bootable efi image into the efi using kernel-install.
+ *   Boot loader entry will be created following bls layout.
+ *   If older items are found they are removed.
+ * 
+ * - inspect
+ *   Shows install information about the package.
+ *
+ * - remove
+ *   - remove efi tool from the efi (and any loader entries).
+ *
+ * Required data Files:
+ *  - /etc/sd-boot/<package-name>.image
+ *    Contains the path to the efi image file to be installed into boot_root.
+ */
+int main(int argc, char *argv[]) {
+    int ret = 0;
+    Tool tool = {};
+
+    ret = initialize(argc, argv, &tool);
     if (ret != 0) {
         goto exit;
     }
 
-    if (!work.is_sd_boot_managed) {
+    /*
+     * Check if any packages are managed by us
+     * Check operation is supported.
+     */
+    if (!tool.managed) {
         goto exit;
     }
 
     /*
      * Do it
      */
-    switch (work.conf.oper) {
-        case KI_ADD:
-            ret = efi_tool_add(&work.conf, work.pkg);
-            break;
-
-        case KI_INSPECT:
-            ret = efi_tool_inspect(&work.conf, work.pkg);
-            break;
-
-        case KI_REMOVE:
-            ret = efi_tool_remove(&work.conf, work.pkg);
-            break;
-
-        default:
-            msg(MSG_ERR, "  ! sd-boot: unsupported oper: %s\n", work.conf.oper_str);
-            break;
-    }
-
+    ret = efi_tool_update_execute(&tool);
     if (ret != 0) {
         ret = 1;
         goto exit;
     }
 
 exit:
-    work_clean(&work);
+    tool_free(&tool);
     return ret;
 }
 

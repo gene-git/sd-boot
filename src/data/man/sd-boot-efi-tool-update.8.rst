@@ -18,7 +18,7 @@ Install or remove an efi tool to $BOOT
 SYNOPSIS
 ========
 
-``sd-boot-efi-tool-update`` ``add`` | ``remove`` ``<package_name>``
+``sd-boot-efi-tool-update`` ``add`` | ``remove`` | ``inspect`` ``<package_name>``
 
 DESCRIPTION
 ===========
@@ -44,6 +44,8 @@ and that boot loader entry files are appropriately created in::
 ARGUMENTS
 =========
 
+**Operation**:
+
 * add 
 
     Install the drivers to $BOOT partition
@@ -51,6 +53,14 @@ ARGUMENTS
 * remove
 
     Remove the drivers from $BOOT partition.
+
+* inspect
+
+    Disply information about an installed package.
+
+**Package Name**
+
+Can be name of a package or the string "--all--" which means all efi tools managed by sd-boot.
 
 FILES
 =====
@@ -86,3 +96,8 @@ is provided in the file */etc/sd-boot/edk2-shell.image* which contains::
     /usr/share/edk2-shell/x64/Shell_Full.efi
 
 The file is provided by the *edk2-shell* package.
+
+To update all efi tools currently managed by sd-boot::
+
+    sd-boot-efi-tool-update add "--all--"
+

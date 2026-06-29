@@ -15,9 +15,13 @@ int path_add_slash(char *path, char **path_p) {
     if (!path || !path_p) {
         return -1;
     }
+
     if (path[0] == '/') {
 
         *path_p = strdup(path);
+        if (*path_p == nullptr) {
+            return -1;
+        }
 
     } else {
         size_t len = strlen(path);

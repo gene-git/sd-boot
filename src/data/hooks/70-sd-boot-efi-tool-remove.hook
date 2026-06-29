@@ -1,7 +1,3 @@
-#
-# 70-sd-boot-efi-tool-remove.hook
-#   When efi tool is updated copy to EFI
-#
 [Trigger]
 Type = Package
 Operation = Remove

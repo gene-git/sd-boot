@@ -1,73 +1,41 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * sd-boot.h
+ * sd-boot-kernel.h
  */
 #ifndef SD_BOOT_KERNEL_H
 #define SD_BOOT_KERNEL_H
 
 #include <stdbool.h>
 #include <stddef.h>
-//#include <sys/stat.h>
 
 #include "sd-boot-config.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
 
-/*
- *
- * Kernel Module info
- * Derived from kernel module directory
- * mod_dir = /usr/lib/modules/<kern-vers>
- * Files in mod_dir : sdb-pkgbase, pkgbase
- * package name is read from sdb-pkgbase or pkgbase
- *
- * kmod_dir =>
- * - package (from sdb-packbase, pkgbase)
- * - kern_vers (from mod_dir)
- * Note: plugins use KIplgiin which gets kern_vers/kern_image from by kernel-install.
- */
-typedef struct {
-    char *image;
-    char *mod_dir;
-    char *package;
-    char *vers;
-
-} KernelInfo; 
-
-/*
- *
- * Kernel Trigger Info
- *
- * triggers are pathname or package names passed in
- * from ALPM hooks - each is provided as one line
- * on stdin.
- */
-typedef struct {
-    size_t num_info;
-    size_t num_info_alloc;
-    KernelInfo *info;
-
-    size_t num_other;
-
-} Triggers;
-
 
 /*
  * Function declarations
  */
+int init_pkginfo_from_kernel_image(PkgInfo *info);
+int init_kernel_pkginfos_all(Tool *tool);
 int is_kernel_image_path(char *image, bool *is_kernel);
-int kernel_add_remove(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info);
-int kernel_info_all(size_t *num_info_p, KernelInfo **info_p);
-int kernel_image_path_to_info(KernelInfo *info);
-void kernel_info_free(KernelInfo *info);
-int kernel_inspect(SdBoot *conf, Array_str *pkgs_arr, KernelInfo *info);
-int kernel_pkg_to_info(const char *pkg, KernelInfo *info);
-int get_kernel_triggers(Triggers *trigs);
-void free_triggers(Triggers *trigs);
+
+int kernel_pkginfos_from_triggers(TriggerInfo *tinfo, Tool *tool);
+int parse_kernel_triggers(TriggerInfo *tinfo);
+
+int kernel_update_execute(Tool *tool);
+int kernel_update_one(SdBoot *conf, PkgInfo *info);
+
 int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin);
-bool is_kernel_sd_boot_managed(Array_str *pkgs_arr, KernelInfo *info);
-int load_managed_kernel_packages(SdBoot *conf, Array_str *arr);
-int parse_kernel_triggers(Array_str *trigs_all, Triggers *trigs);
+
+int kernel_pkginfo_from_kernel_image(Tool *tool, PkgInfo *info);
+int kernel_pkginfos_all(Tool *tool);
+int kernel_pkginfos_from_image_paths(Array_str *image_paths, Tool *tool);
+int kernel_pkg_name_to_image(char *pkg_name, char **image_p);
+
+int get_all_kernel_image_paths(Array_str *image_paths);
+int kernel_pkginfo_from_pkg_name(Tool *tool, PkgInfo *info);
+int kernel_mod_dir_to_pkg_name(PkgInfo *info);
 
 #endif

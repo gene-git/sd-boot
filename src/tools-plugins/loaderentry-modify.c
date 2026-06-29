@@ -64,8 +64,10 @@ int main(int argc, const char *argv[]) {
      * call appropriate function to do the work.
      */
     if (plugin.is_kernel) {
+        conf.tool_type = SDB_KERNEL;
         ret = loaderentry_modify_kernel(&conf, &plugin);
     } else {
+        conf.tool_type = SDB_EFI_TOOL;
         ret = loaderentry_modify_efi(&conf, &plugin);
     }
     if (ret != 0) {

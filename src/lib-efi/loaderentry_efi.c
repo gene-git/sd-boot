@@ -15,8 +15,8 @@
 #include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
-#include "sd-boot-kernel.h"
 #include "sd-boot-msg.h"
+#include "sd-boot-tool.h"
 #include "sd-boot-utils.h"
 
 int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
@@ -26,7 +26,7 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
      */
     int ret = 0;
     Array_str pkgs_arr = {};
-    KernelInfo info = {};
+    PkgInfo pkginfo = {};
 
     /*
      * Sanity check
@@ -36,10 +36,10 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
     }
 
     /*
-     * Get package name from the image path (info)
+     * Get package name from the image path (pkginfo)
      */
-    info.package = efi_image_to_package(conf, plugin->kernel_image);
-    if (!info.package || info.package[0] == '\0') {
+    pkginfo.pkg_name = efi_image_to_package(conf, plugin->kernel_image);
+    if (!pkginfo.pkg_name || pkginfo.pkg_name[0] == '\0') {
         // msg(MSG_VERB, "sd-boot: Failed to get kernel package from image: %s\n", plugin->kernel_image);
         ret = 0;
         goto exit;
@@ -51,13 +51,13 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
      *
      * If no managed packages - then nothing for us to do.
      */
-    ret = load_efi_tool_packages(conf, &pkgs_arr);
+    ret = read_managed_packages(conf, &pkgs_arr);
     if (ret != 0) {
         ret = 0;
         goto exit;
     }
 
-    if (!string_in_list((const char *)info.package, pkgs_arr.num_rows, pkgs_arr.rows)) {
+    if (!string_in_list((const char *)pkginfo.pkg_name, pkgs_arr.num_rows, pkgs_arr.rows)) {
         goto exit;
     }
 
@@ -69,18 +69,18 @@ int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
     entry.is_efi_tool = true;
     entry.loader_entry_dir = plugin->loader_entry_dir;
     entry.loader_entry_file = plugin->loader_entry_file;
-    entry.title = info.package;
+    entry.title = pkginfo.pkg_name;
 
-    msg(MSG_NORMAL, "  ↳ sd-boot: updating efi tool loader entry %s\n", info.package);
+    msg(MSG_NORMAL, "  ↳ sd-boot: updating efi tool loader entry %s\n", pkginfo.pkg_name);
 
     ret = loaderentry_modify_file(&entry);
     if (ret != 0) {
-        msg(MSG_ERR, "  ! sd-boot: Failed to update loader entry title: %s\n", info.package);
+        msg(MSG_ERR, "  ! sd-boot: Failed to update loader entry title: %s\n", pkginfo.pkg_name);
         ret = 1;
     }
 
 exit:
-    kernel_info_free(&info);
+    pkginfo_free(&pkginfo);
     array_str_free(&pkgs_arr);
 
     return ret;

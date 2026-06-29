@@ -20,7 +20,7 @@
 #include "sd-boot.h"
 
 enum ReadInfo {
-    READ_TIMEOUT = 10000,
+    READ_TIMEOUT = 100,
     CHUNK = 32,
 };
 
@@ -76,29 +76,33 @@ int read_triggers(Array_str *arr) {
 
     while (keep_reading) {
         poll_ret = poll(&pfd, 1, timeout_ms);
-        if (poll_ret > 0 && ((unsigned short)pfd.revents & (unsigned short)POLLIN)) {
-            /*
-             * Read one line from stdin
-             */
-            ret = read_one_line_fd(pfd.fd, row, sizeof(row));
-            switch (ret) {
-                default:
-                case 0:
-                    ret = process_one_line(row, sizeof(row), arr);
-                    if (ret < 0) {
+        if (poll_ret > 0) {
+            if ((unsigned short)pfd.revents & (unsigned short)POLLIN) {
+                /*
+                 * Read one line from stdin
+                 */
+                ret = read_one_line_fd(pfd.fd, row, sizeof(row));
+                switch (ret) {
+                    default:
+                    case 0:
+                        ret = process_one_line(row, sizeof(row), arr);
+                        if (ret < 0) {
+                            status = -1;
+                            goto exit;
+                        }
+                        break;
+
+                    case 1:
+                        keep_reading = false;
+                        break;
+
+                    case -1:
+                        keep_reading = false;
                         status = -1;
-                        goto exit;
-                    }
-                    break;
-
-                case 1:
-                    keep_reading = false;
-                    break;
-
-                case -1:
-                    keep_reading = false;
-                    status = -1;
-                    break;
+                        break;
+                }
+            } else if ((unsigned int)pfd.revents & (unsigned int)(POLLHUP | POLLERR)) {
+                keep_reading = false;
             }
         } else {
             keep_reading = false;

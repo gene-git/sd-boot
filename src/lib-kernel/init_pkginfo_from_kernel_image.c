@@ -19,6 +19,7 @@
 //#include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
 #include "sd-boot-kernel.h"
+#include "sd-boot.h"
 
 /**
  * Kernel Module dir to kernel package name
@@ -26,10 +27,10 @@
  *      info->mod_dir
  * Returns:
  *      info->vers
- *      info->package
+ *      info->pkg_name
  * package is read from mod_dir/<pkgbase>
  */
-static int kernel_mod_dir_to_package(KernelInfo *info) {
+int kernel_mod_dir_to_pkg_name(PkgInfo *info) {
     int ret = 0;
 
     if (!info->mod_dir) {
@@ -37,10 +38,15 @@ static int kernel_mod_dir_to_package(KernelInfo *info) {
         goto exit;
     }
 
+    if (info->pkg_name) {
+        free((void *)info->pkg_name);
+        info->pkg_name = nullptr;
+    }
+
     const char *files[] = {
-        "gc-pkgbase",
         "pkgbase-sdb",
         "pkgbase",
+        "gc-pkgbase",
     };
     size_t num_files = sizeof(files) / sizeof(files[0]);
 
@@ -55,18 +61,15 @@ static int kernel_mod_dir_to_package(KernelInfo *info) {
 
         str = read_file_first_row(path);
         if (str) {
-            info->package = str;
+            info->pkg_name = str;
             str = nullptr;
             break;
         } 
     }
-    if (!info->package) {
+
+    if (!info->pkg_name) {
         /*
          * caller decides if this is error.
-         * plugins are called always and its up to plugin to ignore or not
-         * things it is not responsible for.
-         * e.g. a kernel loader entry plugin gets called with efi-tool image.
-         * not a kernel - so no package.
          */
         // msg(MSG_ERR, "sd-boot: no package provides pkgbase file for: %s\n", info->mod_dir);
         ret = 0;
@@ -81,76 +84,60 @@ exit:
 /**
  * Kernel image to:
  * input:
- *  info->image ~ /usr/lib/modules/<kern-vers>/vmlinuz
+ *  info->ki_image ~ /usr/lib/modules/<kern-vers>/vmlinuz
  *
- * Returns:
+ * Output updats 3 fields :
+ * - info->pkg_name
  * - info->mod_dir
- * - info->package
- * - info->vers
+ * - info->ki_vers
  */
-int kernel_image_path_to_info(KernelInfo *info) {
+int init_pkginfo_from_kernel_image(PkgInfo *info) {
     int ret = 0;
+    char *ki_image = nullptr;
 
-    char *img_path = nullptr;
-    if (info->image == nullptr) {
+    if (!info->ki_image) {
         ret = -1;
         goto exit;
     }
 
     /*
-     * Make copy since dirname modifies the data
+     * Make copy as dirname/basename modifies content
      */
-    img_path = strdup(info->image);
-    if (!img_path) {
+    ki_image = strdup(info->ki_image);
+    if (!ki_image) {
         ret = -1;
         goto exit;
     }
 
+
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
-    char *mod_dir = dirname(img_path);
-    char *kern_vers = basename(img_path);
+    char *mod_dir = dirname(ki_image);
+    char *kern_vers = basename(ki_image);
 
     info->mod_dir = strdup(mod_dir);
     if (!info->mod_dir) {
         ret = -1;
         goto exit;
     }
-    info->vers = strdup(kern_vers);
-    if (!info->vers) {
+
+    info->ki_vers = strdup(kern_vers);
+    if (!info->ki_vers) {
         ret = -1;
         goto exit;
     }
 
-    ret = kernel_mod_dir_to_package(info);
-    if (ret != 0) {
-        ret = -1;
-        goto exit;
+    if (!info->pkg_name) {
+        ret = kernel_mod_dir_to_pkg_name(info);
+        if (ret != 0) {
+            ret = -1;
+            goto exit;
+        }
     }
 
 exit:
-    if (img_path) {
-        free((void *)img_path);
+    if (ki_image) {
+        free((void *)ki_image);
     }
     return ret;
 }
 
-
-/**
- * Free any KernelInfo mem
- */
-void kernel_info_free(KernelInfo *info) {
-    if (info->image) {
-        free((void *)info->image);
-    }
-
-    if (info->mod_dir) {
-        free((void *)info->mod_dir);
-    }
-
-    if (info->package) {
-        free((void *)info->package);
-    }
-    if (info->vers) {
-        free((void *)info->vers);
-    }
-}

@@ -1,0 +1,47 @@
+#!/usr/bin/bash
+#
+# Set up the test directory and meson install sd-boot into it.
+#
+# Argument is the build type - defaults to release if not provided:
+#  release, debug, debugoptimize
+# 
+#  If none provided defaults to release
+# Call after fresh build and before running test suites
+#
+script_dir=$(/usr/bin/dirname -- "$(/usr/bin/realpath -- "${BASH_SOURCE[0]}")")
+
+sdir=$(/usr/bin/realpath "$script_dir/../../")
+
+btype="release"
+if [[ "$1" != "" ]] ; then
+    btype="$1"
+fi
+
+    bdir="$sdir/build/$btype"
+    testing_dir="$sdir/tests/Testing"
+
+echo "sd-boot: initilizing test setup."
+
+#
+# - Make the test dir / install sd-boot 
+#
+    /usr/bin/mkdir -p "$testing_dir/__root__"
+
+    /usr/bin/rsync -a --delete "$testing_dir"/Template/__root__ "$testing_dir/"
+
+    /usr/bin/rsync -a --mkpath /usr/lib/kernel  "$testing_dir"/__root__/usr/lib/
+
+    cd "$sdir"
+    /usr/bin/meson install -C "$bdir" --destdir "$testing_dir"/__root__ --quiet
+
+    #
+    # be sure linux is listed as packaage handled by sd-boot (for testing)
+    # - set linux trigger to current installed version
+    #
+    echo "linux" >> "$testing_dir/__root__/etc/sd-boot/kernel.packages"
+
+    /usr/bin/pacman -Ql linux | grep vmlinuz | cut -d' ' -f2 > "$testing_dir/Triggers/linux"
+
+
+exit 0
+

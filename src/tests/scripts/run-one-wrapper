@@ -1,0 +1,43 @@
+#!/usr/bin/bash
+#
+# Called by meson to run test. Supported setups:
+# Exists solely as a wrapper call run-one-test and pass valgrind as first arg when needed.
+#
+# Arguments are:
+# - standard
+#   program arg1 arg2 ...
+#   => run-one-test program arg1 arg2 ..
+#
+# - valgrind
+#   valgrind program arg1 arg2 ... 
+#   => run-one-test valgrind program arg1 arg2 ...
+#
+# i.e. run run-one-test (with or withour valgrind)
+#
+# Before running tests - the test-initialize script must be run which:
+#
+#  - initializes the test root directory 
+#  - uses meson to install everything into that test root directory.
+#
+# e.g.
+#   scripts/test-initialize <source-dir> <build-idr>
+#  
+#
+# Call Run script passed in: run-one-test [valgrind] <prog> <input-file> [args]
+#
+
+if [[ "$1" == "valgrind" ]] ; then
+    shift 1
+    prog="$1"
+    shift 1
+    prog="$prog valgrind"
+else
+    prog="$1"
+    shift 1
+fi
+
+echo "  Running test $1"
+exec $prog "$@"
+
+exit 0
+

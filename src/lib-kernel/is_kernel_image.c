@@ -23,6 +23,7 @@ int is_kernel_image_path(char *image, bool *is_kernel) {
         ret = -1;
         goto exit;
     }
+
     int check = regexec(&regex, image, 0, nullptr, 0);
     if (check == 0) {
         *is_kernel = true;

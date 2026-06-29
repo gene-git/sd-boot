@@ -14,7 +14,7 @@ enum Const {
     ARG_SZ = 16,
 };
 
-KernelInstallOper kernel_install_oper(const char *oper) {
+Operation ki_operation(const char *oper) {
     /*
      * Valid args are add or remove
      */
