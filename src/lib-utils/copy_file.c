@@ -7,9 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "sd-boot-msg.h"
+
 enum BufferSize {
     CHUNK = 4096,
-    NUM_CHUNKS = 1,
 };
 
 int copy_file(const char *src, const char *dst) {
@@ -21,13 +22,14 @@ int copy_file(const char *src, const char *dst) {
     fptr_src = fopen(src, "rb");
     if (!fptr_src) {;
         perror(nullptr);
-        goto exit;
+        return -1;
     }
 
     fptr_dst = fopen(dst, "wb");
     if (!fptr_dst) {;
         perror(nullptr);
-        goto exit;
+        (void)fclose(fptr_src);
+        return -1;
     }
 
     unsigned char buf[CHUNK] = {};
@@ -42,11 +44,11 @@ int copy_file(const char *src, const char *dst) {
         bytes_out = fwrite(buf, buf_size, bytes_in, fptr_dst);
 
         /*
-         * read: check for end of file and error? 
+         * read: check for end of file or error 
          */
         if (bytes_in < buf_bytes) {
             if (ferror(fptr_src)) {
-                perror(nullptr);
+                perror("fread fail");
                 ret = -1;
                 break;
             }
@@ -60,24 +62,22 @@ int copy_file(const char *src, const char *dst) {
          * write: check for error
          */
         if (bytes_out < bytes_in) {
-            if (ferror(fptr_dst)) {
-                perror(nullptr);
-                ret = -1;
-                break;
-            }
+            msg(MSG_ERR, "  fwrite error - disk space?\n");
+            ret = -1;
+            break;
         }
     }
 
-exit:
-    if (fptr_src && fclose(fptr_src) != 0) {
+    if (fclose(fptr_src) != 0) {
+        perror("fclose error");
         ret = -1;
-        perror(nullptr);
     };
 
-    if (fptr_dst && fclose(fptr_dst) != 0) {
+    if (fclose(fptr_dst) != 0) {
+        perror("fclose error");
         ret = -1;
-        perror(nullptr);
     };
+
     return ret;
 }
 

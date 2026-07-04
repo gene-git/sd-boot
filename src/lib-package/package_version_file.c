@@ -12,6 +12,7 @@
 
 #include "sd-boot.h"
 #include "sd-boot-config.h"
+#include "sd-boot-keyval.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-package.h"
 #include "sd-boot-utils.h"
@@ -33,7 +34,7 @@ static int package_version_filename(const char *pkg, char *root, char *path, siz
         ret = -1;
         goto exit;
     }
-    ret = makepath(path_dir, 0);
+    ret = makepath(path_dir, MKDIR_MODE_DEF);
     if (ret != 0) {
         goto exit;
     }
@@ -50,80 +51,58 @@ exit:
     return ret;
 }
 
-
 /*
- * Allocate and copy elem value
+ * only first line with key is kept.
  */
-static char *elem_to_string_value(KvElem *elem) {
-    char *value = nullptr;
-
-    if (elem->val.v_str[0] != '\0') {
-        value = strdup(elem->val.v_str);
-    }
-    return value;
-}
-
 static int raw_read_file(const char *file, char **curr_p, char **prev_p) {
 
     int ret = 0;
-    size_t num_elems = 2;
-    KvElem *elem = nullptr;
+    KvList list = {};
+
+    if (!file) {
+        return 0;
+    }
 
     /*
-     * Want 2 elems from file
+     * -1 => error
+     *  1 => file not available
+     *  0 => success
      */
-    ret = alloc_kv_elems(num_elems, &elem);
-    if (ret != 0) {
-        msg(MSG_ERR, "  ! sd-boot: mem alloc fail in read_package_versions\n");
-        ret = -1;
-        goto exit;
+    list.max_str_len = PATH_MAX;
+
+    ret = parse_keyval_file(file, &list);
+    if (ret < 0) {
+        msg(MSG_ERR, "  ! sd-boot: error reading file %ss\n", file);
+        return -1;
     }
 
-    elem[0].key = "current";
-    elem[0].type = CONF_STR;
-    elem[0].val.v_str[0] = '\0';
-
-    elem[1].key = "previous";
-    elem[1].type = CONF_STR;
-    elem[1].val.v_str[0] = '\0';
-
-    size_t num_read = 0;
-    ret = read_kv_elems(file, num_elems, elem, &num_read);
-    switch (ret) {
-        case -1:
-            msg(MSG_ERR, "  ! sd-boot: read_package_versions error reading file\n");
-            ret = -1;
-            goto exit;
-            break;
-
-        case 0:
-            /*
-             *  all good
-             */
-            if (num_read > 0) {
-                *curr_p = elem_to_string_value(&elem[0]);
-
-                if (num_read > 1) {
-                    *prev_p = elem_to_string_value(&elem[1]);
-                }
-            }
-            ret = 0;
-            break;
-
-        case 1:
-        default:
-            /* 
-             * no package file available
-             */
-            ret = 0;
-            break;
+    if (ret == 1) {
+        return 0;
     }
 
-exit:
-    if (elem) {
-        free((void *)elem);
+    for (size_t i = 0; i < list.num_elems; i++) {
+        KvElem *elem = &list.elems[i];
+
+        if (elem->type != KV_STR) {
+            continue;
+        }
+
+        if (*curr_p == nullptr && strcmp(elem->key, "current") == 0) {
+            *curr_p = elem->str_val;
+            elem->str_val = nullptr;
+            continue;
+        } 
+
+        if (*prev_p == nullptr && strcmp(elem->key, "previous") == 0) {
+            *prev_p = elem->str_val;
+            elem->str_val = nullptr;
+            continue;
+        }
     }
-    return ret;
+
+    kvlist_free(&list);
+
+    return 0;
 }
 
 /*
@@ -236,7 +215,7 @@ int remove_package_version_file(SdBoot *conf, PkgInfo *pkginfo) {
         goto exit;
     }
 
-    if (remove_file(path) != 0) {
+    if (remove_file((const char *)path) != 0) {
         msg(MSG_ERR, "  ! sd-boot: error removing file: %s\n", path);
     }
 

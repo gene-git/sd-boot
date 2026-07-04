@@ -35,11 +35,11 @@ int mount_info_copy(MountInfo *src, MountInfo *dst) {
     int ret = 0;
 
     dst->active = src->active;
-    dst->current = src->active;
+    dst->current = src->current;
 
     if (src->device) {
         dst->device = strdup(src->device);
-        if (!src->device) {
+        if (!dst->device) {
             ret = -1;
             goto exit;
         }
@@ -47,7 +47,7 @@ int mount_info_copy(MountInfo *src, MountInfo *dst) {
 
     if (src->mount) {
         dst->mount = strdup(src->mount);
-        if (!src->mount) {
+        if (!dst->mount) {
             ret = -1;
             goto exit;
         }

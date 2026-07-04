@@ -16,10 +16,8 @@
 
 bool efivars_available() {
 
-    DIR *dir = nullptr;
-    struct dirent *entry = nullptr;
     const char *efi_var_dir = "/sys/firmware/efi/efivars";
-    bool has_efivars = false;
+    DIR *dir = nullptr;
 
     /*
      * Check dir
@@ -29,10 +27,14 @@ bool efivars_available() {
         return false;
     }
 
+
     /*
      * Check content
      */
-    // NOLINTNEXTLINE(concurrency-mt-unsafe
+    bool has_efivars = false;
+    struct dirent *entry = nullptr;
+
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
     while ((entry = readdir(dir))) {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
@@ -41,8 +43,6 @@ bool efivars_available() {
         break;
     }
 
-    if (dir) {
-        (void)closedir(dir);
-    }
+    (void) closedir(dir);
     return has_efivars;
 } 

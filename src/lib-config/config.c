@@ -38,8 +38,8 @@ struct ConfigFiles {
     bool have_yaml;
     char yaml_file[PATH_MAX];
 
-    bool have_toml;
-    char toml_file[PATH_MAX];
+    //bool have_toml;
+    //char toml_file[PATH_MAX];
 
     char yaml_sample[PATH_MAX];
 };
@@ -52,12 +52,6 @@ static int config_file_info(SdBoot *conf, struct ConfigFiles *file_info) {
         goto exit;
     }
     file_info->have_yaml = (bool)(access(file_info->yaml_file, F_OK) == 0);
-
-    ret = toml_config_path(conf, file_info->toml_file);
-    if (ret != 0) {
-        goto exit;
-    }
-    file_info->have_toml = (bool)(access(file_info->toml_file, F_OK) == 0);
 
     ret = yaml_config_sample_path(conf, file_info->yaml_sample);
     if (ret != 0) {
@@ -82,7 +76,7 @@ static void read_config_file(SdBoot *conf) {
         return;
     }
 
-    if (!file_info.have_yaml && !file_info.have_toml) {
+    if (!file_info.have_yaml) {
         /*
          * No configs - copy sample
          */
@@ -94,13 +88,6 @@ static void read_config_file(SdBoot *conf) {
          */
         (void)load_config_yaml(conf);
 
-    } else if (file_info.have_toml) {
-        /*
-         * (Old) toml - convert to yaml
-         */
-        if (load_config_toml(conf) == 0) { 
-            convert_config(conf);
-        }
     }
 }
 

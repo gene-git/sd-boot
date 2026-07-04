@@ -9,29 +9,24 @@
  */
 int array_str_move(Array_str *arr_1, Array_str *arr_2) {
 
-    if (arr_1->num_rows == 0) {
-        return 0;
-    }
+    size_t first_new_row = arr_2->num_rows;
 
     /*
-     * Start at first null or after the last non-null (if not null terminaed)
+     * returns 
+     *   -1 = error
+     *    0 = nothing to do
+     *    >0 - keep going
      */
-    size_t first_new_row = 0;
-    for (size_t i = 0; i < arr_2->num_rows; i++) {
-        if (arr_2->rows[i]) {
-            first_new_row = i + 1;
-            continue;
-        }
-        if (!arr_2->rows[i]) {
-            first_new_row = i;
-            break;
-        }
+    int prep_status = 0;
+    prep_status = array_str_copy_move_prep(arr_1, arr_2, &first_new_row);
+
+    if (prep_status < 0) {
+        return -1;
     }
 
-    size_t num_rows = first_new_row + arr_1->num_rows;
-
-    if (array_str_resize(num_rows, arr_2) != 0) {
-        return -1;
+    if (prep_status == 0) {
+        array_str_free(arr_1);
+        return 0;
     }
 
     /*
@@ -49,13 +44,6 @@ int array_str_move(Array_str *arr_1, Array_str *arr_2) {
 
             num_rows_final++;
         }
-    }
-
-    /*
-     * tidy up memory 
-     */
-    if (array_str_resize(num_rows_final, arr_2) != 0) {
-        return -1;
     }
 
     array_str_free(arr_1);

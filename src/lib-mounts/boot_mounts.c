@@ -46,34 +46,45 @@ static int realloc_one(size_t num_new, size_t *num_p, MountInfo **mounts_p) {
         *mounts_p = nullptr;
         *num_p = num_new;
 
-    } else if (num_new < *num_p) { 
-
+        return 0;
+    } 
+    
+    if (num_new < *num_p) { 
+        /*
+         * shrinking
+         */
         free_content(num_new, *num_p, mounts);
+    }
 
-        ptr = realloc(mounts, num_new * sizeof(MountInfo));
-        if (!ptr) {
-            *num_p = 0;
-            return -1;
-        }
-        *mounts_p = ptr;
-        *num_p = num_new;
+    ptr = realloc(mounts, num_new * sizeof(MountInfo));
+    if (!ptr) {
+        // *num_p = 0;
+        return -1;
+    }
+    *mounts_p = (MountInfo *)ptr;
+    mounts = *mounts_p;
 
-    } else {
-        ptr = realloc(mounts, num_new * sizeof(MountInfo));
-        if (!ptr) {
-            *num_p = 0;
-            return -1;
-        }
-        *mounts_p = ptr;
-        mounts = *mounts_p;
+    //*num_p = num_new;
+
+    if (num_new > *num_p) {
+        /*
+         * Growing
+         */
+        //ptr = realloc(mounts, num_new * sizeof(MountInfo));
+        //if (!ptr) {
+        //    *num_p = 0;
+        //    return -1;
+        // }
+        //*mounts_p = (MountInfo *)ptr;
+        //mounts = *mounts_p;
         for (size_t i = *num_p; i < num_new; i++) {
             mounts[i].device = nullptr;
             mounts[i].mount = nullptr;
             mounts[i].active = Unknown;
             mounts[i].current = Unknown;
         }
-        *num_p = num_new;
     }
+    *num_p = num_new;
 
     return 0;
 }
@@ -138,7 +149,10 @@ void boot_mounts_free(BootMounts *mounts) {
 int boot_mounts_add_mount(bool is_esp, MountInfo this_mount, BootMounts *mounts) {
     int ret = 0;
     size_t num = 0;
-    size_t num_new = 0;
+
+    if (!mounts) {
+        return -1;
+    }
 
     /*
      * NB- since we explicitly allocated >= 1 element the error path
@@ -148,33 +162,30 @@ int boot_mounts_add_mount(bool is_esp, MountInfo this_mount, BootMounts *mounts)
     if (is_esp) {
 
         num = mounts->num_efis;
-        num_new = mounts->num_efis + 1;
-        ret = realloc_one(num_new, &mounts->num_efis, &mounts->efis);
+        ret = realloc_one(num + 1, &mounts->num_efis, &mounts->efis);
         if (ret != 0) {
-            goto exit;
+            return ret;
         }
-
-        if (mounts->efis) {
-            mounts->efis[num] = this_mount;
-        } else {
-            ret = -1;
+        if (!mounts->efis) {
+            return -1;
         }
+        mounts->efis[num] = this_mount;
 
     } else {
 
         num = mounts->num_xbootldrs;
-        num_new = mounts->num_xbootldrs + 1;
-        ret = realloc_one(num_new, &mounts->num_xbootldrs, &mounts->xbootldrs);
+        ret = realloc_one(num + 1, &mounts->num_xbootldrs, &mounts->xbootldrs);
         if (ret != 0) {
-            goto exit;
+            return ret;
         }
-        if (mounts->xbootldrs) {
-            mounts->xbootldrs[num] = this_mount;
-        } else {
-            ret = -1;
+
+        if (!mounts->xbootldrs) {
+            return -1;
         }
+        mounts->xbootldrs[num] = this_mount;
+
     }
-exit:
-    return ret;
+
+    return 0;
 }
 

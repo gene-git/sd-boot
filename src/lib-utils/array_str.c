@@ -18,59 +18,60 @@
  * initialize the list of pointers with "num_rows" rows.
  */
 int array_str_new(size_t num_rows, Array_str *arr) {
-    /*
-     * Initialize arr->rows, arr->row_len only.
-     */
-    int ret = 0;
 
     if (!arr) {
         msg(MSG_ERR, "sd-boot: array strings bad input\n");
-        ret = 1;
-        goto exit;
+        return 1;
     }
 
     arr->num_rows = 0;
+    arr->num_rows_used = 0;
+    arr->rows = nullptr;
+    arr->row_len = nullptr;
+
+    if (num_rows == 0) {
+        return 0;
+    }
+
     arr->rows = (char **)calloc(num_rows, sizeof(char *));
     if (!arr->rows) {
-        perror(nullptr);
-        ret = -1;
-        goto exit;
+        perror("calloc fail");
+        return -1;
     }
-    arr->num_rows = num_rows;
 
     arr->row_len = (size_t *)calloc(num_rows, sizeof(size_t));
     if (!arr->row_len) {
-        perror(nullptr);
-        ret = -1;
-        goto exit;
+        perror("calloc fail");
+        free((void *)arr->rows);
+        arr->rows = nullptr;
+        msg(MSG_ERR, "sd-boot: memory allocation error for %zu\n", num_rows);
+        return -1;
     }
 
-exit:
-    if (ret != 0 && arr && arr->rows) {
-        msg(MSG_ERR, "sd-boot: memory allocation error for %zu\n", num_rows);
-        array_str_free(arr);
-    }
-    return ret;
+    arr->num_rows = num_rows;
+    return 0;
 }
 
+/*
+ * num_rows reduced.
+ */
 static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
-    /*
-     * num_rows reduced.
-     */
-    int ret = 0;
+
+    if (!arr || num_rows >= arr->num_rows) {
+        return -1;
+    }
 
     /*
-     * Free up mem for unused rows.
+     * Free up any unused rows.
      */
     for (size_t i = num_rows; i < arr->num_rows; i++) {
         if (arr->rows[i]) {
-            free((void *)arr->rows[i]);
+            free(arr->rows[i]);
         }
     }
     
-
     /*
-     *  special case "free" - avoid realloc or reallocarray() for free even though its fine 
+     *  special case "free" - dont use realloc / reallocarray() even though ok to do.
      */
     if (num_rows == 0) {
         if (arr->rows) {
@@ -82,56 +83,57 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
         arr->rows = nullptr;
         arr->row_len = nullptr;
         arr->num_rows = 0;
-
-        goto exit;
+        arr->num_rows_used = 0;
+        
+        return 0;
     } 
 
-    if (num_rows < arr->num_rows) {
-        void *tmp_ptr = nullptr;
-
-        tmp_ptr = reallocarray((void *)arr->rows, num_rows, sizeof(char *));
-        if (!tmp_ptr){
-            perror(nullptr);
-            ret = -1;
-            goto exit;
-        }
-        arr->rows = (char **)tmp_ptr; 
-
-        tmp_ptr = reallocarray((void *)arr->row_len, num_rows, sizeof(size_t));
-        if (!tmp_ptr){
-            perror(nullptr);
-            ret = -1;
-            goto exit;
-        }
-        arr->row_len = (size_t *)tmp_ptr; 
-    }
-    arr->num_rows = num_rows;
-
-exit:
-    return ret;
-}
-
-static int array_str_more_rows(size_t num_rows, Array_str *arr) {
-    /*
-     * num_rows bigger
-     */
-    int ret = 0;
     void *tmp_ptr = nullptr;
 
     tmp_ptr = reallocarray((void *)arr->rows, num_rows, sizeof(char *));
     if (!tmp_ptr){
-        perror(nullptr);
-        ret = -1;
-        goto exit;
+        perror("realloc failed");
+        return -1;
+    }
+    arr->rows = (char **)tmp_ptr; 
+
+    tmp_ptr = reallocarray((void *)arr->row_len, num_rows, sizeof(size_t));
+    if (!tmp_ptr){
+        perror("realloc failed");
+        return -1;
+    }
+    arr->row_len = (size_t *)tmp_ptr; 
+
+    arr->num_rows = num_rows;
+    if (arr->num_rows_used > num_rows) {
+        arr->num_rows_used = num_rows;
     }
 
+    return 0;
+}
+
+/*
+ * num_rows bigger
+ */
+static int array_str_more_rows(size_t num_rows, Array_str *arr) {
+    
+    if (!arr || num_rows <= arr->num_rows) {
+        return -1;
+    }
+
+    void *tmp_ptr = nullptr;
+
+    tmp_ptr = reallocarray((void *)arr->rows, num_rows, sizeof(char *));
+    if (!tmp_ptr){
+        perror("realloc failed");
+        return -1;
+    }
     arr->rows = (char **)tmp_ptr;
 
     tmp_ptr = reallocarray((void *)arr->row_len, num_rows, sizeof(size_t));
     if (!tmp_ptr){
-        perror(nullptr);
-        ret = -1;
-        goto exit;
+        perror("realloc failed");
+        return -1;
     }
     arr->row_len = (size_t *)tmp_ptr;
 
@@ -145,8 +147,7 @@ static int array_str_more_rows(size_t num_rows, Array_str *arr) {
 
     arr->num_rows = num_rows;
 
-exit:
-    return ret;
+    return 0;
 }
 
 /*
@@ -158,50 +159,40 @@ exit:
  *
  */
 int array_str_resize(size_t num_rows, Array_str *arr) {
-    /*
-     * Resize the array
-     */
-    int ret = 0;
 
     if (!arr) {
         msg(MSG_ERR, "sd-boot: memory alloc bad pointers\n");
-        ret = -1;
-        goto exit;
+        return -1;
     }
 
     /*
      * fewer rows
      */
     if (num_rows < arr->num_rows) {
-        ret = array_str_fewer_rows(num_rows, arr);
-        if (ret != 0) {
-            goto exit;
-        }
-    }
-
-    if (num_rows == 0) {
-        goto exit;
+        return array_str_fewer_rows(num_rows, arr);
     }
 
     /*
      * more rows
      */
     if (num_rows > arr->num_rows) {
-        ret = array_str_more_rows(num_rows, arr);
-        if (ret != 0) {
-            goto exit;
-        }
+        return array_str_more_rows(num_rows, arr);
     }
 
-exit:
-    return ret;
+    return 0;
 }
 
 /*
  * Free all memory
  */
-int array_str_free(Array_str *arr) {
-    return array_str_resize(0, arr);
+void array_str_free(Array_str *arr) {
+
+    if (!arr) {
+        return;
+    }
+    (void)array_str_resize(0, arr);
+
+    arr->num_rows_used = 0;
 }
 
 /*

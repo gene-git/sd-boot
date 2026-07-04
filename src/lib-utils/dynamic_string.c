@@ -16,54 +16,51 @@ enum Constants {
 
 
 int dynamic_str_alloc(size_t num, Dynamic_str *str) {
-    int ret = 0;
     /*
      * Free
      */
     if (num == 0) {
-        if (str->num_alloc != 0) {
-            free((void *)str->bytes);
+        if (str->num_alloc != 0 || str->bytes) {
+            free(str->bytes);
             str->bytes = nullptr;
             str->num_alloc = 0;
             str->num_used = 0;
         }
-        return ret;
+        return 0;
     }
 
     /*
      * Alloc
      */
-    if (num > MEM_MAX / sizeof(char)) {
+    if (num > MEM_MAX) {
         msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation too big\n");
-        ret = -1;
-        goto exit;
+        return -1;
     }
 
     if (num != str->num_alloc) {
 
         if (str->num_alloc == 0 || !str->bytes) {
-            str->bytes = (char *)calloc(num, sizeof(char));
+            str->bytes = malloc(num);
             if (!str->bytes) {
                 msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation error\n");
-                ret = -1;
+                return -1;
             }
             str->num_alloc = num;
 
         } else {
-            str->bytes = (char *)realloc(str->bytes, num * sizeof(char));
-            if (!str->bytes) {
+            char *tmp = realloc(str->bytes, num);
+            if (!tmp) {
                 msg(MSG_ERR, "  sd-boot: dynamic_str_alloc: mem allocation error\n");
-                ret = -1;
-                str->num_alloc = 0;
-                goto exit;
+                return -1;
             }
+            str->bytes = tmp;
             str->num_alloc = num;
         }
     }
 
-exit:
-    return ret;
+    return 0;
 }
 
-
-
+void dynamic_str_free(Dynamic_str *str) {
+    (void) dynamic_str_alloc(0, str);
+}

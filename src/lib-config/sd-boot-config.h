@@ -123,16 +123,12 @@ typedef struct {
  */
 void config_clean(SdBoot *conf);
 int load_config(SdBoot *conf);
-int toml_config_path(SdBoot *conf, char *path);
 int yaml_config_path(SdBoot *conf, char *path);
 int yaml_config_sample_path(SdBoot *conf, char *path);
-int load_config_toml(SdBoot *conf);
 int load_config_yaml(SdBoot *conf);
-void convert_config(SdBoot *conf);
 Operation ki_operation(const char *oper);
 int ki_install_conf_init(SdBoot *conf);
 int load_kernel_install_conf(SdBoot *conf);
-int save_yaml_config(SdBoot *conf, const char *hdr, const char *path);
 
 int config_init(SdBoot *conf);
 int config_test_init(SdBoot *conf);

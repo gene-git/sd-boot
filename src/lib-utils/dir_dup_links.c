@@ -3,7 +3,6 @@
 /**
  * Given a source directory, make symlinks dst/link -> src/link
  */
-#include <asm-generic/errno-base.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -24,7 +23,7 @@ static int do_one_link(const char *src, int dst_fd, const char *name) {
     /*
      * Build target path for src/name
      */
-    char target_path[PATH_MAX];
+    char target_path[PATH_MAX] = {};
     int len = snprintf(target_path, sizeof(target_path), "%s/%s", src, name);
 
     if (len < 0 || (size_t)len >= sizeof(target_path)) {
@@ -36,21 +35,28 @@ static int do_one_link(const char *src, int dst_fd, const char *name) {
      * Create the symlink: 'dst/name' -> src/name (target_path)
      */
     if (symlinkat(target_path, dst_fd, name) == -1) {
+        // NOLINTNEXTLINE(misc-include-cleaner)
         if (errno == EEXIST) {
+
+            /*
+             * Read link target
+             * - it is not null terminated.
+             */
             char existing_target[PATH_MAX] = {};
             ssize_t nbytes = readlinkat(dst_fd, name, existing_target, sizeof(existing_target) - 1);
-            if (nbytes == -1) {
-                /*
-                 *  Failed to read the existing link properties
-                 */
+
+            /*
+             * sanitize nbytes (dont trust it - we have no control what the link target is)
+             */
+            if (nbytes < 0 || (size_t)nbytes >= sizeof(existing_target)) {
                 return -1;
             }
 
-            /*
-             * note that readlinkat doesn't append null, but existing_target
-             * initialized to 0 so we're fine.
-             */
+            existing_target[nbytes] = '\0';
 
+            /*
+             * target is same as existing
+             */
             if (strcmp(existing_target, target_path) == 0) {
                 return 0;
             }
@@ -77,13 +83,11 @@ static int do_one_link(const char *src, int dst_fd, const char *name) {
 }
 
 /*
- * Make a shadown directory with symlinks to all files dst/x -> src/x
+ * Make a shadow directory with symlinks to all files dst/x -> src/x
  * - Both src and dst must be full absolute path not relative
  */
 int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
 
-    int ret = 0;
-    struct dirent *entry = {};
 
     if (!src || !dst) {
         return -1;
@@ -92,7 +96,7 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
     /*
      * Make sure dst dir exists
      */
-    if (makedir(dst, 0) != 0) {
+    if (makedir(dst, MKDIR_MODE_DEF) != 0) {
         return -1;
     }
 
@@ -101,22 +105,26 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
      */
     DIR *src_dir = opendir(src);
     if (!src_dir) {
-        perror(nullptr);
+        perror("opendir failed");
         return -1;
     }
 
     int dst_fd = open(dst, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
     if (dst_fd == -1) {
-        perror(nullptr);
+        perror("open failed");
         (void)closedir(src_dir);
         return -1;
     }
 
+    int ret = 0;
+    struct dirent *entry = nullptr;
+
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     while ((entry = readdir(src_dir))) {
+
         const char *name = entry->d_name;
 
-        if (skips && skips->num_rows > 0) {
+        if (skips && skips->rows && skips->num_rows > 0) {
             if (string_in_list(name, skips->num_rows, skips->rows)) {
                 continue;
             }
@@ -128,11 +136,16 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
         }
     }
 
-    if (src_dir) {
-        (void) closedir(src_dir);
+    if (dst_fd != -1) {
+        if (close(dst_fd) != 0) {
+            perror("close failed");
+            ret = -1;
+        }
     }
-    if (dst_fd > 0) {
-        (void)close(dst_fd);
+
+    if (closedir(src_dir) != 0) {
+        perror("closedir failed");
+        ret = -1;
     }
 
     return ret;

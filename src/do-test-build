@@ -34,18 +34,21 @@ setup="standard"
 
 usage() {
     echo "do-test-build [build_type [setup]]"
-    echo "  build_type: release or debug or debugoptimized (release)"
+    echo "  build_type: release or debug, debugoptimized or debugoptimized_nosan (release)"
     echo "  setup: set up test type: standard or valgrind (standard)"
     echo "  Does a fresh build, installs to test tree and runs test suite"
     exit
 }
 
 if [[ -n "$1" ]] ; then
-    if [[ "$1" == "debug" || "$1" == "release" || "$1" == "debugoptimized" ]] ; then
-        build_type="$1"
-    else
-        usage
-    fi
+    case "$1" in
+        debug|release|debugoptimized|debugoptimized_nosan)
+            build_type="$1"
+            ;;
+        *)
+            usage
+            ;;
+    esac
 fi
 
 setup="standard"
@@ -151,6 +154,11 @@ case "$build_type" in
 
     debugoptimized)
         do_it debugoptimized static "-Dstrip=false" "-Db_sanitize=address,undefined"
+        ;;
+
+    debugoptimized_nosan)
+        # turn off sanitize when running perf 
+        do_it debugoptimized static "-Dstrip=false" "-Db_sanitize=none"
         ;;
     *)
         usage

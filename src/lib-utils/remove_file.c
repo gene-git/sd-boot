@@ -5,22 +5,23 @@
  * - if file exists its not an error
  *   basically "rm -f"
  */
-#include <asm-generic/errno-base.h>
 #include <errno.h>
 #include <stdio.h>
 
-int remove_file(char *path) {
-    /*
-     * Remove a file if it exists
-     */
+
+int remove_file(const char *path) {
+
+    if (!path || path[0] == '\0') {
+        return -1;
+    }
+
     int ret = remove(path);
     if (ret != 0) {
-        if (errno == ENOENT) {
+        if (errno == ENOENT) {          // NOLINT(misc-include-cleaner)
             ret = 0;
         } else {
             perror("Error deleting file");
-        } 
-
+        }
     }
 
     return ret;

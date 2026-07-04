@@ -3,6 +3,7 @@
 /*
  * Append a new row with the provided string.
  */
+#include <stdio.h>
 #include <string.h>
 
 #include "sd-boot-msg.h"
@@ -17,25 +18,33 @@
  *  
  */
 int array_str_add_string(const char *string, Array_str *arr) {
-    int ret = 0;
-    size_t n_row = 0;
 
-    n_row = arr->num_rows;
-
-    if (arr->num_rows == 0) {
-        ret = array_str_new(1, arr);
-    } else {
-        ret = array_str_resize(arr->num_rows + 1, arr);
+    if (!arr || !string) {
+        return -1;
     }
 
+    size_t n_row = arr->num_rows;
+
+    int ret = array_str_resize(n_row + 1, arr);
     if (ret != 0) {
-        msg(MSG_ERR, "  sd-boot: memory alloc error\n");
-        goto exit;
+        msg(MSG_ERR, " sd-boot: memory alloc error\n");
+        return ret;
     }
-    arr->rows[n_row] = strdup(string);
 
-exit:
-    return ret;
+    char *tmp_str = strdup(string);
+    if (!tmp_str) {
+        perror("strip fail");
 
+        /*
+         * restore original 
+         */
+        (void)array_str_resize(n_row, arr);
+        return -1;
+    }
+
+    arr->rows[n_row] = tmp_str;
+    arr->row_len[n_row] = strlen(tmp_str);
+
+    return 0;
 }
 

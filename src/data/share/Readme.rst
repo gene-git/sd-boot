@@ -9,6 +9,30 @@ sd-boot
 Recent Changes
 ==============
 
+**6.0.0**
+
+* Happy 250th USA!
+* Small change to how meson installs config/hooks/man pages
+  No change in the end result just the meson.build.
+* When reading kernel-install "install.conf" files to get layout etc.,
+  follow the file priority rules set out by kernel-install,
+  Includes any "drop in" config files from "install.conf.d/xxx.conf" 
+* Code: Spawning processes.
+  - Reset child signal masks (defensive).  Good practice to clear any 
+    blocked/igmored signals even though not required by current code.
+  - tune up reading child process stdout.
+* Code review:
+  - focus on exception handling
+  - some code tidying
+  - use AI to review some of the code
+* Config. 
+  - Change to libcyaml instead of libyaml
+  - drop toml support (including auto converting toml to yaml).
+* Add .nvchecker.toml file (pkgctl version check)
+* bump major version since quite a few files were touched.
+  git diff --stat:
+  75 files changed, 1919 insertions(+), 2146 deletions(-)
+
 **5.11.0**
 
 * Remove *sd-boot* as a trigger in hooks - it is not needed.
@@ -34,13 +58,6 @@ Recent Changes
     Assists testing non-trivial "remove" by ensuring that an "add" is 
     completed before the remove.
 
-**5.10.0**
-
-* Replace remaining strncpy() with strlcpy()
-* Small man page makefile tweak.
-  
-Please see Changelog for more history (found in */usr/share/sd-boot/*).
-Or for recent changes: *pacman -Qc sd-boot*.
 
 Overview
 ========

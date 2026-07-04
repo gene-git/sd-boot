@@ -17,9 +17,6 @@
  * - active if on same physical disk as the active ESP. 
  *  (Per Freedesktop Boot Loader Specification, a companion XBOOTLDR partition must 
  *   share the same physical drive structure as the booting ESP to be parsed by systemd-boot).
- * Cross-Disk ESP Fallback: 
- * - If ESP on a different disk but is actively mounted under /efi or /boot, 
- *   - catch it via real-time mount paths. ￼
  */
 #include <libmount/libmount.h> 
 #include <libudev.h>
@@ -95,7 +92,8 @@ static bool skip_mount(struct libmnt_fs *entry) {
 
     for (size_t i = 0 ; i < num_names; i++) {
         const char *name = names[i];
-        if (strncmp(target, name, strlen(name)) == 0) {
+        size_t len = strlen(name);
+        if (strncmp(target, name, len) == 0 && (target[len] == '\0' || target[len] == '/')) {
             return true;
         }
      }
@@ -258,13 +256,6 @@ static int initialize(struct libmnt_table **mount_table_p, struct udev **udev_p)
     struct udev *udev = nullptr;
 
     /*
-    mounts->num_efis = 0;
-    mounts->num_xbootldrs = 0;
-    mounts->efis = nullptr;
-    mounts->xbootldrs = nullptr;
-    */
-
-    /*
      * - Load active mounts into libmount table.
      * - parse /proc/mounts
      */
@@ -273,11 +264,9 @@ static int initialize(struct libmnt_table **mount_table_p, struct udev **udev_p)
         ret = -1;
         goto exit;
     }
-    *mount_table_p = mount_table;
 
     if (mnt_table_parse_mtab(mount_table, nullptr) < 0) {
         ret = -1;
-
         goto exit;
     }
 
@@ -286,7 +275,9 @@ static int initialize(struct libmnt_table **mount_table_p, struct udev **udev_p)
         ret = -1;
         goto exit;
     }
+    *mount_table_p = mount_table;
     *udev_p = udev;
+
 exit:
     if (ret != 0 && mount_table) {
         mnt_free_table(mount_table);

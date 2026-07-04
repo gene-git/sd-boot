@@ -1,5 +1,5 @@
 #
-# sd-boot: lib-msg
+# sd-boot: lib-utils
 #
 
 #
@@ -10,7 +10,9 @@ inc_dir += include_directories('.')
 lib_sources += files(
     'array_str.c',
     'array_str_add.c',
+    'array_str_copy_move_prep.c',
     'array_str_move.c',
+    'array_str_dup.c',
     'array_str_copy.c',
     'array_str_null.c',
     'copy_file.c',
@@ -19,13 +21,12 @@ lib_sources += files(
     'dynamic_string.c',
     'file_list_glob.c',
     'get_one_line.c',
-    'keyval.c',
     'make_dir.c',
+    'make_path.c',
     'make_symlink.c',
     'misc.c',
     'path_add_slash.c',
     'read_file.c',
-    'read_one_line.c',
     'remove_file.c',
     'rm_rf.c',
     'string_in_list.c',

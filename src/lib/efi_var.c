@@ -56,10 +56,8 @@ static void utf16_to_ascii(const uint16_t *buf, size_t buflen, char *text) {
  * Returns nullptr if 
  */
 char *read_efi_var_string(const char *efi_path) {
-    int ret = 0;
     char *efi_var = nullptr;
     uint16_t *buf = nullptr;
-    size_t num_read = 0;
     FILE *fptr = nullptr;
 
     if (!efi_path) {
@@ -78,6 +76,15 @@ char *read_efi_var_string(const char *efi_path) {
     if (f_size <= 4) {
         return nullptr;
     }
+    //f_size -= HDR_LEN;
+
+    /*
+     * - bound check since efi_path is not under our control
+     */
+    if (f_size > VAR_MAX) {
+        msg(MSG_ERR, "  sd-boot: EFI variable data too big.\n");
+        return nullptr;
+    }
 
     fptr = fopen(efi_path, "rb");
     if (!fptr) {
@@ -91,46 +98,35 @@ char *read_efi_var_string(const char *efi_path) {
      * - RUNTIME_ACCESS
      * - HARDWARE_ERROR_RECORD
      */
-    unsigned char header[4] = {};
-    if (fread(header, 1, HDR_LEN, fptr) != 4) {
+    unsigned char header[HDR_LEN] = {};
+    if (fread(header, 1, HDR_LEN, fptr) != HDR_LEN) {
         goto exit;
     }
-    f_size -= 4;
+    f_size -= HDR_LEN;
 
     /*
-     * read data
-     * - bound check since efi_path is provided by caller
+     * make space and read data
      */
-    if (f_size > VAR_MAX) {
-        msg(MSG_ERR, "  sd-boot: EFI variable data too big.\n");
-        goto exit;
-    }
-
     size_t num_elems = (f_size + sizeof(uint16_t) - 1) / sizeof(uint16_t);
-
-    buf = (uint16_t *)malloc(num_elems * sizeof(uint16_t));
+    buf = (uint16_t *)calloc(num_elems + 1, sizeof(uint16_t));
     if (!buf) {
         goto exit;
     }
 
-    num_read = fread((void *)buf, sizeof(uint16_t), num_elems, fptr);
+    //size_t num_read = fread((void *)buf, sizeof(uint16_t), num_elems, fptr);
+    size_t bytes_read = fread((void *)buf, 1, f_size, fptr);
 
-    ret = fclose(fptr);
-    fptr = nullptr;
-    if (ret != 0) {
-        goto exit;
-    }
-
-    if (num_read > VAR_LEN_MAX) {
+    size_t num_active_elements = bytes_read / sizeof(uint16_t);
+    if (num_active_elements > VAR_LEN_MAX) {
         msg(MSG_ERR, "  sd-boot: EFI variable data too big.\n");
         goto exit;
     }
 
-    efi_var = (char *)malloc((num_read + 1) * sizeof(char));
+    efi_var = (char *)malloc((num_active_elements + 1) * sizeof(char));
     if (!efi_var) {
         goto exit;
     }
-    utf16_to_ascii((const uint16_t *)buf, num_read, efi_var);
+    utf16_to_ascii((const uint16_t *)buf, num_active_elements, efi_var);
 
 exit:
     if (fptr) {

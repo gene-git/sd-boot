@@ -79,7 +79,7 @@ int read_file(const char *path, Array_str *arr) {
      *  Array_str filled out - the array is in arr->rows;
      * 
      * 0 = success
-     * 1 = no file available (fopen failed)
+     * 1 = no such file (fopen failed ENOENT)
      * -1 = error
      *
      * Note - all our files are small number of rows, and max cols of PATH_PAX +so we alloc 64 rows
@@ -95,9 +95,6 @@ int read_file(const char *path, Array_str *arr) {
      */
     FILE *file = fopen(path, "r");
     if (!file) {
-        /*
-         * 1 = no such file
-         */
         if (errno == ENOENT) { // NOLINT(misc-include-cleaner)
             return 1;
         }

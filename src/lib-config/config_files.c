@@ -38,18 +38,3 @@ int yaml_config_sample_path(SdBoot *conf, char *path) {
     return 0;
 }
 
-int toml_config_path(SdBoot *conf, char *path) {
-
-    if (!path || !conf) {
-        return -1;
-    }
-
-    if (snprintf(path, PATH_MAX, "%s%s", conf->root, "etc/sd-boot/config") < 0) {
-        perror(nullptr);
-        return -1;
-    }
-
-    return 0;
-}
-
-

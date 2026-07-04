@@ -3,6 +3,7 @@
 /**
  * Run executable - standard execve() argyments and 
  * child output ignored.
+ * Needs _GNU_SOURCE (see meson.build)
  */
 #include <sched.h>
 #include <spawn.h>
@@ -10,6 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+
+#include "sd-boot-cmd.h"
+
 
 int run_cmd(char **argv, char **envp, int *child_ret_p) {
     /*
@@ -25,12 +29,25 @@ int run_cmd(char **argv, char **envp, int *child_ret_p) {
     int ret_spawn = 0;
     int child_status = 0;
     int child_ret = -1;
+    posix_spawnattr_t spawn_attr = {};
 
     if (argv[0] == nullptr || argv[0][0] == '\0') {
         return -1;
     }
 
-    ret_spawn = posix_spawn(&pid, argv[0], nullptr, nullptr, &argv[0], envp);
+    /*
+     * good practice to reset child signals.
+     */
+    ret = init_spawn_attr(&spawn_attr);
+    if (ret != 0) {
+        goto exit;
+    }
+
+    /*
+     * Instantiate the child process
+     */
+    ret_spawn = posix_spawn(&pid, argv[0], nullptr, &spawn_attr, &argv[0], envp);
+
     if (ret_spawn == 0) {
         pid_t wait_ret = 0;
         wait_ret = waitpid(pid, &child_status, 0);
@@ -52,5 +69,9 @@ int run_cmd(char **argv, char **envp, int *child_ret_p) {
         *child_ret_p = child_ret;
     }
 
+exit:
+    if (posix_spawnattr_destroy(&spawn_attr) != 0) {
+        perror(nullptr);
+    }
     return ret;
 }

@@ -1,5 +1,5 @@
 #
-# sd-boot: lib-msg
+# sd-boot: lib-kernel
 #
 
 #

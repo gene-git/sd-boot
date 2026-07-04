@@ -1,103 +1,179 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * read and parse config file
- * - /etc/kernel/install.conf
- *
- * Contents can only be 
- * - key = value pairs
- * - skips comments (# ...)
+ * read and parse kernel-install "install.conf" config files.
+ * See man kernel-install and below for more detail on "install.conf" 
+ * and the companion drop in files are read.
  */
-#include <limits.h>
+#include <dirent.h>
 #include <linux/limits.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
+#include <sys/stat.h>
 
-#include "sd-boot-msg.h"
 #include "sd-boot-config.h"
-#include "sd-boot-utils.h"
+#include "sd-boot-keyval.h"
 
-enum Constants { VERB_MAX = 2 };
 
 /*
- * Load <root>/etc/kernel/install.conf
- *
- * Contains up to 3 element(s):
- * - layout             bls, uki 
- * - initrd_generator   dracut, mkiitcpio
- * - uki_generator      ukify
- *
- * Content are comments or "key = value"
+ *  Precedence order array for base files and directory roots
  */
-int load_kernel_install_conf(SdBoot *conf) {
-    char path[PATH_MAX] = {};
-    int ret = 0;
-    KvElem *elems = nullptr;
-    size_t num_elems = 0;
+static const char *const CONF_PATHS[] = {
+    "etc/kernel",
+    "run/kernel",
+    "usr/local/lib/kernel",
+    "usr/lib/kernel"
+};
+enum { CONF_PATHS_COUNT = 4, MIN_CONF_LEN = 6};
 
-    num_elems = 3;
-    ret = alloc_kv_elems(num_elems, &elems);
-    if (ret != 0) {
-        msg(MSG_ERR, " sd-boot: load config got mem allocation error\n");
-        goto exit;
+/**
+ * Extraction helper: Iterates over a populated KvList, isolates your 
+ * 3 target properties, and duplicates their values into your config struct.
+ */
+static void extract_values(const KvList *list, SdBoot *conf) {
+
+    for (size_t i = 0; i < list->num_elems_used; i++) {
+
+        KvElem *elem = &list->elems[i];
+
+        if (elem->type != KV_STR || !elem->key) {
+            continue;
+        }
+
+        if (strcmp(elem->key, "layout") == 0) {
+            if (conf->layout) {
+                free(conf->layout);
+            }
+            conf->layout = elem->str_val;
+            elem->str_val = nullptr;
+
+        } else if (strcmp(elem->key, "initrd_generator") == 0) {
+            if (conf->initrd_generator) {
+                free(conf->initrd_generator);
+            }
+            conf->initrd_generator = elem->str_val;
+            elem->str_val = nullptr;
+
+        } else if (strcmp(elem->key, "uki_generator") == 0) {
+            if (conf->uki_generator) {
+                free(conf->uki_generator);
+            }
+            conf->uki_generator = elem->str_val;
+            elem->str_val = nullptr;
+        }
+    }
+}
+
+/**
+ * Filter function for scandir() to select only files ending with ".conf"
+ *  - Must be longer than ".conf" (6)
+ */
+static int conf_file_filter(const struct dirent *entry) {
+
+    if (entry->d_type != DT_REG && entry->d_type != DT_LNK) {
+        return 0;
     }
 
-    elems[0].key = "layout";
-    elems[0].type = CONF_STR;
-    elems[0].val.v_str[0] = '\0';
+    size_t len = strlen(entry->d_name);
+    if (len < MIN_CONF_LEN) {
+        return 0; 
+    }
+    return strcmp(entry->d_name + len - (MIN_CONF_LEN - 1), ".conf") == 0;
+}
 
-    elems[1].key = "initrd_generator";
-    elems[1].type = CONF_STR;
-    elems[1].val.v_str[0] = '\0';
+/**
+ * Loops through a specific conf.d directory path, sorts files alphanumerically,
+ * and parses their values sequentially to allow layered overwrites.
+ */
+static void process_dropin_dir(const char *base_path, KvList *list, SdBoot *conf) {
 
-    elems[2].key = "uki_generator";
-    elems[2].type = CONF_STR;
-    elems[2].val.v_str[0] = '\0';
+    int ret = 0;
+    char dpath[PATH_MAX];
+    size_t size = sizeof(dpath);
 
-    if (snprintf(path, sizeof(path), "%s%s", conf->root, "etc/kernel/install.conf") < 0) {
-        perror(nullptr);
-        ret = -1;
-        goto exit;
+    ret = snprintf(dpath, size, "%s%s/install.conf.d", conf->root, base_path);
+    if (ret < 0 ||  ret >= (int)size) {
+        return;
+    }
+
+    struct dirent **namelist = nullptr;
+    /*
+     *  alphasort provides files in alphanumeric sort order 
+     *  e.g., 10-local.conf before 50-dist.conf
+     */
+    int num = scandir(dpath, &namelist, conf_file_filter, alphasort);
+    if (num < 0) {
+        return;
+    }
+
+    for (int i = 0; i < num; i++) {
+        char file[PATH_MAX];
+        size = sizeof(file);
+
+        ret = snprintf(file, size, "%s/%s", dpath, namelist[i]->d_name);
+        if (ret < (int)size) {
+            if (parse_keyval_file(file, list) == 0) {
+                extract_values(list, conf);
+            }
+        }
+        free(namelist[i]);
+    }
+    free((void *)namelist);
+}
+
+int load_kernel_install_conf(SdBoot *conf) {
+
+    if (!conf) {
+        return -1;
+    }
+
+    // Initialize state mapping pointers safely
+    // conf->layout = nullptr;
+    // conf->initrd_generator = nullptr;
+    // conf->uki_generator = nullptr;
+
+    KvList list = { .max_str_len = PATH_MAX };
+
+    /*
+     *  Find and parse the (monolithic) primary file
+     */
+    int ret = 0;
+    for (int i = 0; i < CONF_PATHS_COUNT; i++) {
+        char file[PATH_MAX];
+        size_t size = sizeof(file);
+
+        ret = snprintf(file, size, "%s%s/install.conf", conf->root, CONF_PATHS[i]);
+        if (ret < 0 || ret >= (int)size) {
+            continue;
+        }
+
+        struct stat fst = {};
+        if (stat(file, &fst) == 0) {
+            /*
+             *  First Match Wins:
+             */
+            if (parse_keyval_file(file, &list) == 0) {
+                extract_values(&list, conf);
+            }
+            break;
+        }
     }
 
     /*
-     * Note - read_kv_elems returns:
-     * -1 = error
-     *  0 = all good
-     *  1 = path not found
+     * Read any drop-in (*.conf) over-rides in priority order ---
+     * Instead of short-circuiting, we sweep ALL directories from lowest priority 
+     * (/usr/lib) up to highest priority (/etc) to layer configurations correctly.
      */
-    conf->is_uki = false;
-    size_t num_elems_read = 0;
-    ret = read_kv_elems(path, num_elems, elems, &num_elems_read);
-    if (ret == 0 && num_elems_read > 0) {
-        if (elems[0].val.v_str[0] != '\0') {
-            conf->layout = strdup(elems[0].val.v_str);
-            if (strcasecmp(conf->layout, "uki") == 0) {
-                conf->is_uki = true;
-            }
-        }
-        if (elems[1].val.v_str[0] != '\0') {
-            conf->initrd_generator = strdup(elems[1].val.v_str);
-        }
-        if (elems[2].val.v_str[0] != '\0') {
-            conf->uki_generator = strdup(elems[2].val.v_str);
-        }
-    }
-    /* 
-     * missing config is not an error 
-     */
-    if (ret == 1) {
-        ret = 0;
+    for (int i = CONF_PATHS_COUNT - 1; i >= 0; i--) {
+        process_dropin_dir(CONF_PATHS[i], &list, conf);
     }
 
-exit:
-    if (elems) {
-        free((void *)elems);
-    }
-    return ret;
+    // Free the internal workspace structures cleanly
+    kvlist_free(&list);
+
+    return 0;
 }
-
 

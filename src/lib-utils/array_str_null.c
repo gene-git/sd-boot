@@ -12,37 +12,26 @@
  */
 int array_str_null_terminate(Array_str *arr) {
 
-    /*
-     * Check if last element is null terminated
-     */
-    bool is_null_terminated = false;
-
-    /*
-     * Check for null terminated element after last non-null element
-     * - handles the case : (x, y, null, z) where z could be ignored 
-     *   by things searching to find a null. Our code is always explcicit
-     *   but we're careful for other lib functions such as execvpe() that 
-     *   walk through argv/envp to find the last elem.
-     */
-    for (size_t i = 0; i < arr->num_rows; i++) {
-        if (arr->rows[i]) {
-            continue;
-        }
-        if (!arr->rows[i]) {
-            is_null_terminated = true;
-            break;
-        }
-    }
-
-    if (is_null_terminated) {
-        return 0;
-    }
-
-    if (array_str_resize(arr->num_rows + 1, arr) != 0) {
+    if (!arr) {
         return -1;
     }
 
-    arr->rows[arr->num_rows - 1] = nullptr;
+    /*
+     * CHeck if null terminated
+     */
+    for (size_t i = 0; i < arr->num_rows; i++) {
+        if (arr->rows[i] == NULL) {
+            return 0;
+        }
+    }
+
+    /*
+     * null terminate
+     * - array_str_resize nulls the new tail pointer and sets row_len to 0.
+     */
+    if (array_str_resize(arr->num_rows + 1, arr) != 0) {
+        return -1;
+    }
 
     return 0;
 }

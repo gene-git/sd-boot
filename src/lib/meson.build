@@ -1,5 +1,5 @@
 #
-# sd-boot: lib-msg
+# sd-boot: lib
 #
 
 #
@@ -23,6 +23,5 @@ lib_sources += files(
     'tool.c',
     'trigger_is_path.c',
     'triggers.c',
-    'ukify_os_release.c',
     )
 

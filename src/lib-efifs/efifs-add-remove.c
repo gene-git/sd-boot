@@ -62,7 +62,7 @@ int efifs_add_remove(SdBoot *conf) {
         goto exit;
     }
 
-    if (snprintf(dst, PATH_MAX, "%s%s%s", conf->root, efi_info.mount, "/EFI/systemd/drivers/") < 0) {
+    if (snprintf(dst, PATH_MAX, "%s%s%s", conf->root, efi_info.mount, "EFI/systemd/drivers/") < 0) {
         perror(nullptr);
         ret = 1;
         goto exit;

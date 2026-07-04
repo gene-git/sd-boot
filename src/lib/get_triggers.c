@@ -10,10 +10,7 @@
  * A path is recognized as containing at least 1 "/".
  * A path trigger without a "/" will be treated as a package.
  */
-// DEBUG
-#include <stdlib.h>
 #include <stdbool.h>
-#include "sd-boot-msg.h"
 
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
@@ -68,17 +65,7 @@ int get_triggers(TriggerInfo *trigs) {
     Array_str *pkgs = &trigs->pkgs;
     Array_str *paths = &trigs->paths;
 
-    // debug
-    bool debug = false;
-    if (getenv("SDB_DEB")) {
-        debug = true;
-        msg(MSG_ERR, " SDB_DEB set\n");
-    } 
-
     for (size_t i = 0; i < num_all; i++) {
-        if (debug) {
-            msg(MSG_ERR, "  %s\n", all.rows[i]);
-        }
         if (trigger_is_path((const char *)all.rows[i])) {
 
             ret = path_add_slash(all.rows[i], &paths->rows[num_paths++]);
@@ -90,7 +77,6 @@ int get_triggers(TriggerInfo *trigs) {
 
             pkgs->rows[num_pkgs++] = all.rows[i];
             all.rows[i] = nullptr;
-
         }
     }
 

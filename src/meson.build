@@ -85,12 +85,14 @@ subdir('lib-mounts')
 subdir('lib-package')
 subdir('lib-tool')
 subdir('lib-utils')
+subdir('lib-keyval')
 
 #
 # Libs
 #
 mount_dep = dependency('mount', required: true)
-yaml_dep = dependency('yaml-0.1', required: true)
+#yaml_dep = dependency('yaml-0.1', required: true)
+yaml_dep = dependency('libcyaml', required: true)
 udev_dep = dependency('libudev', required: true)
 
 sd_boot_lib = library('sd_boot',
@@ -177,47 +179,95 @@ loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
 #
 # Configs / Hooks
 #
-lib_dir = get_option('libdir')
-man_dir = get_option('mandir')
+d_etc = get_option('sysconfdir')
+d_lib = get_option('libdir')
+d_man = get_option('mandir')
+d_share = get_option('datadir')
 
-dracut_dir = lib_dir / 'dracut/dracut.conf.d'
-kernel_dir = lib_dir / 'kernel/install.conf.d'
-man8_dir = man_dir / 'man8'
+s_etc = 'data/etc'
+s_lib = 'data/usr/lib'
+s_man = 'data/man'
+s_share = 'data/share'
+s_hook = 'data/hooks'
 
-install_data('data/usr/lib/dracut/dracut.conf.d/010-sd-boot-dracut.conf', install_dir: dracut_dir)
+p_man8 = 'man8'
 
-install_data('data/usr/lib/kernel/install.conf.d/010-sd-boot-install.conf', install_dir: kernel_dir)
-install_data('data/usr/lib/kernel/install.conf.d/010-sd-boot-ukify.conf', install_dir: kernel_dir)
+p_dracut = 'dracut/dracut.conf.d'
+p_kernel = 'kernel/install.conf.d'
+p_hook = 'libalpm/hooks'
 
-# to be removed in the future release
-install_data('data/etc/sd-boot/config.yaml', install_dir: '/etc/sd-boot')
+install_data(
+  [
+    s_lib / p_dracut / '010-sd-boot-dracut.conf'
+  ], 
+  install_dir: d_lib / p_dracut
+)
 
-install_data('data/etc/sd-boot/edk2-shell.image', install_dir: '/etc/sd-boot')
-install_data('data/etc/sd-boot/efi-tool.packages', install_dir: '/etc/sd-boot')
-install_data('data/etc/sd-boot/kernel.packages', install_dir: '/etc/sd-boot')
-install_data('data/etc/sd-boot/memtest86_64-git.image', install_dir: '/etc/sd-boot')
+install_data(
+  [
+    s_lib / p_kernel / '010-sd-boot-install.conf', 
+    s_lib / p_kernel / '010-sd-boot-ukify.conf', 
+  ],
+  install_dir: d_lib / p_kernel
+)
 
-install_data('data/hooks/60-sd-boot-kernel-remove.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('data/hooks/69-sd-boot-efifs-remove.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('data/hooks/70-sd-boot-efi-tool-remove.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('data/hooks/90-sd-boot-kernel-install.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('data/hooks/99-sd-boot-efifs-install.hook', install_dir: '/usr/share/libalpm/hooks')
-install_data('data/hooks/99-sd-boot-efi-tool-install.hook', install_dir: '/usr/share/libalpm/hooks')
+install_data(
+  [
+    s_etc / 'sd-boot' / 'config.yaml',       # to be removed in future release
+    s_etc / 'sd-boot' / 'edk2-shell.image',
+    s_etc / 'sd-boot' / 'efi-tool.packages',
+    s_etc / 'sd-boot' / 'kernel.packages',
+    s_etc / 'sd-boot' / 'memtest86_64-git.image',
+  ], 
+  install_dir: d_etc / 'sd-boot'
+)
 
+install_data(
+  [
+    s_hook / '69-sd-boot-efifs-remove.hook', 
+    s_hook / '99-sd-boot-efifs-install.hook', 
+    s_hook / '60-sd-boot-kernel-remove.hook', 
+    s_hook / '90-sd-boot-kernel-install.hook', 
+    s_hook / '70-sd-boot-efi-tool-remove.hook', 
+    s_hook / '99-sd-boot-efi-tool-install.hook', 
+  ],
+  install_dir: d_share / p_hook
+)
 
-install_data('data/share/config.yaml.sample', install_dir: '/usr/share/sd-boot')
-install_data('data/share/Changelog.rst', install_dir: '/usr/share/sd-boot')
-install_data('data/share/loader.conf', install_dir: '/usr/share/sd-boot')
-install_data('data/share/Readme.rst', install_dir: '/usr/share/sd-boot')
-install_data('data/share/License/License-gpl-2.0.txt', install_dir: '/usr/share/sd-boot/License')
-install_data('data/share/License/License.rst', install_dir: '/usr/share/sd-boot/License')
+install_data(
+  [
+    s_share / 'config.yaml.sample',
+    s_share / 'Changelog.rst',
+    s_share / 'loader.conf',
+    s_share / 'Readme.rst',
+  ],
+  install_dir: d_share / 'sd-boot'
+)
 
-install_data('data/share/License/License.rst', install_dir: '/usr/share/licenses/sd-boot')
+install_data(
+  [
+    s_share / 'License/License-gpl-2.0.txt',
+    s_share / 'License/License.rst',
+  ],
+  install_dir: d_share / 'sd-boot/License'
+)
 
-install_data('data/man/man8/sd-boot-efifs-update.8.gz', install_dir: man8_dir)
-install_data('data/man/man8/sd-boot-efi-tool-update.8.gz', install_dir: man8_dir)
-install_data('data/man/man8/sd-boot-find-boot-mounts.8.gz', install_dir: man8_dir)
-install_data('data/man/man8/sd-boot-kernel-update.8.gz', install_dir: man8_dir)
+install_data(
+  [
+    s_share / 'License/License.rst',
+  ],
+  install_dir: d_share / 'licenses/sd-boot'
+)
+
+install_data(
+  [
+    s_man / 'man8' / 'sd-boot-efifs-update.8.gz',
+    s_man / 'man8' / 'sd-boot-efi-tool-update.8.gz',
+    s_man / 'man8' / 'sd-boot-find-boot-mounts.8.gz',
+    s_man / 'man8' / 'sd-boot-kernel-update.8.gz',
+  ],
+  install_dir: d_man / 'man8'
+)
 
 #
 # build man pages

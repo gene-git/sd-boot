@@ -16,7 +16,7 @@ bool string_in_list(const char *name, size_t num_names, char **names) {
     }
 
     for (size_t i = 0; i < num_names; i++) {
-        if (strcmp(name, names[i]) == 0) {
+        if (names[i] && strcmp(name, names[i]) == 0) {
             return true;
         }
     }

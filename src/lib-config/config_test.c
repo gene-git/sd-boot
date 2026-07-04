@@ -150,7 +150,7 @@ static int init_test_tree(SdBoot *conf) {
             perror(nullptr);
             return -1;
         };
-        if (makedir(path, 0) != 0) {
+        if (makedir(path, MKDIR_MODE_DEF) != 0) {
             msg(MSG_ERR, "  ! Error creating dir %s\n", path);
             return -1;
         }

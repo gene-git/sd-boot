@@ -9,18 +9,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
 #include "sd-boot-cmd.h"
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
 
-enum BufSize {
-    CHUNK = 4096,
-};
 
 static int init_file_actions(int *fds, posix_spawn_file_actions_t *actions) {
     /*
@@ -33,8 +26,8 @@ static int init_file_actions(int *fds, posix_spawn_file_actions_t *actions) {
 
     ret = posix_spawn_file_actions_init(actions);
     if (ret != 0) {
-        perror(nullptr);
-        goto exit;
+        perror("posix_spawn_file_actions_init");
+        return ret;
     }
 
     /*
@@ -43,8 +36,8 @@ static int init_file_actions(int *fds, posix_spawn_file_actions_t *actions) {
     */
     ret = posix_spawn_file_actions_adddup2(actions, fds[1], STDOUT_FILENO);
     if (ret != 0) {
-        perror(nullptr);
-        goto exit;
+        perror("posix_spawn_file_actions_adddup2");
+        return ret;
     }
 
     /* 
@@ -57,101 +50,22 @@ static int init_file_actions(int *fds, posix_spawn_file_actions_t *actions) {
      */
     ret = posix_spawn_file_actions_addopen(actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
     if (ret != 0) {
-        perror(nullptr);
-        goto exit;
+        perror("posix_spawn_file_actions_addopen");
+        return ret;
     }
 
     /* 
      * close child read end
      */
-    posix_spawn_file_actions_addclose(actions, fds[0]);
-
-
-exit:
+    ret = posix_spawn_file_actions_addclose(actions, fds[0]);
     if (ret != 0) {
-        if (posix_spawn_file_actions_destroy(actions) != 0) {
-            perror(nullptr);
-        }
+        perror("posix_spawn_file_actions_addclose");
+        return ret;
     }
-    return ret;
+
+    return 0;
 }
 
-static int read_child_output(int fdes, char **output_p) {
-    /*
-     * Read child stdout and save into *output_p
-     * - allocate in chunks.
-     * - allocate one extra byte leaving room for null termination.
-     * We realloc() mem to what is needed - if no output then 
-     * memory is freed and ptr set to null.
-     */
-    int ret = 0;
-    size_t one_byte = sizeof(char);
-    char *ptr = nullptr;
-    Dynamic_str str = {};
-
-    /*
-     * sanity
-     */
-    if (!output_p) {
-        msg(MSG_ERR, "  ! read_child: bad output ptr\n");
-        ret = -1;
-        goto exit;
-    }
-
-    /*
-     * First chunk of memory
-     */
-    *output_p = nullptr;
-    //bytes_allocated = chunk;
-    //num_alloc = CHUNK;
-    ret = dynamic_str_alloc(CHUNK, &str);
-    if (ret != 0) {
-        goto exit;
-    }
-
-    /*
-     * Ptr tracks where in the buffer to read the next chunk.
-     */
-    ptr = str.bytes;
-    *ptr = '\0';
-    ssize_t bytes_read = 0;
-    while ((bytes_read = read(fdes, ptr, CHUNK)) > 0) {
-        str.num_used += (size_t)bytes_read / one_byte;
-
-        ret = dynamic_str_alloc(str.num_used + CHUNK, &str);
-        if (ret != 0) {
-            goto exit;
-        }
-        ptr = str.bytes + str.num_used;
-    }
-
-    /*
-     * Resize down add null terminator
-     */
-    if (str.num_used < str.num_alloc + 1) {
-        ret = dynamic_str_alloc(str.num_used + 1, &str);
-        if (ret != 0) {
-            goto exit;
-        }
-    } 
-
-    if (str.bytes != nullptr && str.bytes[str.num_used] != '\0') {
-        str.bytes[str.num_used] = '\0';
-    }
-
-    *output_p = str.bytes;
-    str.bytes = nullptr;
-    str.num_alloc = 0;
-
-exit:
-    if (str.bytes) {
-        /*
-         * error where pointer is not transferred to *output_p 
-         */
-        (void)dynamic_str_alloc(0, &str);
-    }
-    return ret;
-}
 
 int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) {
     /*
@@ -168,7 +82,11 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
     pid_t pid = 0;
     int ret = 0;
     int ret_spawn = 0;
-    int fds[2] = {};
+    int fds[2] = { -1, -1 };
+    posix_spawnattr_t spawn_attr = {};
+    bool spawn_attr_inited = false;
+    posix_spawn_file_actions_t actions = {};
+    bool actions_inited = false;
 
     /*
      * sanity check
@@ -186,13 +104,23 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
     }
 
     /*
+     * good practice to reset child signals
+     */
+    ret = init_spawn_attr(&spawn_attr);
+    if (ret != 0) {
+        goto exit;
+    }
+    spawn_attr_inited = true;
+
+    /*
      * Capture stdout
      * - parent reads fd[0] 
      * - parent (can) write to fd[1]
      */
     if (pipe2(fds, O_CLOEXEC) != 0) {
         perror("pipe failed");
-        return -1;
+        ret = -1;
+        goto exit;
     }
 
     /*
@@ -203,16 +131,16 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
      * - Child doesn't need to read from it's stdin - so close it.
      *   (we're not writing to it)
      */
-    posix_spawn_file_actions_t actions = {};
     ret = init_file_actions(fds, &actions);
     if (ret != 0) {
         goto exit;
     }
+    actions_inited = true;
 
     /*
      * spawn child process
      */
-    ret_spawn = posix_spawn(&pid, argv[0], &actions, nullptr, argv, envp);
+    ret_spawn = posix_spawn(&pid, argv[0], &actions, &spawn_attr, argv, envp);
     if (ret_spawn != 0) {
         perror(nullptr);
         ret = -1;
@@ -221,12 +149,15 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
     
     /*
      * close parent write since we're not writing to child
+     * - a failure here is logged but is not fatal: we still need to
+     *   read whatever output is available and reap the child below,
+     *   otherwise we'd leak a zombie process and never report child_ret.
      */
     if (close(fds[1]) != 0) {
         perror(nullptr);
         ret = 1;
-        goto exit;
     }
+    fds[1] = -1;
 
     /*
      * Read stdout output 
@@ -235,6 +166,7 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
      */
     (void)read_child_output(fds[0], output_p);
     (void)close(fds[0]);
+    fds[0] = -1;
     
     /*
      * Always Wait for child to exit
@@ -258,9 +190,25 @@ int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p) 
     }
 
 exit:
-    if (posix_spawn_file_actions_destroy(&actions) != 0) {
-        perror(nullptr);
+    if (fds[0] != -1) { 
+        close(fds[0]);
     }
 
+    if (fds[1] != -1) {
+        close(fds[1]);
+    }
+
+    if (actions_inited) {
+        if (posix_spawn_file_actions_destroy(&actions) != 0) {
+            perror("posix_spawn_file_actions_destroy");
+        }
+    }
+
+    if (spawn_attr_inited) {
+        if (posix_spawnattr_destroy(&spawn_attr) != 0) {
+            perror("posix_spawnattr_destroy");
+        }
+    }
     return ret;
 }
+

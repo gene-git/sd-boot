@@ -41,12 +41,12 @@ int boot_mounts_mark_current(SdBoot *conf, BootMounts *boot_mounts) {
         goto exit;
     }
 
-    MountInfo *this = nullptr;
+    MountInfo *this_info = nullptr;
     if (efi.mount) {
         for (size_t i = 0; i < boot_mounts->num_efis; i++) {
-            this = &boot_mounts->efis[i];
-            if (this->mount && strcmp(this->mount, efi.mount) == 0) {
-                this->current = True;
+            this_info = &boot_mounts->efis[i];
+            if (this_info->mount && strcmp(this_info->mount, efi.mount) == 0) {
+                this_info->current = True;
                 break;
             }
         }
@@ -54,9 +54,9 @@ int boot_mounts_mark_current(SdBoot *conf, BootMounts *boot_mounts) {
 
     if (xbootldr.mount) {
         for (size_t i = 0; i < boot_mounts->num_xbootldrs; i++) {
-            this = &boot_mounts->xbootldrs[i];
-            if (this->mount && strcmp(this->mount, xbootldr.mount) == 0) {
-                this->current = True;
+            this_info = &boot_mounts->xbootldrs[i];
+            if (this_info->mount && strcmp(this_info->mount, xbootldr.mount) == 0) {
+                this_info->current = True;
                 break;
             }
         }

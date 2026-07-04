@@ -3,7 +3,11 @@
 /**
  * Remove directory and it's contents
  */
+#ifndef _XOPEN_SOURCE
 #define XOPEN_SOURCE 500
+#endif
+
+#include <errno.h>
 #include <ftw.h>
 #include <stdio.h>
 #include <sys/stat.h>
@@ -37,6 +41,15 @@ int rm_rf(const char *path) {
      * FTW_PHYS: Do not follow symbolic links (delete the link itself).
      * 64: Maximum number of open file descriptors.
      */
-    return nftw(path, unlink_cb, OPEN_FDS, FTW_DEPTH | FTW_PHYS);   // NOLINT(concurrency-mt-unsafe)
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
+    int ret = nftw(path, unlink_cb, OPEN_FDS, FTW_DEPTH | FTW_PHYS);
+
+    /*
+     * no file is non-error
+     */
+    if (ret != 0 && errno == ENOENT) { // NOLINT(misc-include-cleaner)
+        ret = 0;
+    }
+    return ret;
 }
 

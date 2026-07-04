@@ -56,12 +56,21 @@ static int remove_prev_version(SdBoot *conf, const PkgInfo *info) {
     int ret = 0;
     Array_str arg_arr = {};
 
-    if (!info->vers_prev || strcmp(info->vers_prev, info->vers_curr) == 0) {
+    if (!info->vers_prev || info->vers_prev[0] == '\0') {
+        return 0;
+    }
+
+    if (strcmp(info->vers_prev, info->vers_curr) == 0) {
         return 0;
     }
 
     msg(MSG_NORMAL, "  ↳ sd-boot: removing prev version %s\n", info->vers_prev);
 
+    /*
+     * Checks for ki_image = /usr/lib/modules/<ki_vers>/vmlinuz
+     * - may still exist in $BOOT - so ask kernel-install to 
+     *   remove it.
+     */
     if (!does_kernel_version_exist(info->vers_prev)) {
         msg(MSG_NORMAL, "           : prev version already removed\n");
     }
@@ -109,7 +118,7 @@ static int init_arg_arr(SdBoot *conf, PkgInfo *info, Array_str *arg_arr) {
             }
 
             arg_arr->rows[0] = strdup(conf->oper_str);
-            arg_arr->rows[1] = strdup(info->vers_curr);
+            arg_arr->rows[1] = strdup(info->ki_vers);
 
             if (!arg_arr->rows[0] || !arg_arr->rows[1]) {
                 ret = -1;

@@ -32,7 +32,6 @@ int main(int argc, const char *argv[]) {
      * Installed in: 
      *  /usr/lib/kernel/install.d/95-sd-boot-loaderentry-modify.install
      */
-    int ret = 0;
     KIplugin plugin = {};
     SdBoot conf = {};
 
@@ -44,17 +43,15 @@ int main(int argc, const char *argv[]) {
     }
 
     /*
-     * initialize plugin provided by kernel-install
+     * initialize plugin info provided to us by kernel-install
      */
-    ret = plugin_init(argc, argv, &plugin);
-    if (ret != 0) {
+    if (plugin_init(argc, argv, &plugin) != 0) {
         msg(MSG_ERR, "  ! sd-boot efi tool loaderentry plugin failed\n");
-        ret = 0;
         goto exit;
     }
 
     /*
-     * Modify loader entry only applicable to "add"
+     * Modify loader entry only applies for "add"
      */
     if (strcmp(plugin.command, "add") != 0) {
         goto exit;
@@ -63,6 +60,7 @@ int main(int argc, const char *argv[]) {
     /*
      * call appropriate function to do the work.
      */
+    int ret = 0;
     if (plugin.is_kernel) {
         conf.tool_type = SDB_KERNEL;
         ret = loaderentry_modify_kernel(&conf, &plugin);
@@ -72,12 +70,11 @@ int main(int argc, const char *argv[]) {
     }
     if (ret != 0) {
         msg(MSG_ERR, "  ! sd-boot = problem updating loader entry\n");
-        ret = 0;
     }
 
 exit:
     config_clean(&conf);
     plugin_free(&plugin);
 
-    return ret;
+    return 0;
 }

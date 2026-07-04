@@ -16,7 +16,7 @@
 #include "sd-boot.h"
 
 enum PackageConst {
-    PKG_LEN = KV_MAX_VAL_LEN + 1,
+    PKG_LEN = 256,
 };
 
 /*

@@ -38,10 +38,7 @@ int get_all_plugins(SdBoot *conf) {
     /*
      * usr plugins
      */
-    ret = array_str_free(plugins);
-    if (ret != 0) {
-        goto exit;
-    }
+    array_str_free(plugins);
 
     if (snprintf(pattern, PATH_MAX, "%s%s", conf->root, "usr/lib/kernel/install.d/*.install") < 0) {
         ret = -1;

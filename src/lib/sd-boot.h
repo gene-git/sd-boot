@@ -158,6 +158,4 @@ bool trigger_is_path(const char *trigger);
 
 void triggerinfo_free(TriggerInfo *trig);
 
-int ukify_os_release(const char *name, const char *build_id, Dynamic_str *os_release);
-
 #endif
