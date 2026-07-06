@@ -42,6 +42,7 @@ int array_str_dup(Array_str *arr_1, Array_str *arr_2) {
             char *tmp = strdup(arr_1->rows[i]);
             if (!tmp) {
                 perror("strdup fail");
+                array_str_free(arr_2);
                 return -1;
             }
 

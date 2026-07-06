@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include "sd-boot.h"
+#include "sd-boot-efi.h"
 #include "sd-boot-tool.h"
 
 /*

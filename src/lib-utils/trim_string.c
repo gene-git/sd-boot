@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "sd-boot-utils.h"
 
 /*
  * Trim white space from str.

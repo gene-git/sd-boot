@@ -7,6 +7,7 @@
 #include <linux/limits.h>
 #include <string.h>
 
+#include "sd-boot-utils.h"
 
 void strip_file_extension(char *filename, const char *ext) {
     /*

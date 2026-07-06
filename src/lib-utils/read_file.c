@@ -62,7 +62,7 @@ exit:
     return row;
 }
 
-void close_file(FILE *file) {
+static void close_file(FILE *file) {
     if (file && fclose(file) != 0) {
         perror(nullptr);
     }

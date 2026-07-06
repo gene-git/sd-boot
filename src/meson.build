@@ -15,33 +15,91 @@
 # meson test -C build/release --setup=valgrind [test_x]
 #  '-fno-tree-vectorize',       # Fixes the Valgrind size 32 AVX false positive
 #
+# Optional extras for release builds (not enabled by default):
+#   -Db_lto=true                # link-time optimization + better dead code / symbol stripping
+#   -Dcpu_level=x86-64-v3       # only for a custom build targeting your own known CPU
+#
 project('sd-boot', 'c',
   version: files('version.txt'),
+  meson_version: '>=1.10.0',
   default_options: [
     'c_std=c23', 
-    'warning_level=2',
+    'warning_level=3',
+    'b_pie=true',                       # force PIE regardless of toolchain defaults
     'prefix=/usr', 
     'mandir=share/man',
     ],
 )
 
+#
+# Install dirs - reused below for both build targets and data/config installs
+# so every install_dir is consistent and respects cross-distro overrides.
+#
+d_etc = get_option('sysconfdir')
+d_lib = get_option('libdir')
+d_bin = get_option('bindir')
+d_man = get_option('mandir')
+d_share = get_option('datadir')
+
+#
+# CPU baseline
+# - "baseline" (default) is safe on any x86-64 hardware and is what
+#   packaged/distributed builds should use.
+# - "x86-64-v3" requires AVX2/BMI2/FMA (Haswell, 2013+) and will SIGILL
+#   on older or more conservative (e.g. some VM) CPUs. Since this tool
+#   runs during kernel-install, a SIGILL here is a much worse failure
+#   mode than slightly slower code on modern hardware - so this is
+#   opt-in only, for people building for their own known machine.
+#
+cpu_level = get_option('cpu_level')
+if cpu_level == 'x86-64-v3'
+  cpu_cflags = ['-march=x86-64-v3', '-mtune=generic']
+else
+  cpu_cflags = ['-march=x86-64', '-mtune=generic']
+endif
+
+#
+# Symbol visibility
+# - default (current behaviour): every symbol in the shared lib is
+#   exported, which is simple but exposes internal helpers as part of
+#   the shared object's public ABI.
+# - hardened_export=true: hide everything by default and only export
+#   symbols explicitly marked in the headers. This is the better
+#   long-term posture for a shared library, but requires the public
+#   API to be annotated first (e.g. with an SD_BOOT_EXPORT macro) or
+#   linking against sd_boot_dep will break.
+#
+if get_option('hardened_export')
+  visibility_cflags = ['-fvisibility=hidden']
+else
+  visibility_cflags = ['-fvisibility=default']
+endif
+
+
 my_cflags = [
+  ## General
   '-D_GNU_SOURCE',
-  '-D_XOPEN_SOURCE=500',
-  '-march=x86-64-v3',          # Optimized for modern (AVX2-capable) CPUs
-  '-mtune=generic',
-  '-mshstk',                   # Intel Shadow Stack protection
-  '-pipe',                     # Speeds up compilation
-  '-fno-plt',                  # Optimization for shared library calls
-  '-fexceptions',
-  '-Wformat=2',
-  '-Werror=format-security',   # Rejects insecure printf format strings
-  '-fstack-clash-protection',  # Prevents stack-clash exploits
-  '-fcf-protection',           # Control-flow enforcement
-  '-fvisibility=default',      # Ensures global functions remain exported
-  '-Wpedantic',
-  '-Wshadow'
-]
+  '-pipe',                              # Speeds up compilation
+  '-fno-plt',                           # Optimization for shared library calls
+  '-Wmissing-prototypes',               # Warn for global function missing prototype decl
+  ## Memory Protections
+  '-fstack-protector-strong',           # Protect function calls with stack canaries
+  '-fstack-clash-protection',           # Prevents stack-clash exploits
+  '-ftrivial-auto-var-init=zero',       # Eliminate uninitialized stack memory leaks
+  '-fzero-call-used-regs=used-gpr',     # Wipe general registers before returning
+  ## Control Flow & Runtime Integrity
+  '-mshstk',                            # Intel Shadow Stack protection
+  '-fcf-protection',                    # Control-flow enforcement
+  ## Aggressive Diagnostic Hardening
+  '-Wshadow',                           # Warn if local variable/decl shadows another 
+  '-Wconversion',                       # Warn about type conversions that may alter value
+  '-Wformat=2',                         # Warn about format/args mismatch printf, scanf etc
+  '-Werror=format-security',            # Also warn about insecure printf format strings
+] + cpu_cflags + visibility_cflags
+
+#
+# Note: warning_level=3 (above) already gives -Wall -Wextra -Wpedantic,
+#
 
 buildtype = get_option('buildtype')
 opt_level = get_option('optimization')
@@ -50,14 +108,28 @@ if opt_level not in ['0', 'g', 'default']
   my_cflags += ['-Wp,-D_FORTIFY_SOURCE=3']
 endif
 
+#
+# Development / CI 
+#  catch use-after-free/double-free/null-deref. Slow and can be noisy,
+#
+if get_option('analyzer')
+  my_cflags += ['-fanalyzer']
+endif
+
+# link-time hardening
 my_ldflags = [
-  '-Wl,-O1',
-  '-Wl,--sort-common',
-  '-Wl,--as-needed',
-  '-Wl,-z,relro',
-  '-Wl,-z,now',
-  '-Wl,-z,pack-relative-relocs',
+  '-Wl,--as-needed',                    # Limit shared to 'as needed'
+  '-Wl,-z,relro',                       # Mark relocation tables read-only
+  '-Wl,-z,now',                         # Force immediate binding (Full RELRO)
+  '-Wl,-z,noexecstack',                 # Strictly enforce non-executable stack
+  '-Wl,-z,pack-relative-relocs',        # Optimize layout with DT_RELR packing
+  '-Wl,-z,defs',                        # Catch unresolved symbols at link time, not at runtime
 ]
+
+#
+# Note: '-Wl,--sort-common' was dropped - it only helps the legacy
+# .hash symbol table layout, and modern binutils/distros default to
+# --hash-style=gnu (or both), where it has little to no effect.
 
 #
 # Apply cflags/ldflags
@@ -69,7 +141,6 @@ add_project_link_arguments(my_ldflags, language: 'c')
 #
 # Source code
 #
-#my_inc_dir = include_directories('include')
 
 inc_dir = []
 lib_sources = []
@@ -91,7 +162,6 @@ subdir('lib-keyval')
 # Libs
 #
 mount_dep = dependency('mount', required: true)
-#yaml_dep = dependency('yaml-0.1', required: true)
 yaml_dep = dependency('libcyaml', required: true)
 udev_dep = dependency('libudev', required: true)
 
@@ -102,7 +172,7 @@ sd_boot_lib = library('sd_boot',
   link_args: my_ldflags,
   dependencies: [mount_dep, udev_dep, yaml_dep],
   install: true,
-  install_dir: '/usr/lib'
+  install_dir: d_lib
 )
 
 sd_boot_dep = declare_dependency(
@@ -119,7 +189,7 @@ find_boot_mounts = executable('sd-boot-find-boot-mounts',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/bin'
+  install_dir: d_bin
 )
 
 efifs_update = executable('sd-boot-efifs-update',
@@ -128,7 +198,7 @@ efifs_update = executable('sd-boot-efifs-update',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/lib/sd-boot'
+  install_dir: d_lib / 'sd-boot'
 )
 
 efi_tool_update_triggers = executable('sd-boot-efi-tool-update-triggers',
@@ -137,7 +207,7 @@ efi_tool_update_triggers = executable('sd-boot-efi-tool-update-triggers',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/lib/sd-boot'
+  install_dir: d_lib / 'sd-boot'
 )
 
 efi_tool_update = executable('sd-boot-efi-tool-update',
@@ -146,7 +216,7 @@ efi_tool_update = executable('sd-boot-efi-tool-update',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/bin'
+  install_dir: d_bin
 )
 
 kernel_update_triggers = executable('sd-boot-kernel-update-triggers',
@@ -155,7 +225,7 @@ kernel_update_triggers = executable('sd-boot-kernel-update-triggers',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/lib/sd-boot'
+  install_dir: d_lib / 'sd-boot'
 )
 
 kernel_update = executable('sd-boot-kernel-update',
@@ -164,7 +234,7 @@ kernel_update = executable('sd-boot-kernel-update',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/bin'
+  install_dir: d_bin
 )
 
 loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
@@ -173,17 +243,12 @@ loaderentry_modify = executable('95-sd-boot-loaderentry-modify.install',
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
-  install_dir: '/usr/lib/kernel/install.d'
+  install_dir: d_lib / 'kernel/install.d'
 )
 
 #
 # Configs / Hooks
 #
-d_etc = get_option('sysconfdir')
-d_lib = get_option('libdir')
-d_man = get_option('mandir')
-d_share = get_option('datadir')
-
 s_etc = 'data/etc'
 s_lib = 'data/usr/lib'
 s_man = 'data/man'
@@ -213,7 +278,7 @@ install_data(
 
 install_data(
   [
-    s_etc / 'sd-boot' / 'config.yaml',       # to be removed in future release
+    s_etc / 'sd-boot' / 'config.yaml',       # may removed in future release
     s_etc / 'sd-boot' / 'edk2-shell.image',
     s_etc / 'sd-boot' / 'efi-tool.packages',
     s_etc / 'sd-boot' / 'kernel.packages',
@@ -414,4 +479,3 @@ test('linux_t4', run_one_test,
   priority: 20,
   is_parallel: false,
   )
-

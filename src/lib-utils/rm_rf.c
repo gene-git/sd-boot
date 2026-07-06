@@ -3,14 +3,12 @@
 /**
  * Remove directory and it's contents
  */
-#ifndef _XOPEN_SOURCE
-#define XOPEN_SOURCE 500
-#endif
-
 #include <errno.h>
 #include <ftw.h>
 #include <stdio.h>
 #include <sys/stat.h>
+
+#include "sd-boot-utils.h"
 
 enum Sizes {
     OPEN_FDS = 64,

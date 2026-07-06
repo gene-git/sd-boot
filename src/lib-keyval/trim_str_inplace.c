@@ -8,6 +8,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#include "sd-boot-keyval.h"
+
 char *trim_str_inplace(char *str) {
 
     if (!str) {

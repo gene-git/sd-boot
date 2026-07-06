@@ -19,6 +19,7 @@
 
 #include "sd-boot-msg.h"
 #include "sd-boot-config.h"
+#include "sd-boot-efi.h"
 #include "sd-boot-utils.h"
 
 char *package_to_efi_image(SdBoot *conf, const char *pkg) {

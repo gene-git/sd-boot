@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "sd-boot-utils.h"
+
 int current_datetime_str(size_t buflen, char *buf) {
 
     if (!buf || buflen == 0) {

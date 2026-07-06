@@ -11,6 +11,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "sd-boot.h"
+
 bool trigger_is_path(const char *trigger) {
     if (!trigger) {
         return false;

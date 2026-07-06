@@ -7,9 +7,9 @@
 #define SD_BOOT_EFIFS_H
 
 #include "sd-boot-config.h"
+#include "sd-boot-export.h"
 
-
-int efifs_add_remove(SdBoot *conf);
+SD_BOOT_EXPORT int efifs_add_remove(SdBoot *conf);
 
 #endif
 

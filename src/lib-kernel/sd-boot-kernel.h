@@ -10,9 +10,9 @@
 #include <stddef.h>
 
 #include "sd-boot-config.h"
+#include "sd-boot-export.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
-
 
 /*
  * Function declarations
@@ -24,10 +24,8 @@ int is_kernel_image_path(char *image, bool *is_kernel);
 int kernel_pkginfos_from_triggers(TriggerInfo *tinfo, Tool *tool);
 int parse_kernel_triggers(TriggerInfo *tinfo);
 
-int kernel_update_execute(Tool *tool);
 int kernel_update_one(SdBoot *conf, PkgInfo *info);
 
-int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin);
 
 int kernel_pkginfo_from_kernel_image(Tool *tool, PkgInfo *info);
 int kernel_pkginfos_all(Tool *tool);
@@ -37,5 +35,11 @@ int kernel_pkg_name_to_image(char *pkg_name, char **image_p);
 int get_all_kernel_image_paths(Array_str *image_paths);
 int kernel_pkginfo_from_pkg_name(Tool *tool, PkgInfo *info);
 int kernel_mod_dir_to_pkg_name(PkgInfo *info);
+
+/*
+ * Public API
+ */
+SD_BOOT_EXPORT int kernel_update_execute(Tool *tool);
+SD_BOOT_EXPORT int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin);
 
 #endif

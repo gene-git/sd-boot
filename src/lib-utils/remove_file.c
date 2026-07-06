@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include "sd-boot-utils.h"
 
 int remove_file(const char *path) {
 

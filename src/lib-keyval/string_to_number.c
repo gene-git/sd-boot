@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <stdlib.h>
 
+#include "sd-boot-keyval.h"
 
 bool string_to_long(const char *str, long *long_val) {
 

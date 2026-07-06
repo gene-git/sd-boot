@@ -6,6 +6,8 @@
 #ifndef SD_BOOT_MSG_H
 #define SD_BOOT_MSG_H
 
+#include "sd-boot-export.h"
+
 /*
  *
  * Message Options (Verbosity)
@@ -21,8 +23,12 @@ enum MsgVerb {
 /*
  * Function declarations
  */
-[[gnu::format(printf, 2, 3)]]
-void msg(int msg_level, const char *fmt, ...);
 void set_verb_level(int verb_level);
+
+/*
+ * Public API
+ */
+[[gnu::format(printf, 2, 3)]]
+SD_BOOT_EXPORT void msg(int msg_level, const char *fmt, ...);
 
 #endif

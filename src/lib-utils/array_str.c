@@ -24,10 +24,9 @@ int array_str_new(size_t num_rows, Array_str *arr) {
         return 1;
     }
 
-    arr->num_rows = 0;
-    arr->num_rows_used = 0;
-    arr->rows = nullptr;
-    arr->row_len = nullptr;
+    if (arr->num_rows > 0) {
+        array_str_free(arr);
+    }
 
     if (num_rows == 0) {
         return 0;
@@ -67,6 +66,7 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
     for (size_t i = num_rows; i < arr->num_rows; i++) {
         if (arr->rows[i]) {
             free(arr->rows[i]);
+            arr->rows[i] = nullptr;
         }
     }
     
@@ -155,7 +155,7 @@ static int array_str_more_rows(size_t num_rows, Array_str *arr) {
  *
  * Resize existing - num_rows can be higher or lower
  * Can only be used after being instantiated with array_str_new()
- * NB New mem is not initilized to 0
+ * NB New mem is initilized to 0
  *
  */
 int array_str_resize(size_t num_rows, Array_str *arr) {

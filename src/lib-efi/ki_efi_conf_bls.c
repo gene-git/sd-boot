@@ -9,32 +9,26 @@
  * This is only necessary in the event that the layout is not already bls.
  * but the decision to make the copy is up to the caller.
  */
+#include <fcntl.h>
 #include <linux/limits.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "sd-boot.h"
 #include "sd-boot-config.h"
+#include "sd-boot-efi.h"
 #include "sd-boot-utils.h"
+//#include "sd-boot.h"
 
 /*
  * Creates the source and destination "install.conf"
  * src ~ conf->kernel_conf_dir/install.conf
  * dst ~ conf->kernel_conf_bls_dir/install.conf
  */
-static int get_install_conf_paths(SdBoot *conf, char *src, char *dst) {
+static int get_install_conf_path(SdBoot *conf, char *dst) {
     int ret = 0;
     const char *file = "install.conf";
-
-    /*
-     * Original install.conf
-     */
-    if (snprintf(src, PATH_MAX, "%s/%s", conf->kernel_conf_dir, file) < 0) {
-        ret = -1;
-        goto exit;
-    }
 
     /*
      * BLS layout version
@@ -51,9 +45,6 @@ exit:
 int ki_make_kernel_conf_bls(SdBoot *conf) {
     int ret = 0;
     Array_str skip = {};
-    char src[PATH_MAX] = {};
-    char dst[PATH_MAX] = {};
-    KInstallMods kinstall_mods = {};
 
     ret = array_str_new(1, &skip);
     if (ret != 0) {
@@ -76,18 +67,26 @@ int ki_make_kernel_conf_bls(SdBoot *conf) {
     }
 
     /*
-     * Make install.conf with layout=bls
+     * Make a new simple install.conf layout=bls
+     * Other fields are not applicable to efi tools since
+     * they are not kernels.
      */
-    ret = get_install_conf_paths(conf, src, dst);
+    char install_conf_path[PATH_MAX] = {};
+    ret = get_install_conf_path(conf, install_conf_path);
     if (ret != 0) {
         goto exit;
     }
 
-    kinstall_mods.layout = "layout = bls\n";
-    kinstall_mods.initrd_generator = "initrd_generator = \n";
-    kinstall_mods.uki_generator = "uki_generator = \n";
+    const char *install_conf = 
+        "layout = bls\n"
+        "initrd_generator = \n"
+        "uki_generator = \n";
 
-    ret = make_kernel_install_conf(&kinstall_mods, src, dst);
+    size_t size = strlen(install_conf);
+    int flags = WRITE_FLAGS_DEF;
+    mode_t mode = WRITE_MODE_DEF;
+
+    ret = write_file(install_conf, size, flags, mode, (const char *)install_conf_path);
     if (ret != 0) {
         goto exit;
     }

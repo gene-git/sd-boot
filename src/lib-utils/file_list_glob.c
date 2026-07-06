@@ -24,8 +24,8 @@ int file_list_glob(const char *pattern, Array_str *files) {
 
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     if (glob(pattern, 0, nullptr, &gstruct) == 0) {
-        files->num_rows = gstruct.gl_pathc;
-        ret = array_str_new(files->num_rows, files);
+        size_t num_rows = gstruct.gl_pathc;
+        ret = array_str_new(num_rows, files);
         if (ret != 0) {
             ret = -1;
             goto exit;
@@ -43,7 +43,9 @@ int file_list_glob(const char *pattern, Array_str *files) {
     }
 
 exit:
-    globfree(&gstruct);
+    if (gstruct.gl_pathc) {
+        globfree(&gstruct);
+    }
     return ret;
 } 
 

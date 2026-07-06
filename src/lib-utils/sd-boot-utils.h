@@ -6,13 +6,17 @@
 #ifndef SD_BOOT_UTILS_H
 #define SD_BOOT_UTILS_H
 
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <sys/stat.h>
 
 typedef enum {
     MKDIR_MODE_DEF = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH,
+    WRITE_FLAGS_DEF = O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC,
+    WRITE_MODE_DEF = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH,
 } FileConstants;
+
 
 /*
  * Array of pointers to strings.
@@ -61,7 +65,7 @@ void dynamic_str_free(Dynamic_str *str);
 
 int count_envp_argv(char *const args[]);
 int file_list_glob(const char *pattern, Array_str *files);
-char *get_one_line(char **state_p); 
+char *get_one_line(char **ptr_p);
 
 int read_file(const char *path, Array_str *arr);
 char *read_file_first_row(const char *path);
@@ -80,5 +84,7 @@ char *trim_string(char *str, size_t max_len);
 
 bool efivars_available();
 bool unshare_available();
+
+int write_file(const char *data, size_t data_size, int flags, mode_t mode, const char *dest_path);
 
 #endif

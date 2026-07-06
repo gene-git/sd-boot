@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "sd-boot-mounts.h"
 
 bool mount_is_block_device(struct libmnt_fs *entry) {
     if (!entry) {

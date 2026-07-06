@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 /*
  * Check whether symlink is neede linkis same as requested

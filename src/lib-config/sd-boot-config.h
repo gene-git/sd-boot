@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <sys/types.h>
 
+#include "sd-boot-export.h"
 #include "sd-boot-utils.h"
 
 /*
@@ -121,8 +122,6 @@ typedef struct {
 /*
  * lib-config
  */
-void config_clean(SdBoot *conf);
-int load_config(SdBoot *conf);
 int yaml_config_path(SdBoot *conf, char *path);
 int yaml_config_sample_path(SdBoot *conf, char *path);
 int load_config_yaml(SdBoot *conf);
@@ -134,5 +133,12 @@ int config_init(SdBoot *conf);
 int config_test_init(SdBoot *conf);
 
 int config_set_base_env(bool test, Array_str *env_base);
+
+/*
+ * Public API
+ */
+
+SD_BOOT_EXPORT int load_config(SdBoot *conf);
+SD_BOOT_EXPORT void config_clean(SdBoot *conf);
 
 #endif

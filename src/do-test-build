@@ -29,36 +29,59 @@
 # -------------------------------------------------
 # Options
 #
-build_type="release"
-setup="standard"
+build_type='release'
+setup='standard'
+cpu='baseline'
 
 usage() {
-    echo "do-test-build [build_type [setup]]"
+    echo "do-test-build [build_type [setup [cpu]]"
     echo "  build_type: release or debug, debugoptimized or debugoptimized_nosan (release)"
     echo "  setup: set up test type: standard or valgrind (standard)"
+    echo "  cpu: x86-64-v3. If not set then defaults to baseline"
+    echo "    requires build_type and setup"
     echo "  Does a fresh build, installs to test tree and runs test suite"
     exit
 }
 
+#
+# Options
+# 
 if [[ -n "$1" ]] ; then
-    case "$1" in
-        debug|release|debugoptimized|debugoptimized_nosan)
-            build_type="$1"
-            ;;
-        *)
-            usage
-            ;;
-    esac
+    build_type="$1"
 fi
 
-setup="standard"
-if [[ -n "$2" ]]; then
-    if [[ "$2" == "standard" || "$2" == "valgrind" ]] ; then
-        setup="$2"
-    else
-        usage
-    fi
+if [[ -n "$2" ]] ; then
+    setup="$2"
 fi
+
+if [[ -n "$3" ]] ; then
+    cpu="$3"
+fi
+
+case "$build_type" in
+    release|debug|debugoptimized|debugoptimized_nosan)
+        ;;
+
+    *)
+        usage
+        ;;
+esac
+
+case "$setup" in
+    standard|valgrind)
+        ;;
+    *)
+        usage
+        ;;
+esac
+
+case "$cpu" in
+    baseline|x86-64-v3)
+        ;;
+    *)
+        usage
+        ;;
+esac
 
 source_dir=$(/usr/bin/realpath ./)
 
@@ -117,6 +140,7 @@ do_it() {
     opts+=(--buildtype="$_btype")
     opts+=(-Ddefault_library="$_libtype")
     opts+=("${_other[@]}")
+    opts+=("${options[@]}")
 
     bdir="$source_dir/build/$_btype"
     /usr/bin/rm -rf "$bdir"
@@ -145,21 +169,22 @@ do_it() {
 #
 case "$build_type" in
     release) 
-        do_it release shared 
+        do_it release shared  "-Dcpu_level=$cpu" "-Db_lto=true" "-Dhardened_export=true"
         ;;
 
     debug)
-        do_it debug static "-Dstrip=false"
+        do_it debug static "-Dstrip=false" "-Dcpu_level=$cpu"
         ;;
 
     debugoptimized)
-        do_it debugoptimized static "-Dstrip=false" "-Db_sanitize=address,undefined"
+        do_it debugoptimized static "-Dstrip=false" "-Db_sanitize=address,undefined" "-Dcpu_level=$cpu"
         ;;
 
     debugoptimized_nosan)
         # turn off sanitize when running perf 
-        do_it debugoptimized static "-Dstrip=false" "-Db_sanitize=none"
+        do_it debugoptimized static "-Dstrip=false" "-Db_sanitize=none" "-Dcpu_level=$cpu"
         ;;
+
     *)
         usage
 esac

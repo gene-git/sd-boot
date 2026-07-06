@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "sd-boot-config.h"
+#include "sd-boot-tool.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
 

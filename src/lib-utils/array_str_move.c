@@ -45,6 +45,7 @@ int array_str_move(Array_str *arr_1, Array_str *arr_2) {
             num_rows_final++;
         }
     }
+    arr_2->num_rows_used += arr_1->num_rows_used;
 
     array_str_free(arr_1);
     return 0;

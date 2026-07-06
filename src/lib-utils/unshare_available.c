@@ -16,6 +16,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "sd-boot-utils.h"
+
 /*
  * Check by fork child which attempts to create a new namespace
  */

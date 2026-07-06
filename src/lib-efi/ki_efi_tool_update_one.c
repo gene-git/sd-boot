@@ -21,7 +21,11 @@ static int remove_prev_vers(SdBoot *conf, PkgInfo *info, Array_str *env_arr) {
     char *ki_vers = nullptr;
     Array_str arg_arr = {};
 
-    if (!info->vers_prev || strcmp(info->vers_prev, info->vers_curr) == 0) {
+    if (!info->vers_prev || !info->vers_curr) {
+        return 0;
+    }
+
+    if (strcmp(info->vers_prev, info->vers_curr) == 0) {
         return 0;
     }
 
@@ -61,7 +65,7 @@ static int remove_prev_vers(SdBoot *conf, PkgInfo *info, Array_str *env_arr) {
     }
 exit:
     array_str_free(&arg_arr);
-    if (!ki_vers) {
+    if (ki_vers) {
         free((void *)ki_vers);
     }
     return ret;

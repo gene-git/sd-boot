@@ -11,6 +11,7 @@
 #include <stddef.h>
 
 #include "sd-boot-config.h"
+#include "sd-boot-export.h"
 #include "sd-boot-utils.h"
 
 /*
@@ -53,15 +54,6 @@ typedef struct {
     char *loader_entry_file;
     char *title;
 } LoaderEntry;
-
-/*
- * Modifications for "shadow" bls (kernel) install.conf
- */
-typedef struct KInstallMods {
-    char *layout;
-    char *initrd_generator;
-    char *uki_generator;
-} KInstallMods;
 
 /*
  * Update tools are given work to do.
@@ -135,15 +127,12 @@ char *read_efi_var_string(const char *efi_path);
 int get_triggers(TriggerInfo *trigs);
 
 void print_ki_plugin(KIplugin *plugin);
-int plugin_init(int argc, const char *argv[], KIplugin *plugin);
-void plugin_free(KIplugin *plugin);
 
 int ki_plugin_env_init(SdBoot *conf);
 
 int kernel_install_run(SdBoot *conf, Array_str *argp, Array_str *envp);
 
 int loaderentry_modify_file(LoaderEntry *entry);
-int make_kernel_install_conf(KInstallMods *mods, const char *src, const char *dst);
 void pkginfo_free(PkgInfo *info);
 
 int get_active_plugins(SdBoot *conf);
@@ -152,10 +141,18 @@ int get_all_plugins(SdBoot *conf);
 int read_triggers(Array_str *arr);
 
 int tool_alloc(size_t num_pkgs, Tool *tool);
-void tool_free(Tool *tool);
 
 bool trigger_is_path(const char *trigger);
 
 void triggerinfo_free(TriggerInfo *trig);
+
+
+/*
+ * Public API
+ */
+
+SD_BOOT_EXPORT void tool_free(Tool *tool);
+SD_BOOT_EXPORT int plugin_init(int argc, const char *argv[], KIplugin *plugin);
+SD_BOOT_EXPORT void plugin_free(KIplugin *plugin);
 
 #endif

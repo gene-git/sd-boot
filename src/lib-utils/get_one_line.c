@@ -6,6 +6,8 @@
  */
 #include <string.h>
 
+#include "sd-boot-utils.h"
+
 char *get_one_line(char **ptr_p) {
     /**
      * Returns pointer to one line at a time from a mutable buffer.

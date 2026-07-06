@@ -12,9 +12,11 @@
 #include <limits.h>
 #include <linux/limits.h>
 #include <stdbool.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "sd-boot-config.h"
+#include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
 
@@ -37,9 +39,6 @@
 struct ConfigFiles {
     bool have_yaml;
     char yaml_file[PATH_MAX];
-
-    //bool have_toml;
-    //char toml_file[PATH_MAX];
 
     char yaml_sample[PATH_MAX];
 };
@@ -122,12 +121,12 @@ int load_config(SdBoot *conf) {
      */
     ret = get_all_plugins(conf);
     if (ret != 0) {
-        goto exit;
+        return -1;
     }
 
     ret = get_active_plugins(conf);
     if (ret != 0) {
-        goto exit;
+        return -1;
     }
 
     /*
@@ -137,7 +136,7 @@ int load_config(SdBoot *conf) {
      */
     ret = ki_plugin_env_init(conf);
     if (ret != 0) {
-        goto exit;
+        return -1;
     }
 
     /*
@@ -148,7 +147,7 @@ int load_config(SdBoot *conf) {
      */
     ret = config_set_base_env(conf->test, &conf->env_base);
     if (ret != 0) {
-        goto exit;
+        return -1;
     }
 
     /*
@@ -156,7 +155,7 @@ int load_config(SdBoot *conf) {
      */
     ret = ki_install_conf_init(conf);
     if (ret < 0) {
-        goto exit;
+        return -1;
     }
 
     /*
@@ -164,10 +163,24 @@ int load_config(SdBoot *conf) {
      */
     ret = load_kernel_install_conf(conf);
     if (ret != 0) {
-        goto exit;
+        return -1;
     }
 
-exit:
-    return ret;
+    /*
+     * Sanity checks.
+     */
+    if (!conf->layout) {
+        msg(MSG_ERR, "!  sd=boot failed to ionitialize conf->layout\n");
+        return -1;
+    }
+
+    if (!conf->root) {
+        msg(MSG_ERR, "!  sd=boot failed to initialize conf->root\n");
+        return -1;
+    }
+
+    conf->is_uki = (bool)(strcmp(conf->layout, "uki") == 0);
+
+    return 0;
 }
 

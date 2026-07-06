@@ -25,7 +25,7 @@ enum ReadInfo { CHUNK = 32 };
  * - Update mem allocated if needed (increase only)
  * - save the data
  */
-static int process_one_line(const char *row, size_t len, Array_str *arr) {
+static int process_one_line(const char *row, ssize_t len, Array_str *arr) {
     int ret = 0;
     size_t n_row = arr->num_rows_used++;
 
@@ -40,7 +40,7 @@ static int process_one_line(const char *row, size_t len, Array_str *arr) {
     if (!arr->rows[n_row]) {
         return -1;
     }
-    arr->row_len[n_row] = len;
+    arr->row_len[n_row] = (size_t)len;
     return 0;
 }
 

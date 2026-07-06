@@ -9,6 +9,7 @@
 
 #include "sd-boot-msg.h"
 #include "sd-boot-config.h"
+#include "sd-boot.h"
 
 bool check_permission(SdBoot *conf) {
     if (!conf->test && conf->euid != 0) {

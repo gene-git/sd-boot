@@ -38,7 +38,7 @@ enum MiscConstants { BUF_LEN = 128, };
 /**
  * Get active boot partition UUID from efivars.
  */
-char *get_active_esp_uuid(void) {
+static char *get_active_esp_uuid(void) {
     char efi_var_path[BUF_LEN] = {};
     char *uuid_str = nullptr;
     const char *efi_vars = "/sys/firmware/efi/efivars/";

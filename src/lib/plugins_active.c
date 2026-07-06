@@ -9,8 +9,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "sd-boot-msg.h"
 #include "sd-boot-config.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
@@ -45,7 +47,7 @@ static bool skip_this_one(SdBoot *conf, const char *name, Array_str *skips) {
         /*
          * Adjust path to ignore the test root prefix
          */
-        if (conf->test) {
+        if (conf->test && root_len > 0) {
             this_name = (char *)name + root_len - 1;
         } else {
             this_name = (char *)name;
@@ -81,19 +83,28 @@ int get_active_plugins(SdBoot *conf) {
         ret = array_str_dup(all_plugins, active_plugins);
         return ret;
     }
+    
+    /* 
+     * Defensive (initialized in load_config())
+     */
+    if (!conf->root) {
+        msg(MSG_ERR, "!  sd-boot invalid value for conf->root!\n");
+        return -1;
+    }
 
     /*
-     * Skip some
+     * Some being skipped
      */
     ret = array_str_resize(all_plugins->num_rows, active_plugins);
     if (ret != 0) {
-        goto exit;
+        msg(MSG_ERR, "!  sd-boot mem alloc error!\n");
+        return -1;
     }
-    char *tmp = nullptr;
 
     /*
      * Copy or skip
      */
+    char *tmp = nullptr;
     for (size_t i = 0; i < all_plugins->num_rows; i++) {
 
         const char *this_one = all_plugins->rows[i];
@@ -108,6 +119,7 @@ int get_active_plugins(SdBoot *conf) {
                 goto exit;
             }
             active_plugins->rows[num_plugins++] = tmp;
+            tmp = nullptr;
         }
     }
 
@@ -117,7 +129,6 @@ int get_active_plugins(SdBoot *conf) {
     }
 
     array_str_refresh_row_len(active_plugins);
-
 exit:
     return ret;
 }

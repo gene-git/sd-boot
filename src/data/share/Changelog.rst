@@ -6,14 +6,31 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.0.0 (2026-07-04)
-	74 commits.
+	3.6.2 (2026-04-21) -> 6.1.0 (2026-07-05)
+	75 commits.
 
 Commits
 =======
 
 
-* 2026-07-04  : **6.0.0**
+* 2026-07-05  : **6.1.0**
+
+.. code-block:: text
+
+              - **6.1.0**
+            
+                * Bug fix installing efi tools: typo in destination directory name.
+                * Improve build options
+                  - Compiler flag *-march=* now set by a build option: -Dcpu_level=x86-64-v3 (default is -march=x86-64)
+                  - Additional compiler/linker hardening
+                  - Release build now defaults to -Dhardened_export=true which uses -fvisibility=hidden
+                    Also speeds up shared lib load times.
+                  - Confirm project builds without any warnings using *-fanalyzer*
+                * efi-tool (always uses bls layout) - simplify the bls initialization.
+            
+                  Assisted-by: Claude (Anthropic) <https://claude.ai>
+
+* 2026-07-04  : **6.0.0, origin/master**
 
 .. code-block:: text
 
@@ -41,7 +58,7 @@ Commits
                   git diff --stat:
                   75 files changed, 1919 insertions(+), 2146 deletions(-)
 
-* 2026-06-29  : **5.11.0, origin/master**
+* 2026-06-29  : **5.11.0**
 
 .. code-block:: text
 

@@ -9,6 +9,8 @@
 #include <signal.h>
 #include <spawn.h>
 
+#include "sd-boot-cmd.h"
+
 
 int init_spawn_attr(posix_spawnattr_t *attr) {
     int ret = 0;

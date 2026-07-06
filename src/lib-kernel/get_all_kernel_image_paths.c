@@ -7,6 +7,7 @@
  */
 
 #include "sd-boot-utils.h"
+#include "sd-boot-kernel.h"
 
 
 int get_all_kernel_image_paths(Array_str *image_paths) {

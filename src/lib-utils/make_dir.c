@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 
 #include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 /*
  * Make a directory : path

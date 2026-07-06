@@ -72,11 +72,10 @@ char *read_efi_var_string(const char *efi_path) {
         return nullptr;
     }
 
-    size_t f_size = st_buf.st_size;
+    size_t f_size = (size_t)st_buf.st_size;
     if (f_size <= 4) {
         return nullptr;
     }
-    //f_size -= HDR_LEN;
 
     /*
      * - bound check since efi_path is not under our control

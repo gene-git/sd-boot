@@ -33,4 +33,5 @@ lib_sources += files(
     'trim_string.c',
     'unshare_available.c',
     'efivars_available.c',
+    'write_file.c',
     )

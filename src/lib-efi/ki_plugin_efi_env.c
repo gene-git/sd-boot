@@ -16,6 +16,7 @@
 #include <string.h>
 
 #include "sd-boot-msg.h"
+#include "sd-boot-efi.h"
 #include "sd-boot-utils.h"
 
 int ki_plugins_efi_update_env(char *root, Array_str *env) {

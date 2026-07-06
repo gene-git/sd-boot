@@ -15,7 +15,6 @@ lib_sources += files(
     'ki_plugin_env_init.c',
     'ki_run.c',
     'loaderentry_modify_file.c',
-    'make_kernel_install_conf.c',
     'pkginfo.c',
     'plugins_active.c',
     'plugins_all.c',

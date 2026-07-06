@@ -13,6 +13,7 @@
 
 
 #include "sd-boot-utils.h"
+#include "sd-boot-config.h"
 
 static int add_one_var(const char *name, const char *value, Array_str *env_base) {
     int ret = 0;

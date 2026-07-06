@@ -14,6 +14,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "sd-boot-utils.h"
+
 bool efivars_available() {
 
     const char *efi_var_dir = "/sys/firmware/efi/efivars";

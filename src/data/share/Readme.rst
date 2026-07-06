@@ -9,6 +9,19 @@ sd-boot
 Recent Changes
 ==============
 
+**6.1.0**
+
+* Bug fix installing efi tools: typo in destination directory name.
+* Improve build options
+  - Compiler flag *-march=* now set by a build option: -Dcpu_level=x86-64-v3 (default is -march=x86-64)
+  - Additional compiler/linker hardening 
+  - Release build now defaults to -Dhardened_export=true which uses -fvisibility=hidden
+    Also speeds up shared lib load times.
+  - Confirm project builds without any warnings using *-fanalyzer*
+* efi-tool (always uses bls layout) - simplify the bls initialization.
+
+  Assisted-by: Claude (Anthropic) <https://claude.ai>
+
 **6.0.0**
 
 * Happy 250th USA!

@@ -52,6 +52,7 @@ int array_str_copy_rows(Array_str *arr_1, Array_str *arr_2) {
             num_final++;
         }
     }
+    arr_2->num_rows_used += arr_1->num_rows_used;
 
     return 0;
 }

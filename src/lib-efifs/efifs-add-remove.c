@@ -12,6 +12,7 @@
 #include "sd-boot-msg.h"
 #include "sd-boot-cmd.h"
 #include "sd-boot-config.h"
+#include "sd-boot-efifs.h"
 #include "sd-boot-mounts.h"
 #include "sd-boot-utils.h"
 
@@ -62,7 +63,7 @@ int efifs_add_remove(SdBoot *conf) {
         goto exit;
     }
 
-    if (snprintf(dst, PATH_MAX, "%s%s%s", conf->root, efi_info.mount, "EFI/systemd/drivers/") < 0) {
+    if (snprintf(dst, PATH_MAX, "%s%s%s", conf->root, efi_info.mount, "/EFI/systemd/drivers/") < 0) {
         perror(nullptr);
         ret = 1;
         goto exit;

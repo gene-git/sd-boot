@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "sd-boot-utils.h"
+
 int path_add_slash(char *path, char **path_p) {
 
     if (!path || !path_p) {

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 
 #include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 
 enum BufferSize {
     CHUNK = 4096,

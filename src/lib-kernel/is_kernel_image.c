@@ -8,6 +8,8 @@
 #include <regex.h>
 #include <stdbool.h>
 
+#include "sd-boot-kernel.h"
+
 int is_kernel_image_path(char *image, bool *is_kernel) {
     int ret = 0;
     regex_t regex = {};
