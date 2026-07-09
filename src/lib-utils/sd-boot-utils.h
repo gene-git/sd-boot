@@ -7,7 +7,6 @@
 #define SD_BOOT_UTILS_H
 
 #include <fcntl.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <sys/stat.h>
 
@@ -59,6 +58,9 @@ void array_str_refresh_row_len(Array_str *arr);
 int current_datetime_str(size_t buflen, char *buf);
 
 int copy_file(const char *src, const char *dst);
+int copy_file_fast(const char *src, const char *dst, int flags, mode_t mode);
+int copy_directory_files(const char *src, const char *dst, bool use_fast);
+
 int dir_dup_links(const char *src, const char *dst, Array_str *skips);
 int dynamic_str_alloc(size_t num, Dynamic_str *str);
 void dynamic_str_free(Dynamic_str *str);

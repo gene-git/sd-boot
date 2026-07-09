@@ -5,7 +5,6 @@
  * - /var/lib/sd-boot/<package-name>.version
  */
 #include <linux/limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

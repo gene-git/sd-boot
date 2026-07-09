@@ -16,6 +16,8 @@ lib_sources += files(
     'array_str_copy.c',
     'array_str_null.c',
     'copy_file.c',
+    'copy_file_fast.c',
+    'copy_directory_files.c',
     'current_datetime.c',
     'dir_dup_links.c',
     'dynamic_string.c',

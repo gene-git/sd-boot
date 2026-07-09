@@ -5,7 +5,6 @@
  * For production root is required.
  * In development testing mode it is not.
  */
-#include <stdbool.h>
 
 #include "sd-boot-msg.h"
 #include "sd-boot-config.h"

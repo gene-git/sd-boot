@@ -10,7 +10,6 @@
  *  1 = file not available
  * -1 = error
  */
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

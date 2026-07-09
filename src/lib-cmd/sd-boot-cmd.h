@@ -8,7 +8,6 @@
 
 #include <limits.h>
 #include <spawn.h>
-#include <stdbool.h>
 #include <stddef.h>
 
 /*

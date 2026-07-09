@@ -8,7 +8,6 @@
 
 #include <libmount/libmount.h>
 #include <limits.h>
-#include <stdbool.h>
 #include <stddef.h>
 
 #include "sd-boot-config.h"

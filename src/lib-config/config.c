@@ -11,7 +11,6 @@
  */
 #include <limits.h>
 #include <linux/limits.h>
-#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -80,6 +79,7 @@ static void read_config_file(SdBoot *conf) {
          * No configs - copy sample
          */
         (void)copy_file(file_info.yaml_sample, file_info.yaml_file);
+        //(void)copy_file_fast(file_info.yaml_sample, file_info.yaml_file, WRITE_FLAGS_DEF, WRITE_MODE_DEF);
 
     } else if (file_info.have_yaml) {
         /*
@@ -178,6 +178,17 @@ int load_config(SdBoot *conf) {
         msg(MSG_ERR, "!  sd=boot failed to initialize conf->root\n");
         return -1;
     }
+
+    size_t len = strlen(conf->root);
+    if (len < 1) {
+        msg(MSG_ERR, "!  sd=boot failed to initialize conf->root\n");
+        return -1;
+    }
+    if (conf->root[len - 1] != '/') {
+        msg(MSG_ERR, "!  sd=boot failed conf->root must end in /: %s\n", conf->root);
+        return -1;
+    }
+
 
     conf->is_uki = (bool)(strcmp(conf->layout, "uki") == 0);
 

@@ -1,23 +1,43 @@
 #
 # sd-boot
 #
-# meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared
-# meson compile -C build/release
-# meson install -C build/release --destdir <xxx>
+# release build:
+#   meson setup --reconfigure build/release --buildtype=release -Ddefault_library=shared \
+#     -Db_lto=true -Dhardened_export=true [-Dcpu_level=x86-64-v3 (baseline)]
+#   meson compile -C build/release
+#   meson install -C build/release --destdir <xxx>
 #
-# meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static -Dstrip=false
-# meson compile -C build/debug
-# meson install -C build/debug --destdir <xxx>
-# Alternative is: DESTDIR=<full-path> ninja -C build/debug install
-# Note this strips debug symbols
+# debug build
+#   meson setup --reconfigure build/debug --buildtype=debug -Ddefault_library=static \
+#     -Dstrip=false [-Dcpu_level=x86-64-v3 (baseline)]
+#   meson compile -C build/debug
+#   meson install -C build/debug --destdir <xxx>
 #
-# meson test -C build/release --setup=standard [test_x]
-# meson test -C build/release --setup=valgrind [test_x]
-#  '-fno-tree-vectorize',       # Fixes the Valgrind size 32 AVX false positive
+# See do-test-build for debugoptimized and debugoptimized_nosan.
 #
-# Optional extras for release builds (not enabled by default):
+# Running Tests - standard or under valgrind.
+# There are 4 test suites 1, 2, 3, 4:
+#
+# Initialize test tree (once).
+#   ./tests/scripts/test-initialize
+#
+#   meson test test-set-1 -C build/release --setup standard 
+#
+# Repeat for other sets: test-set-2, ..., 
+#
+# Tests run under valgrind:
+#
+#   meson test test-set-1 -C build/release --setup valgrind 
+# or
+#   meson test test-set-1 -C build/debug --setup valgrind 
+#
+# Simplest is to use the build and test wrapper:
+#
+# ./do-test-build [release [valgrind]]
+# ./do-test-build [debug [valgrind]]
+#
 #   -Db_lto=true                # link-time optimization + better dead code / symbol stripping
-#   -Dcpu_level=x86-64-v3       # only for a custom build targeting your own known CPU
+#   -Dcpu_level=x86-64-v3       # Supported by most reasonably hardware 2013+
 #
 project('sd-boot', 'c',
   version: files('version.txt'),

@@ -8,7 +8,6 @@
  * Will not catch triggers of the form: etc
  * But then again, this should never be used.
  */
-#include <stdbool.h>
 #include <string.h>
 
 #include "sd-boot.h"

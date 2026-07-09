@@ -11,7 +11,6 @@
  */
 #include <fcntl.h>
 #include <linux/limits.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>

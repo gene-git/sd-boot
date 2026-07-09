@@ -4,7 +4,6 @@
   * Given mount table entry, determine if it is a physical block device
   */ 
 #include <libmount/libmount.h>
-#include <stdbool.h>
 #include <string.h>
 
 #include "sd-boot-mounts.h"

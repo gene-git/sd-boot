@@ -6,7 +6,6 @@
 #ifndef SD_BOOT_PACKAGE_H
 #define SD_BOOT_PACKAGE_H
 
-#include <stdbool.h>
 #include <stddef.h>
 
 #include "sd-boot-config.h"

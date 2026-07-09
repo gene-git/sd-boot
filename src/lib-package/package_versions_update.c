@@ -4,7 +4,6 @@
  * Read Package Versions File
  * - /var/lib/sd-boot/<pkgbase>.version
  */
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 

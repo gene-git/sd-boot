@@ -11,7 +11,6 @@
  * The package must be already installed (by pacman) in the usual way. 
  * This tool installs the program provided by the package into /boot (or /efi).
  */
-#include <stdbool.h>
 
 #include "sd-boot.h"
 #include "sd-boot-config.h"

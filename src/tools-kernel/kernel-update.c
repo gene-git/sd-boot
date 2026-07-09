@@ -14,7 +14,6 @@
  *
  * See also man kernel-install.
  */
-#include <stdbool.h>
 
 #include "sd-boot.h"
 #include "sd-boot-config.h"

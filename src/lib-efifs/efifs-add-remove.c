@@ -10,11 +10,38 @@
 #include <stdio.h>
 
 #include "sd-boot-msg.h"
-#include "sd-boot-cmd.h"
+//#include "sd-boot-cmd.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efifs.h"
 #include "sd-boot-mounts.h"
 #include "sd-boot-utils.h"
+
+
+/*
+ * Filesystem destination dir
+ * - dest_dir is static array of size PATH_MAX
+ * - load_config() guarantees conf->root exists and ends with '/'
+ *   Either "/" or test root dir - also ends with "/"
+ */
+static int efifs_dest_dir(char *root, char *efi_dir, char *dest_dir) {
+
+    /*
+     * avoid double "//"
+     */
+    if (!efi_dir || !root || !dest_dir) {
+        return -1;
+    }
+
+    char *efi_mount = efi_dir;
+    if (*efi_dir == '/') {
+        efi_mount = efi_dir + 1;
+    }
+    if (snprintf(dest_dir, PATH_MAX, "%s%s%s", root, efi_mount, "/EFI/systemd/drivers/") < 0) {
+        perror(nullptr);
+        return -1;
+    }
+    return 0;
+}
 
 /*
  * conf->oper must be one of:
@@ -63,8 +90,8 @@ int efifs_add_remove(SdBoot *conf) {
         goto exit;
     }
 
-    if (snprintf(dst, PATH_MAX, "%s%s%s", conf->root, efi_info.mount, "/EFI/systemd/drivers/") < 0) {
-        perror(nullptr);
+    ret = efifs_dest_dir(conf->root, efi_info.mount, dst);
+    if (ret != 0) {
         ret = 1;
         goto exit;
     }
@@ -73,11 +100,22 @@ int efifs_add_remove(SdBoot *conf) {
         case KI_ADD:
             msg(MSG_NORMAL, "⦁ sd-boot: Copying efi filesystem drivers to %s\n", dst);
 
+            /*
             char *const cmd_argv[] = {"/usr/bin/rsync", "--mkpath", "-a", src, dst, nullptr};
             int child_ret = 0;
 
             ret = run_cmd((char **)cmd_argv, conf->env_base.rows, &child_ret);
             if (ret != 0 || child_ret != 0) {
+                msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
+                ret = 1;
+                goto exit;
+            }
+            */
+            /*
+             * Will be cross device so use_fast = slow
+             */
+            ret = copy_directory_files(src, dst, false);
+            if (ret != 0) {
                 msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
                 ret = 1;
                 goto exit;

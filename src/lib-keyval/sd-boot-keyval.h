@@ -6,7 +6,6 @@
 #ifndef SD_BOOT_KEYVAL_H
 #define SD_BOOT_KEYVAL_H
 
-#include <stdbool.h>
 #include <stddef.h>
 
 typedef enum {

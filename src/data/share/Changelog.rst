@@ -6,14 +6,32 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.1.0 (2026-07-05)
-	75 commits.
+	3.6.2 (2026-04-21) -> 6.2.0 (2026-07-09)
+	76 commits.
 
 Commits
 =======
 
 
-* 2026-07-05  : **6.1.0**
+* 2026-07-09  : **6.2.0**
+
+.. code-block:: text
+
+              - **6.2.0**
+            
+                * Comment on building package:
+                  PKGBUILD uses -Dcpu_level=x86-64-v3.
+                  If deploying on pre-haswell / pre-2013 machine, then change the
+                  build option to -Dcpu_level=baseline or remove this flag.
+            
+                * efifs-update:
+                  - copy files directly instead of calling rsync.
+                  - installed files are now timestamped with current time.
+                  - faster with fewer system calls.
+                  - Fix (benign) double // in pathname.
+                * Drop all include <stdbool.h> (not needed with C23).
+
+* 2026-07-05  : **6.1.0, origin/master**
 
 .. code-block:: text
 
@@ -30,7 +48,7 @@ Commits
             
                   Assisted-by: Claude (Anthropic) <https://claude.ai>
 
-* 2026-07-04  : **6.0.0, origin/master**
+* 2026-07-04  : **6.0.0**
 
 .. code-block:: text
 

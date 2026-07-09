@@ -11,7 +11,6 @@
  * See man kernel-install for "boot_root"
  */
 #include <linux/limits.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>

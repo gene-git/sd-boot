@@ -6,7 +6,6 @@
  * i.e. whether image ~ "/usr/lib/modules/<kern-vers>/vmlinux
  */
 #include <regex.h>
-#include <stdbool.h>
 
 #include "sd-boot-kernel.h"
 

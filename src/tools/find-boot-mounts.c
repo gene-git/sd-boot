@@ -7,7 +7,6 @@
  * NB this marks current efi / xbootldr mount points as reported by "bootctl" with 
  * asterisk.
  */
-#include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 

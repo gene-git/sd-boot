@@ -13,7 +13,6 @@
  *
  * See man kernel-install for "boot_root"
  */
-#include <stdbool.h>
 
 #include "sd-boot.h"
 #include "sd-boot-config.h"

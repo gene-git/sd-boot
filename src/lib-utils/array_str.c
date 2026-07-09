@@ -6,7 +6,6 @@
  * Provides num_rows_used as a convenience when caller allocated in chunks
  * to reduce malloc() calls.
  */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

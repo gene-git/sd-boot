@@ -6,7 +6,6 @@
  * This is all plugins without any in the skip list: conf->skip_kernel_plugins
  *
  */
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

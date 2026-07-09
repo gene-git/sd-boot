@@ -6,7 +6,6 @@
 #ifndef SD_BOOT_KERNEL_H
 #define SD_BOOT_KERNEL_H
 
-#include <stdbool.h>
 #include <stddef.h>
 
 #include "sd-boot-config.h"

@@ -4,7 +4,6 @@
 /**
  * Invoke pacman to determine currently installed version of a package
  */
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 

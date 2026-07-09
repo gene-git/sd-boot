@@ -6,7 +6,6 @@
  * In test we need additional env variables. e.g.
  * LD_LIBRARY_PATH - allows tests using shared lib in developement / build area.
  */
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

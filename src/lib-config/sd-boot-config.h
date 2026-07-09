@@ -7,7 +7,6 @@
 #define SD_BOOT_CONFIG_H
 
 #include <limits.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <sys/types.h>
 

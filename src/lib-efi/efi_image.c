@@ -11,7 +11,6 @@
 #include <glob.h>
 #include <libgen.h>
 #include <linux/limits.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

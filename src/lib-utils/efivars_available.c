@@ -11,7 +11,6 @@
  * Return true if efivars are available
  */
 #include <dirent.h>
-#include <stdbool.h>
 #include <string.h>
 
 #include "sd-boot-utils.h"

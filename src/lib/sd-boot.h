@@ -7,7 +7,6 @@
 #define SD_BOOT_LIB_H
 
 #include <limits.h>
-#include <stdbool.h>
 #include <stddef.h>
 
 #include "sd-boot-config.h"

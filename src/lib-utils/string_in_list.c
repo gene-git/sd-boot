@@ -3,7 +3,6 @@
 /**
  * Check if the string 'name' is in a list of strings.
  */
-#include <stdbool.h>
 #include <string.h>
 
 #include "sd-boot-utils.h"

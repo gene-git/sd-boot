@@ -10,7 +10,6 @@
  * A path is recognized as containing at least 1 "/".
  * A path trigger without a "/" will be treated as a package.
  */
-#include <stdbool.h>
 
 #include "sd-boot-utils.h"
 #include "sd-boot.h"

@@ -38,6 +38,12 @@ static const cyaml_schema_value_t plugin_entry_schema = {
 /*
  * Schema for the top-level mapping (verb, skip_kernel_plugins).
  * Both fields are optional - an empty or partial file is fine.
+ *
+ * *Note*: We use libcyaml vs 1.x
+ * For libcyaml version 2.0 (if it is ever released)
+ *   - drop (unsigned int) casts on flag OR flag:
+ *     CYAML_FLAG_OPTIONAL | CYAML_FLAG_POINTER,
+ * Rest can remain same.
  */
 static const cyaml_schema_field_t top_mapping_schema[] = {
     CYAML_FIELD_INT(

@@ -9,15 +9,24 @@ sd-boot
 Recent Changes
 ==============
 
+**6.2.0**
+
+* Comment on building package: 
+  PKGBUILD uses -Dcpu_level=x86-64-v3.
+  If deploying on pre-haswell / pre-2013 machine, then change the 
+  build option to -Dcpu_level=baseline or remove this flag.
+
+* efifs-update: 
+  - copy files directly instead of calling rsync.
+  - installed files are now timestamped with current time.
+  - faster with fewer system calls.
+  - Fix (benign) double // in pathname.
+* Drop all include <stdbool.h> (not needed with C23).
+
 **6.1.0**
 
-* Bug fix installing efi tools: typo in destination directory name.
-* Improve build options
-  - Compiler flag *-march=* now set by a build option: -Dcpu_level=x86-64-v3 (default is -march=x86-64)
-  - Additional compiler/linker hardening 
-  - Release build now defaults to -Dhardened_export=true which uses -fvisibility=hidden
-    Also speeds up shared lib load times.
-  - Confirm project builds without any warnings using *-fanalyzer*
+* Bug fix installing efifs drivers: typo in destination directory name. 
+* Improve build options / hardening.
 * efi-tool (always uses bls layout) - simplify the bls initialization.
 
   Assisted-by: Claude (Anthropic) <https://claude.ai>
@@ -27,49 +36,11 @@ Recent Changes
 * Happy 250th USA!
 * Small change to how meson installs config/hooks/man pages
   No change in the end result just the meson.build.
-* When reading kernel-install "install.conf" files to get layout etc.,
-  follow the file priority rules set out by kernel-install,
-  Includes any "drop in" config files from "install.conf.d/xxx.conf" 
-* Code: Spawning processes.
-  - Reset child signal masks (defensive).  Good practice to clear any 
-    blocked/igmored signals even though not required by current code.
-  - tune up reading child process stdout.
-* Code review:
-  - focus on exception handling
-  - some code tidying
-  - use AI to review some of the code
-* Config. 
-  - Change to libcyaml instead of libyaml
-  - drop toml support (including auto converting toml to yaml).
+* Read all kernel-install "install.conf" files including drop-ins to get layout etc.,
+* Spawning processes - improve code.
+* Code review wiht focus on exception handling
+* Config use libcyaml.
 * Add .nvchecker.toml file (pkgctl version check)
-* bump major version since quite a few files were touched.
-  git diff --stat:
-  75 files changed, 1919 insertions(+), 2146 deletions(-)
-
-**5.11.0**
-
-* Remove *sd-boot* as a trigger in hooks - it is not needed.
-
-* Change location of dracut and kernel-install config files from /etc to:
-
-  - /usr/lib/kernel/install.conf.d/
-  - /usr/lib/dracut/dracut.conf.d
-
-  They were incorrectly installed in /etc/dracut.conf.d and /etc/kernel/
-
-* Updating all managed packages.
-
-  - *sd-boot-kernel-update* and *sd-boot-efi-update* may now be applied to
-    all kernels and efi-tools managed by sd-boot. This is done by using 
-    "--all--" as the package name instead of one specific package.
-
-* Code improvements.
-  - more code reorg and simplifications.
-  - additional checks reading triggers from stdin.
-  - tests that must be run sequentially are now grouped into "suites". 
-    tests in each suite are run sequentially. 
-    Assists testing non-trivial "remove" by ensuring that an "add" is 
-    completed before the remove.
 
 
 Overview

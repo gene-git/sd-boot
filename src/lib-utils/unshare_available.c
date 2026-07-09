@@ -12,7 +12,6 @@
  * Return true if unshare is availabl
  */
 #include <sched.h>
-#include <stdbool.h>
 #include <sys/wait.h>
 #include <unistd.h>
 

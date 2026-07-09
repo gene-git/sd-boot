@@ -8,7 +8,6 @@
  * Thay are either a path or a package name.
  * Return the list of triggers 
  */
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>

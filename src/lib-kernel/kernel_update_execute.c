@@ -8,7 +8,6 @@
  * Sets up and runs "kernel-install" to do the real work.
  * See also man kernel-install.
  */
-#include <stdbool.h>
 #include <string.h>
 
 #include "sd-boot.h"
