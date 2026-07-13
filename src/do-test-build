@@ -31,13 +31,13 @@
 #
 build_type='release'
 setup='standard'
-cpu='baseline'
+cpu='x86-64-v3'
 
 usage() {
     echo "do-test-build [build_type [setup [cpu]]"
     echo "  build_type: release or debug, debugoptimized or debugoptimized_nosan (release)"
     echo "  setup: set up test type: standard or valgrind (standard)"
-    echo "  cpu: x86-64-v3. If not set then defaults to baseline"
+    echo "  cpu: baseline or x86-64-v3. (x86-64-v3)."
     echo "    requires build_type and setup"
     echo "  Does a fresh build, installs to test tree and runs test suite"
     exit

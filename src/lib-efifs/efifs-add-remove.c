@@ -99,18 +99,6 @@ int efifs_add_remove(SdBoot *conf) {
     switch (conf->oper) {
         case KI_ADD:
             msg(MSG_NORMAL, "⦁ sd-boot: Copying efi filesystem drivers to %s\n", dst);
-
-            /*
-            char *const cmd_argv[] = {"/usr/bin/rsync", "--mkpath", "-a", src, dst, nullptr};
-            int child_ret = 0;
-
-            ret = run_cmd((char **)cmd_argv, conf->env_base.rows, &child_ret);
-            if (ret != 0 || child_ret != 0) {
-                msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
-                ret = 1;
-                goto exit;
-            }
-            */
             /*
              * Will be cross device so use_fast = slow
              */

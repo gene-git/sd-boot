@@ -14,32 +14,44 @@
  */
 static int VerbLevel = MSG_NORMAL; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
+/**
+ * Set message level
+ * - permitted values are from 0 to 3 
+ *                                          Message Level
+ *                          MSG_ERR     MSG_NORM    MSG_VERB    "kernel-install -v"
+ *   verb-level             0           1           2           3 
+ *   0 = quiet              Y
+ *   1 = normal             Y           Y
+ *   2 = verbose            Y           Y           Y
+ *   3 = very verbose       Y           Y           Y           Y
+ *
+ */
 void set_verb_level(int verb_level) {
-    /*
-     * Set message level
-     */
+
     if (verb_level < MSG_ERR) {
         VerbLevel = MSG_ERR;
-    } else if (verb_level > MSG_QUIET) {
-        VerbLevel = MSG_QUIET;
+
+    } else if (verb_level > MSG_VERB + 1) {
+        VerbLevel = MSG_VERB + 1;
+
     } else {
         VerbLevel = verb_level;
     }
 }
 
 /**
- * For level MSG_ERR then print to stderr otherwise to stdout
+ * For MSG_ERR goes to stderr otherwise to stdout
  */
 [[gnu::format(printf, 2, 3)]]
-void msg(int level, const char *fmt, ...) {
+void msg(int msg_level, const char *fmt, ...) {
 
     if (!fmt ) {
         return;
     }
-    if (level <= VerbLevel) {
+    if (VerbLevel >= msg_level) {
         int num = 0;
         FILE *stream = stdout;
-        if (level == MSG_ERR) {
+        if (msg_level == MSG_ERR) {
             stream = stderr;
         }
 

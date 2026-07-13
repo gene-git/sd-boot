@@ -13,10 +13,9 @@
  * Message Options (Verbosity)
  */
 enum MsgVerb {
-    MSG_ERR = -1,
-    MSG_VERB = 0,
+    MSG_ERR = 0,
     MSG_NORMAL = 1,
-    MSG_QUIET = 2,
+    MSG_VERB = 2,
 };
 
 

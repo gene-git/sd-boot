@@ -96,6 +96,7 @@ int update_package_versions(SdBoot *conf, PkgInfo *pkginfo) {
                 pkginfo->vers_prev = nullptr;
             }
 
+            updated = true;
             pkginfo->vers_prev = pkginfo->vers_curr;
             pkginfo->vers_curr = new_curr;
             new_curr = nullptr;
@@ -128,5 +129,4 @@ exit:
     }
     return ret;
 }
-
 

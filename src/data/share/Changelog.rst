@@ -6,14 +6,25 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.2.0 (2026-07-09)
-	76 commits.
+	3.6.2 (2026-04-21) -> 6.3.0 (2026-07-13)
+	77 commits.
 
 Commits
 =======
 
 
-* 2026-07-09  : **6.2.0**
+* 2026-07-13  : **6.3.0**
+
+.. code-block:: text
+
+              - **6.3.0**
+            
+                * Copy file with kernel mediated copy_file_range:
+                  If copy_file_range() is not available for the pair of source and destination
+                  devices and filesystems, fallback to (slower) read source and write destination.
+                * Bug fix: file that tracks previous version can fail to be updated
+
+* 2026-07-09  : **6.2.0, origin/master**
 
 .. code-block:: text
 
@@ -31,7 +42,7 @@ Commits
                   - Fix (benign) double // in pathname.
                 * Drop all include <stdbool.h> (not needed with C23).
 
-* 2026-07-05  : **6.1.0, origin/master**
+* 2026-07-05  : **6.1.0**
 
 .. code-block:: text
 

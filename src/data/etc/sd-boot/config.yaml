@@ -2,14 +2,15 @@
 # /etc/sd-boot/config.yaml
 #
 # Config settings for installing kernels via sd-boot tools
-# verb: integer value:
-#    0 = verbose is turned off
-#    1 = Useful info about the install
-#    2 = Additional info such as which trigger(s) (file or package) caused an update.
-#    3 = Also pass "-v" to kernel-install
+# verb: verbosity level (0-3). Larger is more verbose:
 #
-# Note: this file replaces /etc/sd-boot/config
-#       Going forward, please make any changes to this file
+#                          Errors   Normal  Verbose   "kernel-install -v"
+#   0 = quiet              Y
+#   1 = normal             Y        Y
+#   2 = verbose            Y        Y       Y
+#   3 = very verbose       Y        Y       Y         Y
+#
+# Level 3 passes the verboss flag to kernel-install.
 #
 verb: 1
 skip_kernel_plugins: []

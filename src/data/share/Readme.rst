@@ -9,6 +9,13 @@ sd-boot
 Recent Changes
 ==============
 
+**6.3.0**
+
+* Copy file with kernel mediated copy_file_range: 
+  If copy_file_range() is not available for the pair of source and destination
+  devices and filesystems, fallback to (slower) read source and write destination.
+* Bug fix: file that tracks previous version can fail to be updated
+
 **6.2.0**
 
 * Comment on building package: 
