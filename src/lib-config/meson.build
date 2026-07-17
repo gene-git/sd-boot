@@ -18,4 +18,5 @@ lib_sources += files(
     'ki_oper.c',
     'load_config_cyaml.c',
     'load_kernel_install.c',
+    'read_kernel_install_files.c',
     )

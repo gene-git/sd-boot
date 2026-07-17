@@ -10,6 +10,7 @@ inc_dir += include_directories('.')
 lib_sources += files(
     'check_permission.c',
     'efi_var.c',
+    'find_dollar_boot_bls.c',
     'get_triggers.c',
     'ki_plugin.c',
     'ki_plugin_env_init.c',

@@ -66,15 +66,14 @@ typedef struct PkgInfo {
     char *pkg_name;
     char *pkg_vers;
 
-    char *vers_curr;
-    char *vers_prev;
-
     char *ki_vers;
     char *ki_image;
 
     char *mod_dir;
 
     bool managed;
+
+    Array_str ki_vers_old;
 
 } PkgInfo;
 
@@ -124,6 +123,8 @@ typedef struct TriggerInfo {
 bool check_permission(SdBoot *conf);
 char *read_efi_var_string(const char *efi_path);
 int get_triggers(TriggerInfo *trigs);
+
+char *find_dollar_boot_bls(SdBoot *conf);
 
 void print_ki_plugin(KIplugin *plugin);
 

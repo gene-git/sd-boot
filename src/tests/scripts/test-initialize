@@ -23,6 +23,17 @@ fi
 echo "sd-boot: initilizing test setup."
 
 #
+# valgrind suppression file.
+# libalpm uses libcurl and openssl - valgrind will show 
+# reachable memory leaks from these libs which we suppress 
+# 
+valg_supp_file="$testing_dir"/valgrind.suppress
+if [[ ! -f "$valg_supp_file" ]] ; then
+    echo "  warning: missing valgrind.suppress file"
+    echo "         : needed for libalpm/libcurl/libcryto mem leaks"
+fi
+
+#
 # - Make the test dir / install sd-boot 
 #
     /usr/bin/mkdir -p "$testing_dir/__root__"

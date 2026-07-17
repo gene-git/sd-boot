@@ -6,14 +6,30 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.3.0 (2026-07-13)
-	77 commits.
+	3.6.2 (2026-04-21) -> 6.4.0 (2026-07-17)
+	78 commits.
 
 Commits
 =======
 
 
-* 2026-07-13  : **6.3.0**
+* 2026-07-17  : **6.4.0**
+
+.. code-block:: text
+
+              - **6.4.0**
+            
+                * BugFix: sd-find-boot was not showing output unless verbose = 2 in version 6.3.0.
+                * Change how older efi-tool versions are removed when updating/(re)installing:
+                    - Scan for older versions which is more robust than a file database tracker.
+                    - When multiple older versions are found, they are all removed
+                * Uses libalpm instead of spawning pacman to get some package info.
+                  Note libalpm uses libcurl/libcrypto from which valgrind
+                  finds some (benign) reachable memory leaks. We treat any memory leak as
+                  an error, including any from external libraries. Add valgrind suppression rules
+                  to ignore these specific ones.
+
+* 2026-07-13  : **6.3.0, origin/master**
 
 .. code-block:: text
 
@@ -24,7 +40,7 @@ Commits
                   devices and filesystems, fallback to (slower) read source and write destination.
                 * Bug fix: file that tracks previous version can fail to be updated
 
-* 2026-07-09  : **6.2.0, origin/master**
+* 2026-07-09  : **6.2.0**
 
 .. code-block:: text
 

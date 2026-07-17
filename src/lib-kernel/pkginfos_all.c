@@ -33,19 +33,17 @@ int kernel_pkginfos_all(Tool *tool) {
     /*
      * Update:
      * - pkg_vers
-     * - vers_curr
-     * - vers_prev
      * - managed
      */
     for (size_t i = 0; i < tool->num_pkgs; i++) {
         pkginfo = &tool->pkginfo[i];
 
-        ret = package_version_installed(&tool->conf, pkginfo);
+        ret = package_version_installed(pkginfo);
         if (ret != 0) {
             goto exit;
         }
 
-        if (read_package_version_file(&tool->conf, pkginfo) < 0) {
+        if (remove_package_version_file(&tool->conf, pkginfo) != 0) {
             ret = -1;
             goto exit;
         }

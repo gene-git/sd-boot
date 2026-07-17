@@ -27,6 +27,7 @@ char *efi_tool_ki_vers(char *pkg_name, char *pkg_vers);
 int efi_tool_pkginfo(SdBoot *conf, PkgInfo *info);
 
 int efi_tool_pkginfos_from_triggers(TriggerInfo *tinfo, Tool *tool);
+int efi_tool_ki_vers_old(SdBoot *conf, PkgInfo *pkginfo);
 
 int ki_make_kernel_conf_bls(SdBoot *conf);
 int ki_efi_update_env(SdBoot *conf, Array_str *env);

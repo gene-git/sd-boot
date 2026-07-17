@@ -43,11 +43,46 @@ typedef enum {
  *   - verb
  *   - str skip_kernel_plugins (list of paths of kernel plugins to skip)
  *
- * - /etc/kernel/install.conf
+ * - install.conf (/us/lib/kernel  and /etc/kernel and drop in dirs install.conf.d)
  *   - layout
  *   - initrd_generator
  *   - uki_generator;
+ * 
+ * - /etc/kernel/entry-token (if exists)
+ *   -> entry_token_etc (use machine-id if not found in install.conf files)
+ *
+ * - /etc/machine-id
+ *   - machine_id
+ *
+ * entry_token points to machine_id unless entry_token_etc is set.
  */
+/*
+ * InstallConf is read from the install.conf and it's drop in files.
+ * install.conf.d
+ *
+ * entry_token_etc is read from /etc/entry-token
+ * machine_id_etc is read from /etc/machine-id
+ *
+ * Note that sd-boot test code uses the environ BOOT_ROOT to ensure tests are run in
+ * the testing directory. sd-boot uses an otherwise clean environment to 
+ * spawn kernel-install
+ */
+typedef struct {
+    char *layout;
+    char *initrd_generator;
+    char *uki_generator;
+    char *boot_root;
+    char *machine_id;
+
+    char *entry_token_etc;
+    char *machine_id_etc;
+
+    // not currently used.
+    char *env_var_boot_root;
+    char *env_var_machine_id;
+
+} InstallConf;
+
 typedef struct {
 
     int verb;
@@ -57,10 +92,15 @@ typedef struct {
     uid_t euid;
     char *root;
 
+    InstallConf install_conf;
+
     bool is_uki;
+
     char *layout;
     char *initrd_generator;
     char *uki_generator;
+    char *boot_root;
+    char *entry_token;
 
     ToolType tool_type;
 
@@ -127,9 +167,11 @@ int load_config_yaml(SdBoot *conf);
 Operation ki_operation(const char *oper);
 int ki_install_conf_init(SdBoot *conf);
 int load_kernel_install_conf(SdBoot *conf);
+int read_kernel_install_files(SdBoot *conf);
 
 int config_init(SdBoot *conf);
 int config_test_init(SdBoot *conf);
+void init_entry_token(SdBoot *conf);
 
 int config_set_base_env(bool test, Array_str *env_base);
 

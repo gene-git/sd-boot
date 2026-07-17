@@ -20,7 +20,7 @@ int ki_install_conf_init(SdBoot *conf) {
     char path[PATH_MAX] = {};
 
     /*
-     * The normal /etc/kernel/install.conf
+     * The normal config dir: <root>/etc/kernel/
      */
     if (snprintf(path, sizeof(path), "%s%s", conf->root, "etc/kernel") < 0) {
         perror(nullptr);
@@ -29,9 +29,8 @@ int ki_install_conf_init(SdBoot *conf) {
     }
     conf->kernel_conf_dir = strdup(path);
 
-
     /*
-     * shadow /var/lib/sd-boot/kernel_conf_bls
+     * The shadow config dir: /var/lib/sd-boot/kernel_conf_bls
      * We want kernel_conf_bls_dir at a fixed location.
      * Used by efi tool to make a shadow /etc/kernel with
      * layout set to bls.

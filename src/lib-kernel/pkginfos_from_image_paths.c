@@ -49,15 +49,14 @@ int kernel_pkginfos_from_image_paths(Array_str *image_paths, Tool *tool) {
         /*
          * Update:
          * - pkg_vers
-         * - vers_curr, vers_prev
          * - managed
          */
-        ret = package_version_installed(&tool->conf, pkginfo);
+        ret = package_version_installed(pkginfo);
         if (ret != 0) {
             goto exit;
         }
 
-        if (read_package_version_file(&tool->conf, pkginfo) < 0) {
+        if (remove_package_version_file(&tool->conf, pkginfo) != 0) {
             ret = -1;
             goto exit;
         }

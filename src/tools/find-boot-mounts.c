@@ -18,8 +18,8 @@ enum Const { BUF = 8 };
 
 
 static void print_header() {
-    msg(MSG_VERB, "%70s\n", "(c)urrent (a)ctive");
-    msg(MSG_VERB, "%20s %-30s (%s %s) %s\n", "Device", "Mount", "c", "a", "type");
+    msg(MSG_NORMAL, "%70s\n", "(c)urrent (a)ctive");
+    msg(MSG_NORMAL, "%20s %-30s (%s %s) %s\n", "Device", "Mount", "c", "a", "type");
 }
 
 static char *marker(TriState state, char *t_str, char *f_str, char *u_str) {
@@ -43,7 +43,7 @@ static void print_row(char *ptype, MountInfo *mount) {
     char *active = marker(mount->active, "✔", " ", "?");
     char *current = marker(mount->current, "✔", " ", " ");
 
-    msg(MSG_VERB, "%20s %-30s (%s %s) %s\n", mount->device, mount->mount, current, active, ptype);
+    msg(MSG_NORMAL, "%20s %-30s (%s %s) %s\n", mount->device, mount->mount, current, active, ptype);
 }
 
 int main() {

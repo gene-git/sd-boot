@@ -1,5 +1,5 @@
 #
-# sd-boot: lib-package
+# sd-boot: lib-utils
 #
 
 #
@@ -8,6 +8,5 @@
 inc_dir += include_directories('.')
 
 lib_sources += files(
-    'package_version_file.c',
-    'package_version_installed.c',
+    'get_curr_pkg_vers_alpm.c',
     )

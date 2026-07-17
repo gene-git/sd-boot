@@ -1,0 +1,30 @@
+# ====================================================================
+# VALGRIND SUPPRESSION FILE
+# Hides unavoidable "still reachable" allocations from 
+# libcurl/libcrypto called via alpm
+# ====================================================================
+
+#
+# : Silence OpenSSL 3.x global provider structures
+#
+{
+   Ignore_OpenSSL_Internal_Global_Allocations
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:CRYPTO_malloc
+   ...
+   obj:*/libcrypto.so*
+}
+
+#
+# Silence the internal HTTP/QUIC crypto initiators called by Curl
+#
+{
+   Ignore_Ngtcp2_Crypto_Init
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:ngtcp2_crypto_ossl_init
+}

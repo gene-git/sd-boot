@@ -10,94 +10,13 @@
  *
  * See man kernel-install for "boot_root"
  */
-#include <linux/limits.h>
-#include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "sd-boot-config.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-msg.h"
-#include "sd-boot-package.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
-
-/*
- * Check if kernel vers exists by checking /usr/lib/modules/<vers>/vmlinuz
- * Informational only so don't fail.
- */
-static bool does_kernel_version_exist(const char *kernel_version) {
-    char path[PATH_MAX] = {};
-
-    if (snprintf(path, PATH_MAX, "/usr/lib/modules/%s/vmlinuz", kernel_version) < 0) {
-        return false;
-    }
-
-    if (access(path, F_OK) == 0) {
-        return true;
-    }
-
-    return false;
-}
-
-
-/*
- * remove prev version 
- * - skip on update where prev = curr
- * - version string is = "<package>-<prev>"
- *   i.e. augment version string with package name
- * - an alpm remove hook may have been run. 
- *   check if the kernel image exists and display message.
- *   Still call kernel-install remove in case it has any housekeeping
- *   or other tasks to do.
- */
-static int remove_prev_version(SdBoot *conf, const PkgInfo *info) {
-    int ret = 0;
-    Array_str arg_arr = {};
-
-    if (!info->vers_prev || info->vers_prev[0] == '\0') {
-        return 0;
-    }
-
-    if (strcmp(info->vers_prev, info->vers_curr) == 0) {
-        return 0;
-    }
-
-    msg(MSG_NORMAL, "  ↳ sd-boot: removing prev version %s\n", info->vers_prev);
-
-    /*
-     * Checks for ki_image = /usr/lib/modules/<ki_vers>/vmlinuz
-     * - may still exist in $BOOT - so ask kernel-install to 
-     *   remove it.
-     */
-    if (!does_kernel_version_exist(info->vers_prev)) {
-        msg(MSG_NORMAL, "           : prev version already removed\n");
-    }
-
-    ret = array_str_new(2, &arg_arr);
-    if (ret != 0) {
-        goto exit;
-    }
-    arg_arr.rows[0] = strdup("remove");
-    arg_arr.rows[1] = strdup(info->vers_prev);
-
-    if (!arg_arr.rows[0] || !arg_arr.rows[1]) {
-        ret = -1;
-        goto exit;
-    }
-    array_str_refresh_row_len(&arg_arr);
-
-    ret = kernel_install_run(conf, &arg_arr, &conf->env_active_plugins);
-    if (ret != 0) {
-        msg(MSG_ERR, "  ! sd-boot: error removing prev kernel %s\n", info->vers_prev);
-        ret = 1;
-        goto exit;
-    }
-exit:
-    array_str_free(&arg_arr);
-    return ret;
-}
-
 
 /*
  * Prep args and env.
@@ -134,7 +53,7 @@ static int init_arg_arr(SdBoot *conf, PkgInfo *info, Array_str *arg_arr) {
             }
 
             arg_arr->rows[0] = strdup(conf->oper_str);
-            arg_arr->rows[1] = strdup(info->ki_vers);     // info->vers_curr for addremove
+            arg_arr->rows[1] = strdup(info->ki_vers);
             arg_arr->rows[2] = strdup(info->ki_image);
 
             if (!arg_arr->rows[0] || !arg_arr->rows[1] || !arg_arr->rows[2]) {
@@ -173,25 +92,8 @@ int kernel_update_one(SdBoot *conf, PkgInfo *info) {
         goto exit;
     }
 
-    if (conf->oper == KI_ADD) {
-        ret = update_package_versions(conf, info);
-        if (ret != 0) {
-            goto exit;
-        }
-    }
-
     msg(MSG_NORMAL, "⦁ sd-boot: Updating (%s) kernel package : %s %s\n", 
             conf->oper_str, info->pkg_name, info->pkg_vers);
-
-    /*
-     * If adding new version, remove previous
-     */
-    if (conf->oper == KI_ADD) {
-        ret = remove_prev_version(conf, info);
-        if (ret != 0) {
-            goto exit;
-        }
-    }
 
     /*
      * Install the new version
@@ -217,17 +119,6 @@ int kernel_update_one(SdBoot *conf, PkgInfo *info) {
         goto exit;
     }
     msg(MSG_NORMAL, "  ↳ sd-boot: Completed kernel update %s\n", info->pkg_name);
-
-    /*
-     * When removing a package we remove the package version file
-     */
-    if (conf->oper == KI_REMOVE) {
-        ret = remove_package_version_file(conf, info);
-        if (ret != 0) {
-            msg(MSG_ERR, "  ! sd-boot: error removing package versions file\n");
-            goto exit;
-        }
-    }
 
 exit:
     array_str_free(&arg_arr);

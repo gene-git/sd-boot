@@ -15,8 +15,6 @@
  * Fields not updated (see kernel_pkginfos_all()):
  *
  * - info->pkg_vers
- * - info->vers_curr
- * - info->vers_prev
  * - info->managed
  *
  * Allocate an array of PkgInfo structs.

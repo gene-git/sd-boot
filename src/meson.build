@@ -177,6 +177,7 @@ subdir('lib-package')
 subdir('lib-tool')
 subdir('lib-utils')
 subdir('lib-keyval')
+subdir('lib-alpm')
 
 #
 # Libs
@@ -184,13 +185,14 @@ subdir('lib-keyval')
 mount_dep = dependency('mount', required: true)
 yaml_dep = dependency('libcyaml', required: true)
 udev_dep = dependency('libudev', required: true)
+alpm_dep = dependency('libalpm', required: true)
 
 sd_boot_lib = library('sd_boot',
   sources: lib_sources,
   include_directories: inc_dir,
   c_args: my_cflags,
   link_args: my_ldflags,
-  dependencies: [mount_dep, udev_dep, yaml_dep],
+  dependencies: [mount_dep, udev_dep, yaml_dep, alpm_dep],
   install: true,
   install_dir: d_lib
 )
@@ -223,7 +225,7 @@ efifs_update = executable('sd-boot-efifs-update',
 
 efi_tool_update_triggers = executable('sd-boot-efi-tool-update-triggers',
   sources: 'tools-efi/efi-tool-update-triggers.c',
-  dependencies: [sd_boot_dep, yaml_dep],
+  dependencies: [sd_boot_dep, yaml_dep, alpm_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -232,7 +234,7 @@ efi_tool_update_triggers = executable('sd-boot-efi-tool-update-triggers',
 
 efi_tool_update = executable('sd-boot-efi-tool-update',
   sources: 'tools-efi/efi-tool-update.c',
-  dependencies: [sd_boot_dep, yaml_dep],
+  dependencies: [sd_boot_dep, yaml_dep, alpm_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -241,7 +243,7 @@ efi_tool_update = executable('sd-boot-efi-tool-update',
 
 kernel_update_triggers = executable('sd-boot-kernel-update-triggers',
   sources: 'tools-kernel/kernel-update-triggers.c',
-  dependencies: [sd_boot_dep, yaml_dep],
+  dependencies: [sd_boot_dep, yaml_dep, alpm_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,
@@ -250,7 +252,7 @@ kernel_update_triggers = executable('sd-boot-kernel-update-triggers',
 
 kernel_update = executable('sd-boot-kernel-update',
   sources: 'tools-kernel/kernel-update.c',
-  dependencies: [sd_boot_dep, yaml_dep],
+  dependencies: [sd_boot_dep, yaml_dep, alpm_dep],
   c_args: my_cflags,
   link_args: my_ldflags,
   install: true,

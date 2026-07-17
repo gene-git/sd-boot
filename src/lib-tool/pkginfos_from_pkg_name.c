@@ -38,19 +38,17 @@ static int update_one(PkgInfo *pkginfo, Tool *tool) {
     /*
      * Currently installed versions
      */
-    ret = package_version_installed(&tool->conf, pkginfo);
+    ret = package_version_installed(pkginfo);
     if (ret != 0) {
         ret = 0;
         pkginfo->managed = false;
         goto exit;
     }
 
-    /* 
-     * - vers_curr / vers_curr: current/previous versions
-     *   efi-tools use package version and kernels use kern-vers
-     * - okay if no info available.
+    /*
+     * Legacy file clean up - no longer used so remove if exists
      */
-    if (read_package_version_file(&tool->conf, pkginfo) < 0) {
+    if (remove_package_version_file(&tool->conf, pkginfo) != 0) {
         ret = -1;
         goto exit;
     }

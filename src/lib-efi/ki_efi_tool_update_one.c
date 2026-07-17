@@ -18,28 +18,27 @@
 static int remove_prev_vers(SdBoot *conf, PkgInfo *info, Array_str *env_arr) {
 
     int ret = 0;
-    char *ki_vers = nullptr;
     Array_str arg_arr = {};
 
-    if (!info->vers_prev || !info->vers_curr) {
+    /*
+     * Get list of any older ki_vers 
+     * - remove all listed in pkginfo->ki_vers_old
+     */
+    ret = efi_tool_ki_vers_old(conf, info);
+    if (ret != 0) {
+        return -1;
+    }
+    Array_str *ki_vers_old = &info->ki_vers_old;
+
+    if (ki_vers_old->num_rows < 1) {
         return 0;
     }
 
-    if (strcmp(info->vers_prev, info->vers_curr) == 0) {
-        return 0;
-    }
-
-    msg(MSG_NORMAL, "  ↳ sd-boot: removing prev %s %s\n", info->pkg_name, info->vers_prev);
-
-    ki_vers = efi_tool_ki_vers(info->pkg_name, info->vers_prev);
-    if (!ki_vers) {
-        msg(MSG_ERR, "  ! sd-boot: efi tool: error making prev version\n");
-        ret = -1;
-        goto exit;
-    }
+    msg(MSG_NORMAL, "  ↳ sd-boot: removing older version(s):\n");
 
     /*
-     * Build argv
+     * kernel-install setup
+     *  - args remove <ki-evrsion>
      */
     ret = array_str_new(2, &arg_arr);
     if (ret != 0) {
@@ -47,27 +46,35 @@ static int remove_prev_vers(SdBoot *conf, PkgInfo *info, Array_str *env_arr) {
     }
 
     arg_arr.rows[0] = strdup("remove");
-    arg_arr.rows[1] = ki_vers;
-    ki_vers = nullptr;
+    arg_arr.rows[1] = nullptr;
 
-    if (!arg_arr.rows[0] || !arg_arr.rows[1]) {
+    if (!arg_arr.rows[0]) {
         ret = -1;
         goto exit;
     }
 
-    array_str_refresh_row_len(&arg_arr);
+    for (size_t i = 0; i < ki_vers_old->num_rows; i++) {
+        char *ki_vers = ki_vers_old->rows[i];
 
-    ret = kernel_install_run(conf, &arg_arr, env_arr);
-    if (ret != 0) {
-        msg(MSG_ERR, "  ! sd-boot: error removing prev vers %s\n", arg_arr.rows[1]);
-        ret = -1;
-        goto exit;
+        msg(MSG_NORMAL, "    ↳ sd-boot: remove %s\n", ki_vers);
+
+        arg_arr.rows[1] = ki_vers;
+        ki_vers_old->rows[i] = nullptr;
+
+        array_str_refresh_row_len(&arg_arr);
+
+        ret = kernel_install_run(conf, &arg_arr, env_arr);
+        if (ret != 0) {
+            msg(MSG_ERR, "  ! sd-boot: error removing prev vers %s\n", arg_arr.rows[1]);
+            ret = -1;
+            goto exit;
+        }
+        ki_vers_old->rows[i] = ki_vers;
+        arg_arr.rows[1] = nullptr;
     }
+
 exit:
     array_str_free(&arg_arr);
-    if (ki_vers) {
-        free((void *)ki_vers);
-    }
     return ret;
 }
 
@@ -89,7 +96,7 @@ static int init_arg_arr(SdBoot *conf, PkgInfo *info, Array_str *arg_arr) {
             }
 
             arg_arr->rows[0] = strdup(conf->oper_str);
-            arg_arr->rows[1] = strdup(info->ki_vers);       // same as vers_curr
+            arg_arr->rows[1] = strdup(info->ki_vers);
 
             if (!arg_arr->rows[0] || !arg_arr->rows[1]) {
                 ret = -1;
@@ -105,7 +112,7 @@ static int init_arg_arr(SdBoot *conf, PkgInfo *info, Array_str *arg_arr) {
             }
 
             arg_arr->rows[0] = strdup(conf->oper_str);
-            arg_arr->rows[1] = strdup(info->ki_vers);     // info->vers_curr for addremove
+            arg_arr->rows[1] = strdup(info->ki_vers);
             arg_arr->rows[2] = strdup(info->ki_image);
 
             if (!arg_arr->rows[0] || !arg_arr->rows[1] || !arg_arr->rows[2]) {
@@ -146,13 +153,6 @@ int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
         goto exit;
     }
 
-    if (conf->oper == KI_ADD) {
-        ret = update_package_versions(conf, info);
-        if (ret != 0) {
-            goto exit;
-        }
-    }
-
     msg(MSG_NORMAL, "⦁ sd-boot: Updating efi tool %s\n", info->pkg_name);
 
     /*
@@ -161,6 +161,16 @@ int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
     ret = ki_efi_update_env(conf, &env_arr);
     if (ret != 0) {
         ret = 1;
+        goto exit;
+    }
+
+    /*
+     * version = <package-name>-<current-package-version>
+     */
+    info->ki_vers = efi_tool_ki_vers(info->pkg_name, info->pkg_vers);
+    if (!info->ki_vers) {
+        msg(MSG_ERR, "  ! sd-boot: efi tool: error making curr vers\n");
+        ret = -1;
         goto exit;
     }
 
@@ -173,15 +183,6 @@ int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
 
     msg(MSG_NORMAL, "  ↳ sd-boot: %s %s %s\n", conf->oper_str, info->pkg_name, info->pkg_vers);
 
-    /*
-     * version = <package-name>-<current-package-version>
-     */
-    info->ki_vers = efi_tool_ki_vers(info->pkg_name, info->pkg_vers);
-    if (!info->ki_vers) {
-        msg(MSG_ERR, "  ! sd-boot: efi tool: error making curr vers\n");
-        ret = -1;
-        goto exit;
-    }
 
     ret = init_arg_arr(conf, info, &arg_arr);
     if (ret != 0) {

@@ -11,8 +11,6 @@
  *
  * - pkginfo->mod_dir
  * - 
- * - pkginfo->vers_curr
- * - pkginfo->vers_prev
  * - pkginfo->managed
  *
  */
@@ -41,19 +39,20 @@ int kernel_pkginfo_from_kernel_image(Tool *tool, PkgInfo *pkginfo) {
     /*
      * Update:
      * - pkg_vers (if not set)
-     * - vers_curr
-     * - vers_prev
      * - managed
      */
 
     if (!pkginfo->pkg_vers) {
-        ret = package_version_installed(&tool->conf, pkginfo);
+        ret = package_version_installed(pkginfo);
         if (ret != 0) {
             goto exit;
         }
     }
 
-    if (read_package_version_file(&tool->conf, pkginfo) < 0) {
+    /*
+     * Legacy file clean up - no longer used so remove if exists
+     */
+    if (remove_package_version_file(&tool->conf, pkginfo) != 0) {
         ret = -1;
         goto exit;
     }

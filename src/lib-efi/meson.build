@@ -12,6 +12,7 @@ lib_sources += files(
     #'efi_tool_add.c',
     #'efi_tool_inspect.c',
     'efi_tool_ki_vers.c',
+    'efi_tool_old_ki_vers.c',
     'efi_tool_pkginfo.c',
     'efi_tool_pkginfos_from_triggers.c',
     #'efi_tool_remove.c',

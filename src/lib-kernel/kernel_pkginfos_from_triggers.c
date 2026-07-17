@@ -41,8 +41,6 @@
  *  info->pkg_vers
  *  info->ki_image
  *  info->mod_dir
- *  info->vers_curr
- *  info->vers_prev
  */
 
 int kernel_pkginfos_from_triggers(TriggerInfo *tinfo, Tool *tool) {

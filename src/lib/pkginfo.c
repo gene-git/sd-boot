@@ -22,14 +22,6 @@ void pkginfo_free(PkgInfo *info) {
         free((void *)info->pkg_vers);
     }
 
-    if (info->vers_curr) {
-        free((void *)info->vers_curr);
-    }
-
-    if (info->vers_prev) {
-        free((void *)info->vers_prev);
-    }
-
     if (info->ki_vers) {
         free((void *)info->ki_vers);
     }

@@ -9,6 +9,19 @@ sd-boot
 Recent Changes
 ==============
 
+**6.4.0**
+
+* BugFix: sd-find-boot was not showing output unless verbose = 2 in version 6.3.0.
+* Change how older efi-tool versions are removed when updating/(re)installing:
+    - Scan for older versions which is more robust than a file database tracker.
+    - When multiple older versions are found, they are all removed
+* Uses libalpm instead of spawning pacman to get some package info.
+  Note libalpm uses libcurl/libcrypto from which valgrind
+  finds some (benign) reachable memory leaks. We treat any memory leak as
+  an error, including any from external libraries. Add valgrind suppression rules 
+  to ignore these specific ones.
+
+
 **6.3.0**
 
 * Copy file with kernel mediated copy_file_range: 

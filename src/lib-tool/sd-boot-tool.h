@@ -15,7 +15,6 @@ int init_oper(char *oper_str, Tool *tool);
 int init_pkginfos_all_managed(Tool *tool);
 int init_pkginfos_from_pkg_name(char *pkg_name, Tool *tool);
 
-
 int read_managed_packages(SdBoot *conf, Array_str *pkg_list);
 int load_managed_package_list(Tool *tool);
 

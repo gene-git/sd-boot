@@ -15,7 +15,7 @@
  * Function declarations
  */
 int update_package_versions(SdBoot *conf, PkgInfo *pkginfo);
-int package_version_installed(SdBoot *conf, PkgInfo *pkginfo);
+int package_version_installed(PkgInfo *pkginfo);
 
 int read_package_version_file(SdBoot *conf, PkgInfo *pkginfo);
 int write_package_version_file(SdBoot *conf, PkgInfo *pkginfo);
