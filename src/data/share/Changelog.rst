@@ -6,14 +6,21 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.4.0 (2026-07-17)
-	78 commits.
+	3.6.2 (2026-04-21) -> 6.4.1 (2026-07-27)
+	79 commits.
 
 Commits
 =======
 
 
-* 2026-07-17  : **6.4.0**
+* 2026-07-27  : **6.4.1**
+
+.. code-block:: text
+
+              - Update src/.clang-tidy
+                Add nvcheker to the AUR package not just packaging directory in the git repo
+
+* 2026-07-17  : **6.4.0, origin/master**
 
 .. code-block:: text
 
@@ -29,7 +36,7 @@ Commits
                   an error, including any from external libraries. Add valgrind suppression rules
                   to ignore these specific ones.
 
-* 2026-07-13  : **6.3.0, origin/master**
+* 2026-07-13  : **6.3.0**
 
 .. code-block:: text
 

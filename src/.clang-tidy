@@ -20,7 +20,8 @@ Checks: '*,
   -altera-id-dependent-backward-branch,
   -altera-struct-pack-align,
   -bugprone-suspicious-realloc-usage,
-  -bugprone-easily-swappable-parameters, #,-warnings-as-errors,
+  -bugprone-easily-swappable-parameters,
+  -warnings-as-errors,
   -llvm-header-guard,
   '
 WarningsAsErrors: 'bugprone-*'
