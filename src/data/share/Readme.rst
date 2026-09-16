@@ -9,6 +9,15 @@ sd-boot
 Recent Changes
 ==============
 
+**6.4.2**
+
+* Update Readme (esp. dracut config section)
+
+**6.4.1**
+
+* Update src/.clang-tidy
+* Add nvcheker to the AUR package not just packaging directory in the git repo
+
 **6.4.0**
 
 * BugFix: sd-find-boot was not showing output unless verbose = 2 in version 6.3.0.
@@ -115,9 +124,7 @@ Package names here are the standard Arch package names.
 
 Please ensure any package to be managed by sd-boot is listed appropriately.
 
-By default kernel-install sets kernel boot options using in order:
-
-.. code-block:: bash
+By default kernel-install sets kernel boot options using in order::
 
     /etc/kernel/cmdline
     /usr/lib/kernel/cmdline
@@ -142,9 +149,7 @@ coded in *C* has since replaced it.
 Getting Started
 ===============
 
-For a kernel to be managed by *sd-boot* it must be installed in:
-
-.. code-block:: text
+For a kernel to be managed by *sd-boot* it must be installed in::
 
    /usr/lib/modules/<kernel-version>
      with the kernel in
@@ -154,9 +159,7 @@ A kernel package must **NOT** install the kernel or any initrd into *<EFI>* or *
 It should not even create an initrd.
 
 Once the package is installed, list the kernels and efi-tools to be managed 
-by sd-boot by editing and listing them in the files:
-
-.. code-block:: text
+by sd-boot by editing and listing them in the files::
 
    /etc/sd-boot/kernel.packages
    /etc/sd-boot/efi-tools.packages
@@ -178,15 +181,11 @@ or trigger a pacman refresh with :
     pacman -Syu
 
 sd-boot relies on each kernel package providing a file in the kernel module
-directory that contains that kernel package name:
-
-.. code-block:: text
+directory that contains that kernel package name::
 
     /usr/lib/modules/<kernel-version>/pkgbase
 
-or
-
-.. code-block:: text
+or::
 
     /usr/lib/modules/<kernel-version>/pkgbase-sdb
 
@@ -208,7 +207,7 @@ The following tools may be run from the command line:
 * /usr/lib/sd-boot/sd-boot-find-boot-mounts
 
 sd-boot is normally triggered by pacman using ALPM hooks. Kernels and efi tools
-may also be manually installed or removed from $BOOT. jj
+may also be manually installed or removed from $BOOT.
 
 For example to install a bootable efi shell, provided by the *adk2-shell* package:
 
@@ -333,11 +332,19 @@ sd-boot provides a default dracut config file:
 
 .. code-block:: text
 
-   /etc/dracut.conf.d/010-dracut.conf
+   /usr/lib/dracut/dracut.conf.d/010-sd-boot-dracut.conf
 
-This file can be modifued, since it is listed in the PKGBUILD backup() array, or a new file may be added.
-The last file read by dracut define the options that it uses. For example a file called 020-dracut.conf
-will over-ride any settings in the one provided by sd-boot.
+If changes are needed, then over-rides can be provided as usual using a drop in file::
+
+    /etc/dracut.conf.d/xxx.conf
+
+since entries found in */etc*/ take precedence over */usr/lib/* as usual.
+Files within each directory are processed in alphanumeric order. For example a file called 020-dracut.conf
+will over-ride any settings 010-dracut.conf in the same directory.
+The last file read by dracut sets the options used. 
+
+This treatment of configuration file precedence is standard on linux, and kernel-install follows the
+same rules for it's configuration files. 
 
 Efi Filesystem Drivers
 ----------------------
@@ -488,16 +495,30 @@ BLS layout uses:
     $BOOT/<machine-id>/<kernel-version>/initrd
     $BOOT/loader/entries/<<machine-id>-<kernel-version>.conf
 
-To switch from BLS to UKI layout first adjust */etc/kernel/install.conf*
+kernel install uses settings from */usr/lib/kernel* which may be over-ridden 
+with files in */etc/kernel*.
 
-.. code-block:: text
+sd-boot installs::
+
+    /usr/lib/kernel/install.conf.d/010-sd-boot-install.conf
+
+which contains::
 
     layout=uki
     initrd_generator=dracut
     uki_generator=ukify
 
-Then install the kernel package again. Please note that this does not remove the 
-old loader entry or the old kernel. THese will need to be manually removed.
+To switch back to BLS from UKI layout create or edit the file::
+
+    /etc/kernel/install.conf
+
+with *layout=bls*.
+
+Then install the kernel package again. 
+
+BLS layout uses *type #1* loader entries. So if layout is changed from *bls* back to *uki*
+neither the old BLS loader entry files nor the BLS kernel and initrd are automatically removed.
+These will need to be manually removed.
 
 .. code-block:: text
 
@@ -516,7 +537,7 @@ code does not provide for the *OSRelease=* option.
 
 At this time, however, there is no clean way to do this that I could find.
 Hopefully kernel-install will allow this in the future. In the meantime
-the boot menu items in *uki* mode are precise but very long.
+the boot menu items in *uki* mode are precise but quite long.
 
 Bootable efi tools
 ==================
@@ -546,15 +567,11 @@ To add any efi tool and have it *just work*, 2 things are needed.
 Simplest way to add a new efi tool, is to use the efi shell as templates and modify appropriately.
 
 For example, if the efi tool package is called XXX-efi
-then the alpm hook install file, installed (as usual) in
-
-.. code-block:: text
+then the alpm hook install file, installed (as usual) in::
 
    /usr/share/libalpm/99-XXX-efi-install.hook
 
-should contain:
-
-.. code-block:: text
+should contain::
 
    [Trigger]
     Type = Package
@@ -568,15 +585,11 @@ should contain:
     Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update add
     NeedsTargets
 
-The remove file:
-
-.. code-block:: text
+The remove file::
 
    /usr/share/libalpm/70-XXX-efi-remove.hook
 
-should contain:
-
-.. code-block:: text
+should contain::
 
     [Trigger]
     Type = Package
@@ -589,15 +602,11 @@ should contain:
     Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update remove
     NeedsTargets
 
-The last file provides the location of the efi file itself. This should be located in
-
-.. code-block:: text
+The last file provides the location of the efi file itself. This should be located in::
 
     /etc/sd-boot/XXX-efi.image
 
-and contain the path itself:
-
-.. code-block:: text
+and contain the path itself::
 
    /usr/share/XXX-efi/x64/xxx-tool.efi
 
@@ -618,15 +627,18 @@ The latest open source version is v8.00 at this time.
 C-code Version
 ==============
 
-While I was tempted to do this in python, in part since systemd chose to use it for 
-*/usr/lib/kernel/install.d/60-ukify.install*, I decided on C. 
+While I was tempted to do this in python, partly because systemd chose to use it for 
+*/usr/lib/kernel/install.d/60-ukify.install*, I decided to use C. 
 
 It's important to be able to do initial testing and validation as non-root user
 and of course without touching any important files in any actual root directory.
 
 While the the C-code version is a bit more work and a little more complicated to create,
 the benefit, in my view, is that the c-code is much easier to test and debug
-and keep organized (than bash versin). 
+and keep organized (than bash version). 
+
+C also has the advantage that the compiled code has almost no dependencies and 
+and is highly performant. Way faster than bash or python.
 
 Testing and development are done using a *Testing* directory that is writable by non-root user.
 This is where kernels will be installed, loader entries updated and so on. The tools 
@@ -659,22 +671,18 @@ should be run in the *src* directory.
   For each of these tests, the logs save stdout, stderr and the exit status of the tool
   along with the output from valgrind.
 
-The image and initrd files will be installed in:
-
-.. code-block:: text
+The image and initrd files will be installed in::
 
     Testing/__root__/boot/<machine-id>/<kernel-version>/
 
-while the loader entry files, for efi tools and kernels in *bls* layout  will be in 
 
-.. code-block:: text
+while the loader entry files, for efi tools and kernels in *bls* layout will be in::
 
     Testing/__root__/boot/loader/entries/<machine-id>-<kernel-version>.conf 
 
 You may notice that the loader entries have a longer path to the kernel image and initrd. 
 
 This is normal.
-
 
 When run in a test tree, kernel-install identifies the *mount* point and removes it from
 the front of the path. In test mode where the test directory is not actually a mount point
@@ -734,5 +742,5 @@ Possible Todo
 
   Here */boot* means either */boot* or */efi* as appropriate.
 
-* So, it would be good to have the code be more helpful with this.
+* So, it would be good (nice to have) for the code be more helpful with this.
 

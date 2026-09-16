@@ -19,7 +19,7 @@ int array_str_null_terminate(Array_str *arr) {
      * CHeck if null terminated
      */
     for (size_t i = 0; i < arr->num_rows; i++) {
-        if (arr->rows[i] == NULL) {
+        if (arr->rows[i] == nullptr) {
             return 0;
         }
     }

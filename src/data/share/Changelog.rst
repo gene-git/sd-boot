@@ -6,21 +6,27 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.4.1 (2026-07-27)
-	79 commits.
+	3.6.2 (2026-04-21) -> 6.4.2 (2026-09-16)
+	80 commits.
 
 Commits
 =======
 
 
-* 2026-07-27  : **6.4.1**
+* 2026-09-16  : **6.4.2**
+
+.. code-block:: text
+
+              - **6.4.2** - Update Readme (esp. dracut config section)
+
+* 2026-07-27  : **6.4.1, origin/master**
 
 .. code-block:: text
 
               - Update src/.clang-tidy
                 Add nvcheker to the AUR package not just packaging directory in the git repo
 
-* 2026-07-17  : **6.4.0, origin/master**
+* 2026-07-17  : **6.4.0**
 
 .. code-block:: text
 

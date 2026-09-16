@@ -72,10 +72,16 @@ d_share = get_option('datadir')
 #   opt-in only, for people building for their own known machine.
 #
 cpu_level = get_option('cpu_level')
+
 if cpu_level == 'x86-64-v3'
   cpu_cflags = ['-march=x86-64-v3', '-mtune=generic']
 else
   cpu_cflags = ['-march=x86-64', '-mtune=generic']
+endif
+
+optimized = false
+if get_option('optimization') not in ['0', 'g']
+  optimized = true
 endif
 
 #
@@ -89,12 +95,6 @@ endif
 #   API to be annotated first (e.g. with an SD_BOOT_EXPORT macro) or
 #   linking against sd_boot_dep will break.
 #
-if get_option('hardened_export')
-  visibility_cflags = ['-fvisibility=hidden']
-else
-  visibility_cflags = ['-fvisibility=default']
-endif
-
 
 my_cflags = [
   ## General
@@ -102,6 +102,7 @@ my_cflags = [
   '-pipe',                              # Speeds up compilation
   '-fno-plt',                           # Optimization for shared library calls
   '-Wmissing-prototypes',               # Warn for global function missing prototype decl
+  '-fvisibility=hidden',                # Only exported symbols in shared lib sym table
   ## Memory Protections
   '-fstack-protector-strong',           # Protect function calls with stack canaries
   '-fstack-clash-protection',           # Prevents stack-clash exploits
@@ -115,17 +116,16 @@ my_cflags = [
   '-Wconversion',                       # Warn about type conversions that may alter value
   '-Wformat=2',                         # Warn about format/args mismatch printf, scanf etc
   '-Werror=format-security',            # Also warn about insecure printf format strings
-] + cpu_cflags + visibility_cflags
+] + cpu_cflags
 
 #
 # Note: warning_level=3 (above) already gives -Wall -Wextra -Wpedantic,
 #
 
 buildtype = get_option('buildtype')
-opt_level = get_option('optimization')
-# if buildtype not in ['debug', 'plain']
-if opt_level not in ['0', 'g', 'default']
-  my_cflags += ['-Wp,-D_FORTIFY_SOURCE=3']
+
+if optimized
+  my_cflags += ['-D_FORTIFY_SOURCE=3']
 endif
 
 #
@@ -147,16 +147,10 @@ my_ldflags = [
 ]
 
 #
-# Note: '-Wl,--sort-common' was dropped - it only helps the legacy
-# .hash symbol table layout, and modern binutils/distros default to
-# --hash-style=gnu (or both), where it has little to no effect.
-
-#
 # Apply cflags/ldflags
 #
 add_project_arguments(my_cflags, language: 'c')
 add_project_link_arguments(my_ldflags, language: 'c')
-
 
 #
 # Source code

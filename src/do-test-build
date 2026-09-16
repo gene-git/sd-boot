@@ -169,7 +169,7 @@ do_it() {
 #
 case "$build_type" in
     release) 
-        do_it release shared  "-Dcpu_level=$cpu" "-Db_lto=true" "-Dhardened_export=true"
+        do_it release shared  "-Dcpu_level=$cpu" "-Db_lto=true" 
         ;;
 
     debug)
