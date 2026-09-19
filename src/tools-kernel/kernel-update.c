@@ -25,7 +25,7 @@
 static void usage() {
     msg(MSG_ERR, "! sd-boot-kernel-update: Usage: \n");
     msg(MSG_ERR, "    sd-boot-kernel-update <oper> <package-name>\n");
-    msg(MSG_ERR, "              <oper> = add or remove\n");
+    msg(MSG_ERR, "              <oper> = add, remove or inspect\n");
     msg(MSG_ERR, "      <package-name> = name of package to update\n");
 }
 

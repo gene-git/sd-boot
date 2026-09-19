@@ -6,20 +6,38 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.4.2 (2026-09-16)
-	80 commits.
+	3.6.2 (2026-04-21) -> 6.5.1 (2026-09-19)
+	81 commits.
 
 Commits
 =======
 
 
-* 2026-09-16  : **6.4.2**
+* 2026-09-19  : **6.5.1**
+
+.. code-block:: text
+
+              - **6.5.1**
+            
+                * Improve documentation for "inspect" (no functional change)
+                  * Update ran pages and usage outputs.
+                  * sd-boot-kernel-udate
+                  * sd-boot-efi-tool-update
+            
+                * sd-boot-efi-tool-update terminal message:
+                  * show operation and package version (same as sd-boot-kernel-udate)
+            
+                * Typo in check-permissions output.
+            
+                * Recent changes now in separate file.
+
+* 2026-09-16  : **6.4.2, origin/master**
 
 .. code-block:: text
 
               - **6.4.2** - Update Readme (esp. dracut config section)
 
-* 2026-07-27  : **6.4.1, origin/master**
+* 2026-07-27  : **6.4.1**
 
 .. code-block:: text
 

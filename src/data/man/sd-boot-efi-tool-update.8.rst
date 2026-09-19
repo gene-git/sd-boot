@@ -23,17 +23,28 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-Install (or remove) a bootable efi tool to (or from) the $BOOT partition using kernel-install.
-The $BOOT partition, following kernel-install, is usually one of */boot* or */efi*.
+Install, remove, or inspect a bootable efi tool in the $BOOT partition using kernel-install.
+The $BOOT partition, following the notation used by kernel-install, is usually one of */boot* or */efi*.
 
-Takes two arguments: *add* | *remove* and the package name providing the tool.
+The package must be managed by sd-boot with the package name one of those listed in::
 
-The package must be one that is listed as managed by sd-boot and
-the path to the efi file to be installed must be provided.
+    /etc/sd-boot/efi-tool.packages
 
-Since these tools are not kernels, these are installed using *BLS* layout, even 
-when layout is set to *UKI* in */etc/kernel/install.conf*. This ensures that
-the tools are installed to::
+It takes two arguments. The first argument is the operation::
+
+   *add* | *remove* | *inspect* 
+
+followed by the package name that provides the tool.
+
+For installs using *add*, the path of the source **efi** image must be provided in::
+
+    /etc/sd-boot/<package-name>.image
+
+This file may contain shell style comments as well as the image path.
+
+Since these tools are not kernels, they are installed using *BLS* layout, even 
+when the kernel layout is set to *UKI* in */etc/kernel/install.conf*. This ensures that
+the efi tools are installed to::
 
     /boot/<machine-id>/<package_name>/
 
@@ -48,7 +59,7 @@ ARGUMENTS
 
 * add 
 
-    Install the drivers to $BOOT partition
+    Install the efi tool to $BOOT partition
 
 * remove
 
@@ -71,12 +82,12 @@ FILES
 
 ``/etc/sd-boot/<package-name>.image``
 
-    This file contains the full path of the efi tool provided by the package. This file
-    will be copied to $BOOT.
+    This file contains the full path of the efi tool provided by the package. This efi image
+    file will be copied to $BOOT.
 
 ``$BOOT/<machine-id>/<package_name>-<package_version>``
 
-    This is where the bootable efi tool is installed.
+    This is the path where the bootable efi tool is installed.
 
 ``$BOOT/loader/entries/<machine-id>-<package_name>-<package_version>.conf``
 
@@ -95,7 +106,7 @@ is provided in the file */etc/sd-boot/edk2-shell.image* which contains::
 
     /usr/share/edk2-shell/x64/Shell_Full.efi
 
-The file is provided by the *edk2-shell* package.
+The image itself is provided by the *edk2-shell* package.
 
 To update all efi tools currently managed by sd-boot::
 

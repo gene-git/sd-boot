@@ -153,7 +153,8 @@ int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
         goto exit;
     }
 
-    msg(MSG_NORMAL, "⦁ sd-boot: Updating efi tool %s\n", info->pkg_name);
+    msg(MSG_NORMAL, "⦁ sd-boot: Updating (%s) efi tool %s %s\n", 
+            conf->oper_str, info->pkg_name, info->pkg_vers);
 
     /*
      * Use special efi plugins via env variable 

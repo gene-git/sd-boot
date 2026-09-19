@@ -36,7 +36,8 @@ ARGUMENTS
 
 ``remove``
 
-    Remove the drivers from the EFI partition.
+    Remove the drivers from the EFI partition. This does not touch the source files
+    in */usr/lib/efifs-x64* which are managed by pacman.
 
 FILES
 =====
@@ -57,6 +58,10 @@ EXAMPLES
 To install the drivers::
 
     # /usr/lib/sd-boot/sd-boot-efifs-update add
+
+To remove the drivers::
+
+    # /usr/lib/sd-boot/sd-boot-efifs-update remove
 
 SEE ALSO
 ========

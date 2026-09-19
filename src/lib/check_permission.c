@@ -12,7 +12,7 @@
 
 bool check_permission(SdBoot *conf) {
     if (!conf->test && conf->euid != 0) {
-        msg(MSG_ERR, "! root permission requiredd.\n");
+        msg(MSG_ERR, "! root permission required.\n");
         return false;
     }
     return true;

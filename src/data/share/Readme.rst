@@ -2,75 +2,9 @@
 
 .. _read_me:
 
-#######
+=======
 sd-boot
-#######
-
-Recent Changes
-==============
-
-**6.4.2**
-
-* Update Readme (esp. dracut config section)
-
-**6.4.1**
-
-* Update src/.clang-tidy
-* Add nvcheker to the AUR package not just packaging directory in the git repo
-
-**6.4.0**
-
-* BugFix: sd-find-boot was not showing output unless verbose = 2 in version 6.3.0.
-* Change how older efi-tool versions are removed when updating/(re)installing:
-    - Scan for older versions which is more robust than a file database tracker.
-    - When multiple older versions are found, they are all removed
-* Uses libalpm instead of spawning pacman to get some package info.
-  Note libalpm uses libcurl/libcrypto from which valgrind
-  finds some (benign) reachable memory leaks. We treat any memory leak as
-  an error, including any from external libraries. Add valgrind suppression rules 
-  to ignore these specific ones.
-
-
-**6.3.0**
-
-* Copy file with kernel mediated copy_file_range: 
-  If copy_file_range() is not available for the pair of source and destination
-  devices and filesystems, fallback to (slower) read source and write destination.
-* Bug fix: file that tracks previous version can fail to be updated
-
-**6.2.0**
-
-* Comment on building package: 
-  PKGBUILD uses -Dcpu_level=x86-64-v3.
-  If deploying on pre-haswell / pre-2013 machine, then change the 
-  build option to -Dcpu_level=baseline or remove this flag.
-
-* efifs-update: 
-  - copy files directly instead of calling rsync.
-  - installed files are now timestamped with current time.
-  - faster with fewer system calls.
-  - Fix (benign) double // in pathname.
-* Drop all include <stdbool.h> (not needed with C23).
-
-**6.1.0**
-
-* Bug fix installing efifs drivers: typo in destination directory name. 
-* Improve build options / hardening.
-* efi-tool (always uses bls layout) - simplify the bls initialization.
-
-  Assisted-by: Claude (Anthropic) <https://claude.ai>
-
-**6.0.0**
-
-* Happy 250th USA!
-* Small change to how meson installs config/hooks/man pages
-  No change in the end result just the meson.build.
-* Read all kernel-install "install.conf" files including drop-ins to get layout etc.,
-* Spawning processes - improve code.
-* Code review wiht focus on exception handling
-* Config use libcyaml.
-* Add .nvchecker.toml file (pkgctl version check)
-
+=======
 
 Overview
 ========
@@ -742,5 +676,5 @@ Possible Todo
 
   Here */boot* means either */boot* or */efi* as appropriate.
 
-* So, it would be good (nice to have) for the code be more helpful with this.
+* So, it might be good (nice to have) for the code be more helpful with this.
 

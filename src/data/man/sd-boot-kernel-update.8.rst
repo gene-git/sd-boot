@@ -23,10 +23,14 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-Install (or remove) a linux kernel to (or from) the $BOOT partition using kernel-install.
-The $BOOT partition, following kernel-install, is usually one of */boot* or */efi*.
+Install, remove or inspect a linux kernel in the $BOOT partition using kernel-install.
+The $BOOT partition, following the notation used by kernel-install, is usually one of */boot* or */efi*.
 
-Takes two arguments: *add* | *remove* and the package name providing the kernel.
+It takes two arguments. The first argument is the operation::
+
+    *add* | *remove* | *inspect* 
+
+followed by the package name providing the kernel.
 
 The kernel package name must be one that is listed to be managed by sd-boot and
 the kernel package must provide a package basename file that has the package name.
@@ -35,7 +39,7 @@ When a kernel package is installed using pacman, it  must be installed to::
 
     /usr/lib/modules/<kernel_version>
 
-It must never instll any files to /boot (or /efi). kernel-install (and hence sd-boot)
+It must never install any files to /boot (or /efi). kernel-install (and hence sd-boot)
 are responsible for using vmlinux from */usr/lib/modules/<vers>*, generating the initrd
 and installing them into $BOOT.
 
@@ -81,13 +85,13 @@ ARGUMENTS
     
 * inspect
 
-    Disply information about an installed package.
+    Display information about an installed package.
 
 **Package Name**
 
 Can be a kernel package name or the string "--all--" which means all kernels managed by sd-boot.
 
-Note that this updates files in $BOOT. pacman is responsible for installing or removing the 
+Note that *add* and *remove* updates files in $BOOT. pacman is responsible for installing or removing the 
 package itself.
 
 
@@ -162,7 +166,10 @@ that contains one line::
     linux-custom
 
 
+To inspect all kernels managed by sd-boot::
+
+    sd-boot-kernel-update inspect "--all--"
+
 To update all kernels managed by sd-boot::
 
     sd-boot-kernel-update add "--all--"
-
