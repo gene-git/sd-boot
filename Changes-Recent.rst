@@ -5,7 +5,7 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
-**6.5.3** Mon Sep 28 08:54:16 PM UTC 2026
+**6.5.3** Mon Sep 28 09:41:04 PM UTC 2026
 
 * Add readthedocs to repo
 
