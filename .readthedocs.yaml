@@ -5,7 +5,8 @@ build:
   tools:
     python: "3.14"
   jobs:
-    - pip install -r src/data/docs/requirements.tx
+    post_install:
+      - pip install -r src/data/docs/requirements.tx
 
 sphinx:
   configuration: src/data/docs/conf.py
