@@ -5,6 +5,10 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
+**6.5.4**
+
+* Manual is now live on https://sd-boot.readthedocs.io/
+
 **6.5.3** Mon Sep 28 09:41:04 PM UTC 2026
 
 * Add readthedocs to repo
