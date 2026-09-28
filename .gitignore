@@ -6,3 +6,6 @@ src/tests/Testing/etc
 src/tests/Testing/Log-Checks
 src/tests/Testing/Log-Test-Suite
 src/tests/Testing/__root__
+src/data/docs/_build
+src/data/docs/html/.buildinfo.bak
+

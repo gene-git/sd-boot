@@ -6,14 +6,22 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.5.2 (2026-09-28)
-	82 commits.
+	3.6.2 (2026-04-21) -> 6.5.3 (2026-09-28)
+	83 commits.
 
 Commits
 =======
 
 
-* 2026-09-28  : **6.5.2**
+* 2026-09-28  : **6.5.3**
+
+.. code-block:: text
+
+              - **6.5.3** Mon Sep 28 09:41:04 PM UTC 2026
+            
+                * Add readthedocs to repo
+
+* 2026-09-28  : **6.5.2, origin/master**
 
 .. code-block:: text
 
@@ -24,7 +32,7 @@ Commits
                   * Simplify Readme
                   * Add new manual in PDF and HTML formats to /usr/share/sd-boot/docs
 
-* 2026-09-19  : **6.5.1, origin/master**
+* 2026-09-19  : **6.5.1**
 
 .. code-block:: text
 

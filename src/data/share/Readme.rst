@@ -76,6 +76,8 @@ The manual provides detailed information about using sd-boot.
 It is available in both HTML and PDF formats.
 Both are installed under */usr/share/sd-boot/docs*
 
+The manual is also available at: `readthedocs <https://sd-boot.readthedocs.io>`_.
+
 Each executable comes with a man page:
 
 - sd-boot-efifs-update

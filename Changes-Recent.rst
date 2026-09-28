@@ -5,6 +5,10 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
+**6.5.3** Mon Sep 28 08:54:16 PM UTC 2026
+
+* Add readthedocs to repo
+
 **6.5.2** Mon Sep 28 08:54:16 PM UTC 2026
 
 * Documentation Improvements (no functional or code changes)
