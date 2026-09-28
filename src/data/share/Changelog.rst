@@ -6,14 +6,22 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.5.4 (2026-09-28)
-	87 commits.
+	3.6.2 (2026-04-21) -> 6.5.5 (2026-09-28)
+	88 commits.
 
 Commits
 =======
 
 
-* 2026-09-28  : **6.5.4**
+* 2026-09-28  : **6.5.5**
+
+.. code-block:: text
+
+              - **6.5.5** Mon Sep 28 11:04:28 PM UTC 2026
+            
+                * Reaadthedocs manual now includes man-pages:
+
+* 2026-09-28  : **6.5.4, origin/master**
 
 .. code-block:: text
 

@@ -27,10 +27,10 @@ SOURCES_MAN = ../man/sd-boot-efifs-update.8.rst \
 			  ../man/sd-boot-find-boot-mounts.8.rst \
 			  ../man/sd-boot-kernel-update.8.rst
 
-MAN_READY = ./_build/man-ready/sd-boot-efifs-update.8.rst \
-			./_build/man-ready/sd-boot-efi-tool-update.8.rst \
-			./_build/man-ready/sd-boot-find-boot-mounts.8.rst \
-			./_build/man-ready/sd-boot-kernel-update.8.rst
+MAN_READY = ./man-ready/sd-boot-efifs-update.8.rst \
+			./man-ready/sd-boot-efi-tool-update.8.rst \
+			./man-ready/sd-boot-find-boot-mounts.8.rst \
+			./man-ready/sd-boot-kernel-update.8.rst
 
 .PHONY: help Makefile clean html latexpdf
 
@@ -58,8 +58,8 @@ $(PKG).pdf: $(SOURCES) $(MAN_READY)
 	@rsync -av _build/latex/$(PKG).pdf .
 	@echo "PDF doc build complete. Path: $@"
 
-_build/man-ready/%.8.rst: ../man/%.8.rst
-	@/usr/bin/mkdir -p ./_build/man-ready
+man-ready/%.8.rst: ../man/%.8.rst
+	@/usr/bin/mkdir -p ./man-ready
 	@echo "$<"
 	@/usr/bin/grep -Ev '^:Author|^:Manual|^:Date|^:Version' $< > $@
 

@@ -28,10 +28,10 @@ Man Pages
     :numbered:
     :caption: sd-boot man pages
 
-    _build/man-ready/sd-boot-efifs-update.8
-    _build/man-ready/sd-boot-efi-tool-update.8
-    _build/man-ready/sd-boot-find-boot-mounts.8
-    _build/man-ready/sd-boot-kernel-update.8
+    man-ready/sd-boot-efifs-update.8
+    man-ready/sd-boot-efi-tool-update.8
+    man-ready/sd-boot-find-boot-mounts.8
+    man-ready/sd-boot-kernel-update.8
 
 .. only:: html
 
