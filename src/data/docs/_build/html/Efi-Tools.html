@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10. Bootable efi tools &mdash; sd-boot 6.5.1
+ documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1dc0fa46" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=db1c604c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="11. Development" href="Development.html" />
+    <link rel="prev" title="9. Skipping Kernel Plugins" href="Skipping-Kernel-Plugins.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            sd-boot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">sd-boot Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Readme.html">1. sd-boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">2. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Arch-Kernels.html">3. Installing Arch Kernels With sd-boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Loader-Entries.html">4. Boot Loader Entries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Layout.html">5. Layout: BLS vs UKI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Signed-Kernels.html">6. Signing Kernels &amp; Secure Boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dracut-Options.html">7. Dracut options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Efi-Filesystem-Drivers.html">8. Efi Filesystem Drivers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Skipping-Kernel-Plugins.html">9. Skipping Kernel Plugins</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">10. Bootable efi tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-note-on-memtest86-plus">10.1. A note on memtest86 plus</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Development.html">11. Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix.html">12. Appendix</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">sd-boot man pages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efifs-update.8.html">1. sd-boot-efifs-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efi-tool-update.8.html">2. sd-boot-efi-tool-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-find-boot-mounts.8.html">3. sd-boot-find-boot-mounts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-kernel-update.8.html">4. sd-boot-kernel-update</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sd-boot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">10. </span>Bootable efi tools</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Efi-Tools.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bootable-efi-tools">
+<h1><span class="section-number">10. </span>Bootable efi tools<a class="headerlink" href="#bootable-efi-tools" title="Link to this heading"></a></h1>
+<p>Please ensure the Arch package name is listed in /etc/sd-boot/efi-tools to let sd-boot
+know which efi tools it is permitted to install.</p>
+<p>sd-boot supports bootable efi tools such as <em>efi-shell</em> provided by the <em>edk2-shell</em> package.</p>
+<p>The alpm hook <em>99-sd-boot-efi-tool-install.hook</em> provides the trigger based on package name
+and the location of the efi file itself is found in</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/etc/sd-boot/edk2-shell.image
+</pre></div>
+</div>
+<p>This file contains the efi file path. It may also contain comments (lines starting with #).</p>
+<p>Loader entries for efi tools are not kernels, and sd-boot uses a kernel-install plugin
+to modify the entry appropriately.</p>
+<p>To add any efi tool and have it <em>just work</em>, 2 things are needed.</p>
+<ul class="simple">
+<li><p>ALPM hook files to install and remove the tool from $BOOT.</p></li>
+<li><p>A file containing the path to the bootable efi file itself.</p></li>
+</ul>
+<p>Simplest way to add a new efi tool, is to use the efi shell as templates and modify appropriately.</p>
+<p>For example, if the efi tool package is called XXX-efi
+then the alpm hook install file, installed (as usual) in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">libalpm</span><span class="o">/</span><span class="mi">99</span><span class="o">-</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">hook</span>
+</pre></div>
+</div>
+<p>should contain:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Trigger</span><span class="p">]</span>
+ <span class="n">Type</span> <span class="o">=</span> <span class="n">Package</span>
+ <span class="n">Operation</span> <span class="o">=</span> <span class="n">Install</span>
+ <span class="n">Operation</span> <span class="o">=</span> <span class="n">Upgrade</span>
+ <span class="n">Target</span> <span class="o">=</span> <span class="n">XXX</span><span class="o">-</span><span class="n">efi</span>
+
+ <span class="p">[</span><span class="n">Action</span><span class="p">]</span>
+ <span class="n">Description</span> <span class="o">=</span> <span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="p">:</span> <span class="n">installing</span> <span class="n">an</span> <span class="n">efi</span> <span class="n">tool</span> <span class="n">to</span> <span class="n">EFI</span>
+ <span class="n">When</span> <span class="o">=</span> <span class="n">PostTransaction</span>
+ <span class="n">Exec</span> <span class="o">=</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">tool</span><span class="o">-</span><span class="n">update</span> <span class="n">add</span>
+ <span class="n">NeedsTargets</span>
+</pre></div>
+</div>
+<p>The remove file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">libalpm</span><span class="o">/</span><span class="mi">70</span><span class="o">-</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">remove</span><span class="o">.</span><span class="n">hook</span>
+</pre></div>
+</div>
+<p>should contain:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Trigger</span><span class="p">]</span>
+<span class="n">Type</span> <span class="o">=</span> <span class="n">Package</span>
+<span class="n">Operation</span> <span class="o">=</span> <span class="n">Remove</span>
+<span class="n">Target</span> <span class="o">=</span> <span class="n">XXX</span><span class="o">-</span><span class="n">efi</span>
+
+<span class="p">[</span><span class="n">Action</span><span class="p">]</span>
+<span class="n">Description</span> <span class="o">=</span> <span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="p">:</span> <span class="n">Removing</span> <span class="n">efi</span> <span class="n">tool</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ESP</span>
+<span class="n">When</span> <span class="o">=</span> <span class="n">PreTransaction</span>
+<span class="n">Exec</span> <span class="o">=</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">tool</span><span class="o">-</span><span class="n">update</span> <span class="n">remove</span>
+<span class="n">NeedsTargets</span>
+</pre></div>
+</div>
+<p>The last file provides the location of the efi file itself. This should be located in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">.</span><span class="n">image</span>
+</pre></div>
+</div>
+<p>and contain the path itself:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">/</span><span class="n">x64</span><span class="o">/</span><span class="n">xxx</span><span class="o">-</span><span class="n">tool</span><span class="o">.</span><span class="n">efi</span>
+</pre></div>
+</div>
+<section id="a-note-on-memtest86-plus">
+<h2><span class="section-number">10.1. </span>A note on memtest86 plus<a class="headerlink" href="#a-note-on-memtest86-plus" title="Link to this heading"></a></h2>
+<p>If sd-boot is used to install this please do not use the (current)
+version of <em>memtest86+-efi</em> in the Arch repo. As of this writing, this package installs
+files directly into <em>/boot</em> which violates the basic requierments.
+It is also somewhat out of date.</p>
+<p>I may provide a compatible version to the AUR at some point if its helpful.
+Note that the latest open source version from memtest.org is 8.x. There is
+also a non-open source (commercial) version) 11.x in the AUR that installs to /usr/share.
+The latest open source version is v8.10 at this time.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Skipping-Kernel-Plugins.html" class="btn btn-neutral float-left" title="9. Skipping Kernel Plugins" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Development.html" class="btn btn-neutral float-right" title="11. Development" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026-presennt, Gene C.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

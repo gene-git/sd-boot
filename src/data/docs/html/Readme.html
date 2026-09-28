@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. sd-boot &mdash; sd-boot 6.5.1
+ documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1dc0fa46" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=db1c604c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Configuration" href="Configuration.html" />
+    <link rel="prev" title="sd-boot Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            sd-boot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">sd-boot Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. sd-boot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">1.1. Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#documentation">1.1.1. Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#coding-standards">1.1.2. Coding Standards</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">1.2. Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kernel-install">1.2.1. kernel-install</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">1.2.2. sd-boot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dracut">1.2.3. dracut</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">2. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Arch-Kernels.html">3. Installing Arch Kernels With sd-boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Loader-Entries.html">4. Boot Loader Entries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Layout.html">5. Layout: BLS vs UKI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Signed-Kernels.html">6. Signing Kernels &amp; Secure Boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dracut-Options.html">7. Dracut options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Efi-Filesystem-Drivers.html">8. Efi Filesystem Drivers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Skipping-Kernel-Plugins.html">9. Skipping Kernel Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Efi-Tools.html">10. Bootable efi tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Development.html">11. Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix.html">12. Appendix</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">sd-boot man pages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efifs-update.8.html">1. sd-boot-efifs-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efi-tool-update.8.html">2. sd-boot-efi-tool-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-find-boot-mounts.8.html">3. sd-boot-find-boot-mounts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-kernel-update.8.html">4. sd-boot-kernel-update</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sd-boot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>sd-boot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Readme.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sd-boot">
+<span id="read-me"></span><h1><span class="section-number">1. </span>sd-boot<a class="headerlink" href="#sd-boot" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2><span class="section-number">1.1. </span>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p><strong>sd-boot</strong> installs linux kernels and efi programs to the <em>boot</em> partition using systemd’s <em>kernel-install</em>.
+This is a robust and systematic way to install or remove bootable software to or
+from the <em>boot</em> partition.</p>
+<p><em>kernel-install</em> uses <em>$BOOT</em> to refer to this partition or it’s mount point.
+It is usually mounted on either <em>/efi</em> or <em>/boot</em>.
+In the past it <em>/boot/efi</em> has also been used, but mounting the ESP under /boot is now strongly discouraged.</p>
+<p>The boot process requires access to the ESP partition
+and there are two distinct recommendations.</p>
+<p>Mount the ESP partition:</p>
+<ul class="simple">
+<li><p>onto <em>/efi</em> and an XBOOTLDR partition, if any, onto <em>/boot</em></p></li>
+<li><p>onto <em>/boot</em> or <em>/efi</em> if there is an XBOOTLDR partition and mount that on <em>/boot</em>.</p></li>
+</ul>
+<p>The first is recommended by kernel-install and the second by the
+<a class="reference external" href="https://uapi-group.org/specifications/specs/boot_loader_specification">UAPI Group Specifications: Mount Points</a>.</p>
+<p>sd-boot and kernel-install both happily work with either approach.</p>
+<p>Our preference follows kernel-install; mount the ESP on <em>/efi</em> and an
+XBOOTLDR partition on <em>/boot</em>. This is clean, simple and unambiguous.</p>
+<p>We designate the ESP mount point location as <em>&lt;EFI&gt;</em>, which is either <em>/efi</em> or <em>/boot</em> as
+appropriate. We also refer to the directory where kernels are put as <em>&lt;BOOT&gt;</em>.
+If you mount the ESP onto <em>/boot</em> then both <em>&lt;EFI&gt;</em> and <em>&lt;BOOT&gt;</em> refer to <em>/boot</em>.
+If the ESP is mounted on <em>/efi</em> and you have an XBOOTLDR partition mounted on <em>/boot</em>
+then they refer to those (obviously).</p>
+<p>While we recommend using the first approach for these mount points, we must also support
+any systems where the ESP is mounted on <em>/boot</em>. This guarantees that all systems
+continue to work without any change.</p>
+<p>sd-boot provides:</p>
+<ul>
+<li><p>pacman alpm hooks</p>
+<p>These ensure that kernels and efi-tools  are installed or removed from the boot partition when
+a kernel package is installed, updated or removed.</p>
+</li>
+<li><p>installers that are triggered from ALPM hooks.</p>
+<p>These do the actual work.</p>
+</li>
+<li><p>command line tools</p>
+<p>Give administrators a simple way to directly (re-)install or remove kernels from the boot partition.</p>
+</li>
+<li><p>kernel-install plugin(s)</p>
+<p>Used for loader entries for non-UKI kernels and efi tools.</p>
+</li>
+</ul>
+<p><em>Installing</em> a kernel (or efi tool) means placing the appropriate image in <em>$BOOT</em> partition so
+that the image can be booted.</p>
+<p>Any kernel packages must therefore place kernel images in the <em>/usr</em> partition only.</p>
+<p>The same applies for any bootable efi tools such as <em>edk2-shell</em> and <em>memtest86+</em>.</p>
+<section id="documentation">
+<h3><span class="section-number">1.1.1. </span>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h3>
+<p>The manual provides detailed information about using sd-boot.
+It is available in both HTML and PDF formats.
+Both are installed under <em>/usr/share/sd-boot/docs</em></p>
+<p>Each executable comes with a man page:</p>
+<ul class="simple">
+<li><p>sd-boot-efifs-update</p></li>
+<li><p>sd-boot-efi-tool-update</p></li>
+<li><p>sd-boot-find-boot-mounts</p></li>
+<li><p>sd-boot-kernel-update</p></li>
+</ul>
+<p>For convenience, the manual includes all the man pages.</p>
+</section>
+<section id="coding-standards">
+<h3><span class="section-number">1.1.2. </span>Coding Standards<a class="headerlink" href="#coding-standards" title="Link to this heading"></a></h3>
+<p>All code should be carefully reviewed and checked. This is particularly true for
+system utilities where the importance of avoiding potential problems is high.</p>
+<p>Placing trust in software requires care to ensure that it not only performs
+the required tasks but that the code is robust, handles exceptions gracefully and does
+not suffer from potential memory related issues. And of course no bugs!
+Sure, having zero bugs ever is tricky. While we cannot guarantee perfection,
+there are things we can do to minimize them and bolster confidence in the code.</p>
+<p>To help with this, sd-boot:</p>
+<ul class="simple">
+<li><p>has undergone functional testing</p></li>
+<li><p>has undergone static analysis with tools such as clang-tidy</p></li>
+<li><p>has undergone compiler analysis using tools such as -fanalyzer</p></li>
+<li><p>is completely clean when run under valgrind</p></li>
+<li><p>has undergone human code review</p></li>
+<li><p>has underfone additional AI reviews.</p>
+<ul>
+<li><p>Assisted-by: Claude (Anthropic) &lt;<a class="reference external" href="https://claude.ai">https://claude.ai</a>&gt;</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="quick-start">
+<h2><span class="section-number">1.2. </span>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
+<p>There are two sets of configuration files</p>
+<ul class="simple">
+<li><p>kernel-install configuration</p></li>
+<li><p>sd-boot configuration</p></li>
+</ul>
+<p>Both follow the Linux standard priority order and <em>drop-in</em> files that over-ride
+settings in lower priority files. In rough terms:</p>
+<ul class="simple">
+<li><p>Files within a directory are prioritized alpha-numerically.</p></li>
+<li><p>Files in <em>/etc</em> over-ride those in <em>/usr</em></p></li>
+<li><p>System provided files reside in <em>/usr</em></p></li>
+<li><p>Administration settings reside in <em>/etc</em></p></li>
+<li><p>Drop-in files in directory <em>xxx.d</em> may override partial settings.</p></li>
+</ul>
+<p>See <em>man 5 systemd.unit</em> for additional information about drop-in configuration files.</p>
+<section id="kernel-install">
+<h3><span class="section-number">1.2.1. </span>kernel-install<a class="headerlink" href="#kernel-install" title="Link to this heading"></a></h3>
+<p>Please see the kernel-install documentation for full details.
+sd-boot provides:</p>
+<ul class="simple">
+<li><p>/usr/lib/kernel/install.conf.d/010-sd-boot-install.conf</p></li>
+</ul>
+<p>which sets the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">layout</span><span class="o">=</span><span class="n">uki</span>
+<span class="n">initrd_generator</span><span class="o">=</span><span class="n">dracut</span>
+<span class="n">uki_generator</span><span class="o">=</span><span class="n">ukify</span>
+</pre></div>
+</div>
+<p>These may be overridden in:</p>
+<ul class="simple">
+<li><p>/etc/kernel/install.conf</p></li>
+<li><p>/etc/kernel/install.conf.d/xxx.conf</p></li>
+</ul>
+<p>We recommend sticking with UKI and dracut.</p>
+</section>
+<section id="id1">
+<h3><span class="section-number">1.2.2. </span>sd-boot<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>All the configuration files are located in <em>/etc/sd-boot</em>:</p>
+<ul>
+<li><p><strong>/etc/sd-boot/config.yaml</strong></p>
+<p>Settings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">verb</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">skip_kernel_plugins</span><span class="p">:</span> <span class="p">[]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>/etc/sd-boot/efi-tool.packages</strong></p>
+<p>A list of all package names of efi tools to be managed by sd-boot:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">memtest86_64</span><span class="o">-</span><span class="n">git</span>
+<span class="n">edk2</span><span class="o">-</span><span class="n">shell</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>/etc/sd-boot/kernel.packages</strong></p>
+<p>A list of kernel packages managed by sd-boot:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">linux</span><span class="o">-</span><span class="n">custom</span>
+<span class="n">linux</span><span class="o">-</span><span class="nb">next</span>
+<span class="n">linux</span><span class="o">-</span><span class="n">test</span>
+<span class="n">linux</span><span class="o">-</span><span class="n">stable</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Unlike kernels whihc are all installed in a fixed location,
+efi tools must provide an <em>&lt;package-name&gt;.image</em> file which has the
+full path to the <em>.efi</em> program.</p>
+<p>These are included in sd-boot package:</p>
+<ul class="simple">
+<li><p>/etc/sd-boot/edk2-shell.image</p></li>
+<li><p>/etc/sd-boot/memtest86_64-git.image</p></li>
+</ul>
+<p>Comment lines starting with <strong>#</strong> are permitted in all config files.</p>
+</section>
+<section id="dracut">
+<h3><span class="section-number">1.2.3. </span>dracut<a class="headerlink" href="#dracut" title="Link to this heading"></a></h3>
+<p>sd-boot provides a default dracut configuration in /usr/lib/dracut/dracut.conf.d/010-sd-boot-dracut.conf
+which may be overridden in:</p>
+<ul class="simple">
+<li><p><strong>/etc/dracut.conf.d/010-sd-boot-dracut.conf</strong></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="sd-boot Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Configuration.html" class="btn btn-neutral float-right" title="2. Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026-presennt, Gene C.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5. Layout: BLS vs UKI &mdash; sd-boot 6.5.1
+ documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1dc0fa46" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=db1c604c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="6. Signing Kernels &amp; Secure Boot" href="Signed-Kernels.html" />
+    <link rel="prev" title="4. Boot Loader Entries" href="Loader-Entries.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            sd-boot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">sd-boot Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Readme.html">1. sd-boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Configuration.html">2. Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Arch-Kernels.html">3. Installing Arch Kernels With sd-boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Loader-Entries.html">4. Boot Loader Entries</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">5. Layout: BLS vs UKI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Signed-Kernels.html">6. Signing Kernels &amp; Secure Boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dracut-Options.html">7. Dracut options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Efi-Filesystem-Drivers.html">8. Efi Filesystem Drivers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Skipping-Kernel-Plugins.html">9. Skipping Kernel Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Efi-Tools.html">10. Bootable efi tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Development.html">11. Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix.html">12. Appendix</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">sd-boot man pages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efifs-update.8.html">1. sd-boot-efifs-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efi-tool-update.8.html">2. sd-boot-efi-tool-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-find-boot-mounts.8.html">3. sd-boot-find-boot-mounts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-kernel-update.8.html">4. sd-boot-kernel-update</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sd-boot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">5. </span>Layout: BLS vs UKI</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Layout.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="layout-bls-vs-uki">
+<h1><span class="section-number">5. </span>Layout: BLS vs UKI<a class="headerlink" href="#layout-bls-vs-uki" title="Link to this heading"></a></h1>
+<p>First off, I prefer <em>uki</em> layout. It is simpler, does not require separate loader entry
+files, and both kernel and initrd are signed since they are in one file. The <em>uki</em> file
+itself is an <em>efi</em> file and can therefore be directly booted without the need of a boot manager
+should that ever be needed.</p>
+<p>For this reason the dafault <em>install.conf</em> file provided by <em>sd-boot</em> uses <em>uki</em> layout.</p>
+<p>UKI layout uses:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$BOOT/EFI/Linux/&lt;machine-id&gt;-&lt;kernel-version&gt;.efi
+</pre></div>
+</div>
+<p>Of particular note is that there are no loader entry files in UKI layout.</p>
+<p>BLS layout uses:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$BOOT/&lt;machine-id&gt;/&lt;kernel-version&gt;/linux
+$BOOT/&lt;machine-id&gt;/&lt;kernel-version&gt;/initrd
+$BOOT/loader/entries/&lt;&lt;machine-id&gt;-&lt;kernel-version&gt;.conf
+</pre></div>
+</div>
+<p>kernel install uses settings from <em>/usr/lib/kernel</em> which may be over-ridden
+with files in <em>/etc/kernel</em>.</p>
+<p>sd-boot installs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="mi">010</span><span class="o">-</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+<p>which contains:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">layout</span><span class="o">=</span><span class="n">uki</span>
+<span class="n">initrd_generator</span><span class="o">=</span><span class="n">dracut</span>
+<span class="n">uki_generator</span><span class="o">=</span><span class="n">ukify</span>
+</pre></div>
+</div>
+<p>To switch back to BLS from UKI layout create or edit the file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+<p>with <em>layout=bls</em>.
+Then install the kernel package again.</p>
+<p>BLS layout uses <em>type #1</em> loader entries. So if layout is changed from <em>bls</em> back to <em>uki</em>
+neither the old BLS loader entry files nor the BLS kernel and initrd are automatically removed.
+These will need to be manually removed.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>rm $BOOT/loader/entries/&lt;&lt;machine-id&gt;-&lt;kernel-version&gt;.conf
+rm -rf $BOOT/&lt;machine-id&gt;/&lt;kernel-version&gt;
+</pre></div>
+</div>
+<p>While dracut can generate the UKI file without using ukify, this has some limitations.
+As of now, I recommend using ukify.</p>
+<p>We would like to provide an additional option <em>OSRelease=</em> to ukify with a
+modified version of os-release having <em>PRETTY_NAME</em> and <em>BUILD_ID</em>  leading to
+a more user friendly boot menu title. This option is available in the ukify
+command line tool, but kernel-install does not call this, instead it imports
+the ukify python module and calls the functions directly. The kernel-install
+code does not provide for the <em>OSRelease=</em> option.</p>
+<p>At this time, however, there is no clean way to do this that I could find.
+Hopefully kernel-install will allow this in the future. In the meantime
+the boot menu items in <em>uki</em> mode are precise but quite long.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Loader-Entries.html" class="btn btn-neutral float-left" title="4. Boot Loader Entries" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Signed-Kernels.html" class="btn btn-neutral float-right" title="6. Signing Kernels &amp; Secure Boot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026-presennt, Gene C.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

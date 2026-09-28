@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2. Configuration &mdash; sd-boot 6.5.1
+ documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1dc0fa46" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=db1c604c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="3. Installing Arch Kernels With sd-boot" href="Arch-Kernels.html" />
+    <link rel="prev" title="1. sd-boot" href="Readme.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            sd-boot
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">sd-boot Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Readme.html">1. sd-boot</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">2.1. Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-tools">2.2. Command Line Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Arch-Kernels.html">3. Installing Arch Kernels With sd-boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Loader-Entries.html">4. Boot Loader Entries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Layout.html">5. Layout: BLS vs UKI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Signed-Kernels.html">6. Signing Kernels &amp; Secure Boot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dracut-Options.html">7. Dracut options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Efi-Filesystem-Drivers.html">8. Efi Filesystem Drivers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Skipping-Kernel-Plugins.html">9. Skipping Kernel Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Efi-Tools.html">10. Bootable efi tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Development.html">11. Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Appendix.html">12. Appendix</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">sd-boot man pages</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efifs-update.8.html">1. sd-boot-efifs-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-efi-tool-update.8.html">2. sd-boot-efi-tool-update</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-find-boot-mounts.8.html">3. sd-boot-find-boot-mounts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_build/man-ready/sd-boot-kernel-update.8.html">4. sd-boot-kernel-update</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sd-boot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">2. </span>Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Configuration.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuration">
+<h1><span class="section-number">2. </span>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h1>
+<p>In addition to the files kernel-install itself uses, such as
+those in the <em>/etc/kernel/</em> directory, the <em>sd-boot</em> configuration files
+reside in <em>/etc/sd-boot/</em>.</p>
+<p>The file <em>/etc/sd-boot/kernel.packages</em> lists the kernel package names
+sd-boot is permitted to install.</p>
+<p>By default, the Arch kernel is not included in the list, but of course sd-boot can manage that too.
+The section <a class="reference internal" href="Arch-Kernels.html#arch-kernels"><span class="std std-ref">Installing Arch Kernels With sd-boot</span></a> explains how to use sd-boot for the Arch kernel.</p>
+<p>Similarly, <em>/etc/sd-boot/efi-tools.packages</em> lists the efi tool packages that
+sd-boot is permitted to install.</p>
+<p>Package names here are the standard Arch package names.</p>
+<p>Please ensure any package to be managed by sd-boot is listed appropriately.</p>
+<p>By default kernel-install sets kernel boot options using in order:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">cmdline</span>
+<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">cmdline</span>
+<span class="o">/</span><span class="n">proc</span><span class="o">/</span><span class="n">cmdline</span>
+</pre></div>
+</div>
+<p>Putting kernel command line options into <em>/etc/kernel/cmdline</em> will then over-ride the
+default. If no file provides the kernel options, then The default is to use /proc/cmdline
+which proivdes the kernel command line option of the currently booted kernel.</p>
+<p>On initial install sd-boot provides
+<em>/etc/kernel/install.conf</em> which sets the layout to <em>uki</em>, the initrd generator to <em>dracut</em>
+and the uki generator to <em>ukify</em>.</p>
+<p>The <a class="reference external" href="https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/66#note_452083">RFC 66 Discussion</a>
+about changing to use <em>kernel-install</em> triggered me to migrate my own kernels and
+see how it works in practice. I found it works really well and am sharing this
+with the community in case its helpful to others.</p>
+<p>The original version of <em>sd-boot</em> was written in bash, but the current version
+coded in <em>C</em> has since replaced it.</p>
+<section id="getting-started">
+<h2><span class="section-number">2.1. </span>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>For a kernel to be managed by <em>sd-boot</em> the kernel package should install to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>with the kernel image at:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">vmlinuz</span>
+</pre></div>
+</div>
+<p>A kernel package must <strong>NOT</strong> install the kernel or any initrd into <em>&lt;EFI&gt;</em> or <em>&lt;BOOT&gt;</em>.
+It should not even create an initrd. Installing anything to these <em>$BOOT</em> directories
+must be left to sd-boot. This applies equally to any efi tools.</p>
+<p>Once the package is installed, then grant sd-boot permission to manage
+those kernels and efi-tools by listing them in the files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">packages</span>
+<span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">efi</span><span class="o">-</span><span class="n">tools</span><span class="o">.</span><span class="n">packages</span>
+</pre></div>
+</div>
+<p>On the next update (or re-install or remove), if the kernel or efi-tool is designated
+to be managed by <em>sd-boot</em> then it will handle installing it into $BOOT.</p>
+<p>You can (re-)install a kernel at any time at the command line using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">install</span> <span class="o">&lt;</span><span class="n">kernel</span> <span class="n">package</span> <span class="n">name</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>or trigger a pacman refresh with :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>touch<span class="w"> </span>/usr/lib/modules/&lt;kernel-version&gt;/vmlinuz
+pacman<span class="w"> </span>-Syu
+</pre></div>
+</div>
+<p>sd-boot relies on each kernel package providing a file in the kernel module
+directory that contains that kernel package name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">pkgbase</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">pkgbase</span><span class="o">-</span><span class="n">sdb</span>
+</pre></div>
+</div>
+<p>Arch kernels provide <em>pkgbase</em> file.
+While <em>sd-boot</em> uses either of these files, <em>pkgbase-sdb</em> is preferred
+since the Arch kernel install tools act on any kernel using <em>pkgbase</em>.
+Using a different filename prevents the Arch tools from installing kernels
+sd-boot is already handling.</p>
+</section>
+<section id="command-line-tools">
+<h2><span class="section-number">2.2. </span>Command Line Tools<a class="headerlink" href="#command-line-tools" title="Link to this heading"></a></h2>
+<p>The following tools may be run from the command line:</p>
+<ul class="simple">
+<li><p>/usr/bin/sd-boot-efi-tool-update</p></li>
+<li><p>/usr/bin/sd-boot-kernel-update</p></li>
+<li><p>/usr/lib/sd-boot/sd-boot-efifs-update</p></li>
+<li><p>/usr/lib/sd-boot/sd-boot-find-boot-mounts</p></li>
+</ul>
+<p>There is a man page for each of these. For example see <em>man sd-boot-kernel-update</em>.</p>
+<p>sd-boot is normally triggered into action from pacman via ALPM hooks. Kernels and efi tools
+may also be manually installed or removed from $BOOT.</p>
+<p>For example to install a bootable efi shell, provided by the <em>adk2-shell</em> package:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sd-boot-efi-tool-update<span class="w"> </span>add<span class="w"> </span>edk2-shell
+</pre></div>
+</div>
+<p>To install a kernel provided by the <em>linux-custom</em> package</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sd-boot-kernel-update<span class="w"> </span>add<span class="w"> </span>linux-custom
+</pre></div>
+</div>
+<p>Please ensure that any packages to be managed by sd-boot are listed appropriately in:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/etc/sd-boot/efi-tool.packages
+/etc/sd-boot/kernel.packages
+</pre></div>
+</div>
+<p>To install efi filesystem drivers:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/usr/lib/sd-boot/sd-boot-efifs-update<span class="w"> </span>add
+</pre></div>
+</div>
+<p>To list ESP and XBOOTLDR partions mount points run (as root):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>/usr/lib/sd-boot/sd-boot-find-boot-mounts
+</pre></div>
+</div>
+<p>which will list them all and those in use by the current booted system are marked
+with an asterisk.</p>
+<p>Replace <em>add</em> by <em>remove</em> to remove them from $BOOT. Note that <em>add</em> and <em>remove</em> refers
+only to a copy of the image in $BOOT and does not install or remove the package itself.
+That job belongs to pacman.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Readme.html" class="btn btn-neutral float-left" title="1. sd-boot" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Arch-Kernels.html" class="btn btn-neutral float-right" title="3. Installing Arch Kernels With sd-boot" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026-presennt, Gene C.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

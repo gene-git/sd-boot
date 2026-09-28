@@ -270,6 +270,7 @@ s_lib = 'data/usr/lib'
 s_man = 'data/man'
 s_share = 'data/share'
 s_hook = 'data/hooks'
+s_docs = 'data/docs'
 
 p_man8 = 'man8'
 
@@ -349,6 +350,22 @@ install_data(
   ],
   install_dir: d_man / 'man8'
 )
+
+install_data(
+  [
+    s_docs / 'sd-boot.pdf',
+  ],
+  install_dir: d_share / 'sd-boot/docs'
+  )
+
+install_subdir(
+  [
+    s_docs / 'html',
+  ],
+  install_dir: d_share / 'sd-boot/docs',
+  strip_directory: false
+)
+
 
 #
 # build man pages
