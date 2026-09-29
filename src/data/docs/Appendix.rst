@@ -20,8 +20,8 @@ These are the options currently used to build sd-boot.
 
    * - -pipe
      - Speeds up compilation
-   * - -fno-plt Optimization             
-     - for shared library calls
+   * - -fno-plt 
+     - Optimization for shared library calls
    * - -Wmissing-prototypes              
      - Warn for global function missing prototype decl
    * - -fvisibility=hidden               
@@ -60,8 +60,8 @@ These are the options currently used to build sd-boot.
    * - -Wl,-z,defs                       
      - Catch unresolved symbols at link time, not at runtime
 
-The test suite is also run using code compiled with *-fanalyzer* as 
-well as *-fsanitize=address,undefined* and no warnings or errors are found.
+The test suite is also run using code compiled with **-fanalyzer** as 
+well as **-fsanitize=address,undefined** and no warnings or errors are seen.
 
 Potential Todo Items
 ====================

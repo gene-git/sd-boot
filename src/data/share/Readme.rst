@@ -104,7 +104,7 @@ To help with this, sd-boot has undegone:
 - functional testing
 - static analysis with tools such as clang-tidy
 - compiler analysis with -fanalyzer and -fsanitize
-- runs under valgrind tests and is completely clean 
+- running the test suite under valgrind and all are completely clean 
 - human code review
 - additional AI reviews.
 
