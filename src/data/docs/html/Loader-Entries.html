@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -124,29 +124,29 @@ The title is shown in the boot menu.</p>
 kernel and efi tool.</p>
 <p>efi-tools additionally remove the kernel boot command line options from the entry
 (since they are irrelevant) and change:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">linux</span> <span class="o">&lt;</span><span class="n">tool</span><span class="o">&gt;.</span><span class="n">efi</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>linux &lt;tool&gt;.efi
 </pre></div>
 </div>
 <p>to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">efi</span> <span class="o">&lt;</span><span class="n">tool</span><span class="o">&gt;.</span><span class="n">efi</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>efi &lt;tool&gt;.efi
 </pre></div>
 </div>
 <p>It also means that the systemd-boot <em>loader.conf</em> file located in the <em>EFI</em>
 needs to be updated as well when the default kernel to boot is one of those managed by sd-boot.</p>
 <p>Lets show how we can use this so that a <em>linux-custom</em> kernel is booted by default.</p>
 <p>The loader entries are located in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">EFI</span><span class="o">&gt;/</span><span class="n">loader</span><span class="o">/</span><span class="n">entries</span><span class="o">/&lt;</span><span class="n">machine</span><span class="o">-</span><span class="nb">id</span><span class="o">&gt;-&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;.</span><span class="n">conf</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;EFI&gt;/loader/entries/&lt;machine-id&gt;-&lt;kernel-version&gt;.conf
 </pre></div>
 </div>
 <p>for example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">EFI</span><span class="o">&gt;/</span><span class="n">loader</span><span class="o">/</span><span class="n">entries</span><span class="o">/&lt;</span><span class="n">machine</span><span class="o">-</span><span class="nb">id</span><span class="o">&gt;-</span><span class="mf">7.2.0</span><span class="o">-</span><span class="n">custom</span><span class="o">-</span><span class="mf">1.</span><span class="n">conf</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;EFI&gt;/loader/entries/&lt;machine-id&gt;-7.2.0-custom-1.conf
 </pre></div>
 </div>
 <p>We would match this entry in <em>loader.conf</em> to be the default kernel using:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># loader.conf</span>
-<span class="n">default</span> <span class="o">*-</span><span class="n">custom</span><span class="o">-*</span>
-<span class="n">timeout</span> <span class="mi">5</span>
-<span class="n">editor</span>  <span class="n">yes</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># loader.conf
+default *-custom-*
+timeout 5
+editor  yes
 </pre></div>
 </div>
 <p>The wildcards are standard shell file globbing used to match the loader entry filename.

@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -96,14 +96,14 @@
 <p>kernel-install, by default, calls every plugin.
 There may be times when there’s a need to de-activate a plugin. This is accomplished using
 a setting in sd-boot config file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">config</span><span class="o">.</span><span class="n">yaml</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/sd-boot/config.yaml
 </pre></div>
 </div>
 <p>Set <em>skip_kernel_plugins</em> to  the list of plugins to be skippedi.
 Each must be a full pathname:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">skip_kernel_plugins</span><span class="p">:</span>
-    <span class="o">-</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="mi">91</span><span class="o">-</span><span class="n">xxx</span><span class="o">.</span><span class="n">install</span>
-    <span class="o">-</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="mi">91</span><span class="o">-</span><span class="n">yyy</span><span class="o">.</span><span class="n">install</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>skip_kernel_plugins:
+    - /usr/lib/kernel/install.d/91-xxx.install
+    - /usr/lib/kernel/install.d/91-yyy.install
 </pre></div>
 </div>
 <p>sd-boot effects this by passing the plugin list to be used to kernel-install using the environment variable,

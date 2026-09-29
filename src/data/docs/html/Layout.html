@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -112,17 +112,17 @@ $BOOT/loader/entries/&lt;&lt;machine-id&gt;-&lt;kernel-version&gt;.conf
 <p>kernel-install uses settings taken from <em>/usr/lib/kernel</em> that may be overridden
 with files in <em>/etc/kernel</em>.</p>
 <p>sd-boot provides:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="mi">010</span><span class="o">-</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/kernel/install.conf.d/010-sd-boot-install.conf
 </pre></div>
 </div>
 <p>which contains:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">layout</span><span class="o">=</span><span class="n">uki</span>
-<span class="n">initrd_generator</span><span class="o">=</span><span class="n">dracut</span>
-<span class="n">uki_generator</span><span class="o">=</span><span class="n">ukify</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>layout=uki
+initrd_generator=dracut
+uki_generator=ukify
 </pre></div>
 </div>
 <p>To switch back to BLS from UKI layout create or edit the file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/kernel/install.conf
 </pre></div>
 </div>
 <p>and set <em>layout=bls</em>.

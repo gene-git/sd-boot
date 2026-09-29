@@ -6,12 +6,19 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.5.6 (2026-09-28)
-	89 commits.
+	3.6.2 (2026-04-21) -> 6.5.7 (2026-09-29)
+	91 commits.
 
 Commits
 =======
 
+
+* 2026-09-29  : **6.5.7**
+
+.. code-block:: text
+
+              - release 6.5.7
+              - doc typos
 
 * 2026-09-28  : **6.5.6**
 
@@ -20,7 +27,7 @@ Commits
               - **6.5.6** Tue Sep 29 12:36:01 AM UTC 2026
                 * Small documentation update
 
-* 2026-09-28  : **6.5.5, origin/master**
+* 2026-09-28  : **6.5.5**
 
 .. code-block:: text
 

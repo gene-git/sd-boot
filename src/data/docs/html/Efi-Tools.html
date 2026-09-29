@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -115,46 +115,46 @@ to modify the entry appropriately.</p>
 <p>Simplest way to add a new efi tool, is to use the efi shell as templates and modify appropriately.</p>
 <p>For example, if the efi tool package is called XXX-efi
 then the alpm hook install file, installed (as usual) in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">libalpm</span><span class="o">/</span><span class="mi">99</span><span class="o">-</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">hook</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/share/libalpm/99-XXX-efi-install.hook
 </pre></div>
 </div>
 <p>should contain:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Trigger</span><span class="p">]</span>
- <span class="n">Type</span> <span class="o">=</span> <span class="n">Package</span>
- <span class="n">Operation</span> <span class="o">=</span> <span class="n">Install</span>
- <span class="n">Operation</span> <span class="o">=</span> <span class="n">Upgrade</span>
- <span class="n">Target</span> <span class="o">=</span> <span class="n">XXX</span><span class="o">-</span><span class="n">efi</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Trigger]
+ Type = Package
+ Operation = Install
+ Operation = Upgrade
+ Target = XXX-efi
 
- <span class="p">[</span><span class="n">Action</span><span class="p">]</span>
- <span class="n">Description</span> <span class="o">=</span> <span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="p">:</span> <span class="n">installing</span> <span class="n">an</span> <span class="n">efi</span> <span class="n">tool</span> <span class="n">to</span> <span class="n">EFI</span>
- <span class="n">When</span> <span class="o">=</span> <span class="n">PostTransaction</span>
- <span class="n">Exec</span> <span class="o">=</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">tool</span><span class="o">-</span><span class="n">update</span> <span class="n">add</span>
- <span class="n">NeedsTargets</span>
+ [Action]
+ Description = sd-boot: installing an efi tool to EFI
+ When = PostTransaction
+ Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update add
+ NeedsTargets
 </pre></div>
 </div>
 <p>The remove file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">libalpm</span><span class="o">/</span><span class="mi">70</span><span class="o">-</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">remove</span><span class="o">.</span><span class="n">hook</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/share/libalpm/70-XXX-efi-remove.hook
 </pre></div>
 </div>
 <p>should contain:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Trigger</span><span class="p">]</span>
-<span class="n">Type</span> <span class="o">=</span> <span class="n">Package</span>
-<span class="n">Operation</span> <span class="o">=</span> <span class="n">Remove</span>
-<span class="n">Target</span> <span class="o">=</span> <span class="n">XXX</span><span class="o">-</span><span class="n">efi</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[Trigger]
+Type = Package
+Operation = Remove
+Target = XXX-efi
 
-<span class="p">[</span><span class="n">Action</span><span class="p">]</span>
-<span class="n">Description</span> <span class="o">=</span> <span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="p">:</span> <span class="n">Removing</span> <span class="n">efi</span> <span class="n">tool</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ESP</span>
-<span class="n">When</span> <span class="o">=</span> <span class="n">PreTransaction</span>
-<span class="n">Exec</span> <span class="o">=</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">tool</span><span class="o">-</span><span class="n">update</span> <span class="n">remove</span>
-<span class="n">NeedsTargets</span>
+[Action]
+Description = sd-boot: Removing efi tool from ESP
+When = PreTransaction
+Exec = /usr/lib/sd-boot/sd-boot-efi-tool-update remove
+NeedsTargets
 </pre></div>
 </div>
 <p>The last file provides the location of the efi file itself. This should be located in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">.</span><span class="n">image</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/sd-boot/XXX-efi.image
 </pre></div>
 </div>
 <p>and contain the path itself:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">XXX</span><span class="o">-</span><span class="n">efi</span><span class="o">/</span><span class="n">x64</span><span class="o">/</span><span class="n">xxx</span><span class="o">-</span><span class="n">tool</span><span class="o">.</span><span class="n">efi</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/share/XXX-efi/x64/xxx-tool.efi
 </pre></div>
 </div>
 <section id="a-note-on-memtest86-plus">

@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=29180f0f" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
@@ -134,7 +134,7 @@ a possible resolution.</p>
 <ul>
 <li><p>Example 1</p>
 <p>One ESP:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>                                              (c)urrent (a)ctive
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>                                              (c)urrent (a)ctive
         Device Mount                          (c a) type
 /dev/nvme0n1p1 /boot                          (✔ ✔) EFI
 </pre></div>
@@ -142,7 +142,7 @@ a possible resolution.</p>
 </li>
 <li><p>Example 2:</p>
 <p>One ESP and one XBOOTLDR:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   Device Mount                          (c a) type
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   Device Mount                          (c a) type
 /dev/sda1 /efi                           (✔ ✔) EFI
 /dev/sda5 /boot                          (✔ ✔) XBOOTLDR
 </pre></div>
@@ -151,7 +151,7 @@ a possible resolution.</p>
 </ul>
 <blockquote>
 <div><p>and the same when run as non-root user:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   Device Mount                          (c a) type
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   Device Mount                          (c a) type
 /dev/sda1 /efi                           (✔ ✔) EFI
 /dev/sda5 /boot                          (  ✔) XBOOTLDR
 </pre></div>
@@ -160,7 +160,7 @@ a possible resolution.</p>
 <ul>
 <li><p>Example 3</p>
 <p>Two ESP and two XBOOTLDR:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a) type
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a) type
 /dev/nvme0n1p1 /efi                           (✔ ✔) EFI
      /dev/sdg1 /mnt/root1/efi                 (   ) EFI
 /dev/nvme0n1p2 /boot                          (✔ ✔) XBOOTLDR
@@ -177,7 +177,7 @@ a possible resolution.</p>
 that defined by nvram boot order. When this happens these 2 ESP partition
 do not match.</p>
 <p>Running <em>bootctl</em> when they are mismatched will display:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">WARNING</span><span class="p">:</span> <span class="n">The</span> <span class="n">boot</span> <span class="n">loader</span> <span class="n">reports</span> <span class="n">a</span> <span class="n">different</span> <span class="n">partition</span> <span class="n">UUID</span> <span class="n">than</span> <span class="n">the</span> <span class="n">detected</span> <span class="n">ESP</span><span class="o">.</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>WARNING: The boot loader reports a different partition UUID than the detected ESP.
 </pre></div>
 </div>
 <p>We designate partitions determinted by boot nvram as <em>active</em> and expected partitions as
@@ -185,25 +185,25 @@ as <em>current</em>.</p>
 <p>Please note that root privilages are required to check for a current XBOOTLDR partitions.
 No elevated priveleges are otherwise needed.</p>
 <p>To manually check for any current ESP and XBOOTLDDR partitions:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bootctl</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">E</span> <span class="s1">'ESP:|XBOOTLDR:'</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>bootctl | grep -E 'ESP:|XBOOTLDR:'
 </pre></div>
 </div>
 <p>And to list all active ESP and XBOOTLDR partitions:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fdisk</span> <span class="o">-</span><span class="n">l</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">E</span> <span class="s1">'EFI System|Linux extended boot'</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fdisk -l | grep -E 'EFI System|Linux extended boot'
 </pre></div>
 </div>
 <p>Also useful to see boot order:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">efibootmgr</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>efibootmgr
 </pre></div>
 </div>
 <p>and the UUID and PartUUID:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lsblk</span> <span class="o">-</span><span class="n">o</span> <span class="n">NAME</span><span class="p">,</span><span class="n">FSTYPE</span><span class="p">,</span><span class="n">MOUNTPOINTS</span><span class="p">,</span><span class="n">PARTUUID</span><span class="p">,</span><span class="n">UUID</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>lsblk -o NAME,FSTYPE,MOUNTPOINTS,PARTUUID,UUID
 </pre></div>
 </div>
 <ul>
 <li><p>Example 4</p>
 <p>Two ESP with mismatched active and current</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a) type
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a) type
 /dev/nvme0n1p1 /efi                           (✔  ) EFI
 /dev/nvme1n1p1 /man/disk2/efi                 (  ✔) EFI
 </pre></div>
@@ -214,13 +214,13 @@ No elevated priveleges are otherwise needed.</p>
 we found that removing the offending nvram variable resolved the issue. After removing
 and rebooting the nvram was then updated to the correct value by the motherboard.</p>
 <p>To remove the nvram holding the wrong value:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">firmware</span><span class="o">/</span><span class="n">efi</span><span class="o">/</span><span class="n">efivars</span><span class="o">/</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cd /sys/firmware/efi/efivars/
 
-<span class="n">echo</span> <span class="s2">"Should show the wrong value"</span>
-<span class="n">cat</span> <span class="n">LoaderDevicePartUUID</span><span class="o">-</span><span class="mi">4</span><span class="n">a67b082</span><span class="o">-</span><span class="mi">0</span><span class="n">a4c</span><span class="o">-</span><span class="mi">41</span><span class="n">cf</span><span class="o">-</span><span class="n">b6c7</span><span class="o">-</span><span class="mi">440</span><span class="n">b29bb8c4f</span>
+echo "Should show the wrong value"
+cat LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f
 
-<span class="n">chattr</span> <span class="o">-</span><span class="n">i</span> <span class="n">LoaderDevicePartUUID</span><span class="o">-</span><span class="mi">4</span><span class="n">a67b082</span><span class="o">-</span><span class="mi">0</span><span class="n">a4c</span><span class="o">-</span><span class="mi">41</span><span class="n">cf</span><span class="o">-</span><span class="n">b6c7</span><span class="o">-</span><span class="mi">440</span><span class="n">b29bb8c4f</span>
-<span class="n">rm</span> <span class="n">LoaderDevicePartUUID</span><span class="o">-</span><span class="mi">4</span><span class="n">a67b082</span><span class="o">-</span><span class="mi">0</span><span class="n">a4c</span><span class="o">-</span><span class="mi">41</span><span class="n">cf</span><span class="o">-</span><span class="n">b6c7</span><span class="o">-</span><span class="mi">440</span><span class="n">b29bb8c4f</span>
+chattr -i LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f
+rm LoaderDevicePartUUID-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f
 </pre></div>
 </div>
 <p>Do this at your own risk!</p>

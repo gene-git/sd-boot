@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=29180f0f" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
@@ -113,14 +113,14 @@
 <p>Install, remove or inspect a linux kernel in the $BOOT partition using kernel-install.
 The $BOOT partition, following the notation used by kernel-install, is usually one of <em>/boot</em> or <em>/efi</em>.</p>
 <p>It takes two arguments. The first argument is the operation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">add</span> <span class="o">|</span> <span class="n">remove</span> <span class="o">|</span> <span class="n">inspect</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>add | remove | inspect
 </pre></div>
 </div>
 <p>followed by the package name providing the kernel.</p>
 <p>The kernel package name must be one that is listed to be managed by sd-boot and
 the kernel package must provide a package basename file that has the package name.</p>
 <p>When a kernel package is installed using pacman, it  must be installed to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel_version</span><span class="o">&gt;</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/modules/&lt;kernel_version&gt;
 </pre></div>
 </div>
 <p>It must never install any files to /boot (or /efi). kernel-install (and hence sd-boot)
@@ -224,28 +224,28 @@ the unified kernel image is saved here.</p>
 <section id="examples">
 <h3><span class="section-number">4.1.5. </span>EXAMPLES<a class="headerlink" href="#examples" title="Link to this heading"></a></h3>
 <p>To install the kernel provided by the package <em>linux-custom</em>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># sd-boot-kernel-update add linux-custom</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># sd-boot-kernel-update add linux-custom
 </pre></div>
 </div>
 <p>where linux-custom must be listed in the <em>/etc/sd-boot/kernel.packages</em>.</p>
 <p>In addition the linux-custom package must provide the file:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">pkgbase</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/modules/&lt;kernel-version&gt;/pkgbase
 </pre></div>
 </div>
 <p>or:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">pkgbase</span><span class="o">-</span><span class="n">sdb</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/modules/&lt;kernel-version&gt;/pkgbase-sdb
 </pre></div>
 </div>
 <p>that contains one line:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">linux</span><span class="o">-</span><span class="n">custom</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>linux-custom
 </pre></div>
 </div>
 <p>To inspect all kernels managed by sd-boot:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">update</span> <span class="n">inspect</span> <span class="s2">"--all--"</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sd-boot-kernel-update inspect "--all--"
 </pre></div>
 </div>
 <p>To update all kernels managed by sd-boot:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">update</span> <span class="n">add</span> <span class="s2">"--all--"</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sd-boot-kernel-update add "--all--"
 </pre></div>
 </div>
 </section>

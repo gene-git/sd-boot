@@ -29,6 +29,16 @@ author = 'Gene C'
 release = read_version()
 
 extensions = []
+
+#
+# Disable sphinx treating text blocks as python (adding weird colors)
+#
+highlight_language = 'none'
+
+
+# ===============================
+# Latex Setup
+# ===============================
 latex_engine = 'xelatex'
 latex_use_xindy = True
 
@@ -36,15 +46,37 @@ latex_elements = {
     'papersize': 'letterpaper',
     'pointsize': '11pt',
 
+    #
+    # Font settings
+    #
+    # 'fvset': r'\fvset{fontsize=\small}',
+
+    'fontpkg': r'''
+        \usepackage{fontspec}
+
+        % 
+        % Fonts for : body (sans), headers (sans) and mono
+        % 
+        \setmainfont{Source Sans 3}[Ligatures=TeX]
+        \setsansfont{Source Sans 3}[Ligatures=TeX]
+        \setmonofont{Source Code Pro}
+    ''',
+
+    #
+    # Layout spacing, headers etc
+    #
     'preamble': r'''
     \usepackage{parskip}
-    \usepackage{fontspec}
 
+    %
     % Fix the 11pt headheight layout warnings
+    %
     \setlength{\headheight}{14pt}
     \addtolength{\topmargin}{-2pt}
 
-    % Strip vertical spaces between items
+    %
+    % List items vertical spacing
+    %
     \usepackage{enumitem}
     \setlist[itemize]{
         noitemsep, 
@@ -61,30 +93,12 @@ latex_elements = {
         after=\vspace{0pt}
         }
 
+    %
+    % Unicode sphinx produces that latex does not understand
+    %
     \usepackage{newunicodechar}
     \newunicodechar{␣}{\textvisiblespace}
     \tracinglostchars=0
-
-    % Body sans serif 
-    % \setmainfont{TeX Gyre Heros}[
-    % \setmainfont{IBM Plex Sans}[
-    \setmainfont{Source Sans 3}[
-        Ligatures=TeX,
-        Scale=0.92
-    ]
-
-    % Section Headers (Modern Helvetica equivalent)
-    % \setsansfont{TeX Gyre Heros}[
-    % \setsansfont{IBM Plex Sans}[
-    \setsansfont{Source Sans 3}[
-        Ligatures=TeX,
-        Scale=0.92
-    ]
-
-    % Verbatim/Inline (Monospace Fira)
-    \setmonofont{Fira Mono}[
-        Scale=0.88
-    ]
     ''',
 }
 
@@ -98,9 +112,9 @@ latex_documents = [
     ),
 ]
 
-# ==========================================
-# 1. Unified HTML Configuration & Stylesheets
-# ==========================================
+# ===============================
+# HTML Configuration & Stylesheets
+# ===============================
 html_theme = 'sphinx_rtd_theme'  # Works exactly the same if using 'furo' or 'alabaster'
 html_static_path = ['_static']
 html_css_files = [ 'custom.css',]

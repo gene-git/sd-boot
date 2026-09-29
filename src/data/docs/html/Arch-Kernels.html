@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -97,14 +97,14 @@
 <p>In order for sd-boot to manage it, there are two steps that must be done.</p>
 <ul>
 <li><p>Add <strong>linux</strong> to the list of sd-boot managed kernels:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="n">linux</span> <span class="o">&gt;&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">packages</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>echo linux &gt;&gt; /etc/sd-boot/kernel.packages
 </pre></div>
 </div>
 </li>
 <li><p>Prevent mkinitcpio from installing a duplicate of the same kernel:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">pacman</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">hooks</span>
-<span class="n">sudo</span> <span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">pacman</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">hooks</span><span class="o">/</span><span class="mi">60</span><span class="o">-</span><span class="n">mkinitcpio</span><span class="o">-</span><span class="n">remove</span><span class="o">.</span><span class="n">hook</span>
-<span class="n">sudo</span> <span class="n">ln</span> <span class="o">-</span><span class="n">s</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">pacman</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">hooks</span><span class="o">/</span><span class="mi">90</span><span class="o">-</span><span class="n">mkinitcpio</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">hook</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sudo mkdir -p /etc/pacman.d/hooks
+sudo ln -s /dev/null /etc/pacman.d/hooks/60-mkinitcpio-remove.hook
+sudo ln -s /dev/null /etc/pacman.d/hooks/90-mkinitcpio-install.hook
 </pre></div>
 </div>
 </li>

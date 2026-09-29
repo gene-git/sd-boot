@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -97,16 +97,16 @@
 In this case the boot loader requires efi filesystem drivers that provided by the <em>efifs</em> package.</p>
 <p>When this package is installed the driver files are located in the directory <em>/usr/lib/efifs-x86/</em>,
 sd-boot detects this, via an alpm hook, and installs them into:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">EFI</span><span class="o">&gt;/</span><span class="n">EFI</span><span class="o">/</span><span class="n">systemd</span><span class="o">/</span><span class="n">drivers</span><span class="o">/</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;EFI&gt;/EFI/systemd/drivers/
 </pre></div>
 </div>
 <p>where systemd-boot expects to find them.</p>
 <p>These can also be manually installed (or removed) from the command line using:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">efifs</span><span class="o">-</span><span class="n">update</span> <span class="n">add</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/sd-boot/sd-boot-efifs-update add
 </pre></div>
 </div>
 <p>or:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">efifs</span><span class="o">-</span><span class="n">update</span> <span class="n">remove</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/sd-boot/sd-boot-efifs-update remove
 </pre></div>
 </div>
 </section>

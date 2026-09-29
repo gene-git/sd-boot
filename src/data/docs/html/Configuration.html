@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -109,9 +109,9 @@ sd-boot is permitted to install.</p>
 <p>Package names here are the standard Arch package names.</p>
 <p>Please ensure any package to be managed by sd-boot is listed appropriately.</p>
 <p>By default kernel-install sets kernel boot options using in order:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">cmdline</span>
-<span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">cmdline</span>
-<span class="o">/</span><span class="n">proc</span><span class="o">/</span><span class="n">cmdline</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/kernel/cmdline
+/usr/lib/kernel/cmdline
+/proc/cmdline
 </pre></div>
 </div>
 <p>Putting kernel command line options into <em>/etc/kernel/cmdline</em> will then over-ride the
@@ -129,11 +129,11 @@ coded in <em>C</em> has since replaced it.</p>
 <section id="getting-started">
 <h2><span class="section-number">2.1. </span>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>For a kernel to be managed by <em>sd-boot</em> the kernel package should install to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/modules/&lt;kernel-version&gt;
 </pre></div>
 </div>
 <p>with the kernel image at:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">vmlinuz</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/modules/&lt;kernel-version&gt;/vmlinuz
 </pre></div>
 </div>
 <p>A kernel package must <strong>NOT</strong> install the kernel or any initrd into <em>&lt;EFI&gt;</em> or <em>&lt;BOOT&gt;</em>.
@@ -141,14 +141,14 @@ It should not even create an initrd. Installing anything to these <em>$BOOT</em>
 must be left to sd-boot. This applies equally to any efi tools.</p>
 <p>Once the package is installed, then grant sd-boot permission to manage
 those kernels and efi-tools by listing them in the files:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">kernel</span><span class="o">.</span><span class="n">packages</span>
-<span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">efi</span><span class="o">-</span><span class="n">tools</span><span class="o">.</span><span class="n">packages</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/sd-boot/kernel.packages
+/etc/sd-boot/efi-tools.packages
 </pre></div>
 </div>
 <p>On the next update (or re-install or remove), if the kernel or efi-tool is designated
 to be managed by <em>sd-boot</em> then it will handle installing it into $BOOT.</p>
 <p>You can (re-)install a kernel at any time at the command line using:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">kernel</span><span class="o">-</span><span class="n">install</span> <span class="o">&lt;</span><span class="n">kernel</span> <span class="n">package</span> <span class="n">name</span><span class="o">&gt;</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sd-boot-kernel-install &lt;kernel package name&gt;
 </pre></div>
 </div>
 <p>or trigger a pacman refresh with :</p>
@@ -158,11 +158,11 @@ pacman<span class="w"> </span>-Syu
 </div>
 <p>sd-boot relies on each kernel package providing a file in the kernel module
 directory that contains that kernel package name:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">pkgbase</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/modules/&lt;kernel-version&gt;/pkgbase
 </pre></div>
 </div>
 <p>or:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">modules</span><span class="o">/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span><span class="n">pkgbase</span><span class="o">-</span><span class="n">sdb</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/modules/&lt;kernel-version&gt;/pkgbase-sdb
 </pre></div>
 </div>
 <p>Arch kernels provide <em>pkgbase</em> file.

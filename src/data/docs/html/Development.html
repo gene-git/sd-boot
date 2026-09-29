@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -140,11 +140,11 @@ along with the output from valgrind.</p>
 </li>
 </ul>
 <p>The image and initrd files will be installed in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Testing</span><span class="o">/</span><span class="n">__root__</span><span class="o">/</span><span class="n">boot</span><span class="o">/&lt;</span><span class="n">machine</span><span class="o">-</span><span class="nb">id</span><span class="o">&gt;/&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;/</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Testing/__root__/boot/&lt;machine-id&gt;/&lt;kernel-version&gt;/
 </pre></div>
 </div>
 <p>while the loader entry files, for efi tools and kernels in <em>bls</em> layout will be in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Testing</span><span class="o">/</span><span class="n">__root__</span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">loader</span><span class="o">/</span><span class="n">entries</span><span class="o">/&lt;</span><span class="n">machine</span><span class="o">-</span><span class="nb">id</span><span class="o">&gt;-&lt;</span><span class="n">kernel</span><span class="o">-</span><span class="n">version</span><span class="o">&gt;.</span><span class="n">conf</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Testing/__root__/boot/loader/entries/&lt;machine-id&gt;-&lt;kernel-version&gt;.conf
 </pre></div>
 </div>
 <p>You may notice that the loader entries have a longer path to the kernel image and initrd.</p>
@@ -169,7 +169,7 @@ From the <em>src</em> directory:</p>
 </pre></div>
 </div>
 <p>And for this executable for example, within gdb use:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run</span> <span class="n">add</span> <span class="n">linux</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>run add linux
 </pre></div>
 </div>
 <p>Plugins are called by kernel-install but may be run manually as well:</p>

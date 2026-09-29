@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=29180f0f" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -222,9 +222,9 @@ sd-boot provides:</p>
 <li><p>/usr/lib/kernel/install.conf.d/010-sd-boot-install.conf</p></li>
 </ul>
 <p>which sets the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">layout</span><span class="o">=</span><span class="n">uki</span>
-<span class="n">initrd_generator</span><span class="o">=</span><span class="n">dracut</span>
-<span class="n">uki_generator</span><span class="o">=</span><span class="n">ukify</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>layout=uki
+initrd_generator=dracut
+uki_generator=ukify
 </pre></div>
 </div>
 <p>These may be overridden in:</p>
@@ -240,24 +240,24 @@ sd-boot provides:</p>
 <ul>
 <li><p><strong>/etc/sd-boot/config.yaml</strong></p>
 <p>Settings:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">verb</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">skip_kernel_plugins</span><span class="p">:</span> <span class="p">[]</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>verb: 1
+skip_kernel_plugins: []
 </pre></div>
 </div>
 </li>
 <li><p><strong>/etc/sd-boot/efi-tool.packages</strong></p>
 <p>A list of all package names of efi tools to be managed by sd-boot:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">memtest86_64</span><span class="o">-</span><span class="n">git</span>
-<span class="n">edk2</span><span class="o">-</span><span class="n">shell</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>memtest86_64-git
+edk2-shell
 </pre></div>
 </div>
 </li>
 <li><p><strong>/etc/sd-boot/kernel.packages</strong></p>
 <p>A list of kernel packages managed by sd-boot:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">linux</span><span class="o">-</span><span class="n">custom</span>
-<span class="n">linux</span><span class="o">-</span><span class="nb">next</span>
-<span class="n">linux</span><span class="o">-</span><span class="n">test</span>
-<span class="n">linux</span><span class="o">-</span><span class="n">stable</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>linux-custom
+linux-next
+linux-test
+linux-stable
 </pre></div>
 </div>
 </li>

@@ -10,7 +10,7 @@
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=692cac0a" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=29180f0f" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
@@ -114,27 +114,27 @@
 <p>Install, remove, or inspect a bootable efi tool in the $BOOT partition using kernel-install.
 The $BOOT partition, following the notation used by kernel-install, is usually one of <em>/boot</em> or <em>/efi</em>.</p>
 <p>The package must be managed by sd-boot with the package name one of those listed in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/</span><span class="n">efi</span><span class="o">-</span><span class="n">tool</span><span class="o">.</span><span class="n">packages</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/sd-boot/efi-tool.packages
 </pre></div>
 </div>
 <p>It takes two arguments. The first argument is the operation:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">add</span> <span class="o">|</span> <span class="n">remove</span> <span class="o">|</span> <span class="n">inspect</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>add | remove | inspect
 </pre></div>
 </div>
 <p>followed by the package name that provides the tool.</p>
 <p>For installs using <em>add</em>, the path of the source <strong>efi</strong> image must be provided in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">/&lt;</span><span class="n">package</span><span class="o">-</span><span class="n">name</span><span class="o">&gt;.</span><span class="n">image</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/sd-boot/&lt;package-name&gt;.image
 </pre></div>
 </div>
 <p>This file may contain shell style comments as well as the image path.</p>
 <p>Since these tools are not kernels, they are installed using <em>BLS</em> layout, even
 when the kernel layout is set to <em>UKI</em> in <em>/etc/kernel/install.conf</em>. This ensures that
 the efi tools are installed to:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">boot</span><span class="o">/&lt;</span><span class="n">machine</span><span class="o">-</span><span class="nb">id</span><span class="o">&gt;/&lt;</span><span class="n">package_name</span><span class="o">&gt;/</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/boot/&lt;machine-id&gt;/&lt;package_name&gt;/
 </pre></div>
 </div>
 <p>and that boot loader entry files are appropriately created in:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">boot</span><span class="o">/</span><span class="n">loader</span><span class="o">/</span><span class="n">entries</span><span class="o">/&lt;</span><span class="n">machine_name</span><span class="o">-</span><span class="n">pacmage_name</span><span class="o">&gt;.</span><span class="n">conf</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/boot/loader/entries/&lt;machine_name-pacmage_name&gt;.conf
 </pre></div>
 </div>
 </section>
@@ -185,17 +185,17 @@ along with the path to the program to be booted.</p>
 <section id="examples">
 <h3><span class="section-number">2.1.5. </span>EXAMPLES<a class="headerlink" href="#examples" title="Link to this heading"></a></h3>
 <p>To install the efi shell from <em>edk2-shell</em> package:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># sd-boot-efi-tool-update add edk2-shell</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># sd-boot-efi-tool-update add edk2-shell
 </pre></div>
 </div>
 <p>where edk2-shell is listed in <em>/etc/sd-boot/edk2-shell.packages</em> and the pathname
 is provided in the file <em>/etc/sd-boot/edk2-shell.image</em> which contains:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">edk2</span><span class="o">-</span><span class="n">shell</span><span class="o">/</span><span class="n">x64</span><span class="o">/</span><span class="n">Shell_Full</span><span class="o">.</span><span class="n">efi</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/share/edk2-shell/x64/Shell_Full.efi
 </pre></div>
 </div>
 <p>The image itself is provided by the <em>edk2-shell</em> package.</p>
 <p>To update all efi tools currently managed by sd-boot:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">efi</span><span class="o">-</span><span class="n">tool</span><span class="o">-</span><span class="n">update</span> <span class="n">add</span> <span class="s2">"--all--"</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sd-boot-efi-tool-update add "--all--"
 </pre></div>
 </div>
 </section>
