@@ -2,6 +2,67 @@
 Appendix
 ========
 
+.. _build_options:
+
+Compile and Loader Options
+==========================
+
+Compilers provide options that can enhance the safety of the compiled code.
+These are the options currently used to build sd-boot.
+
+**Compile Options**:
+
+.. tabularcolumns:: |>{\centering\arraybackslash}\X{35}{100}|>{\raggedright\arraybackslash}\X{65}{100}|
+
+.. list-table::
+   :widths: 35 65
+   :stub-columns: 1
+
+   * - -pipe
+     - Speeds up compilation
+   * - -fno-plt Optimization             
+     - for shared library calls
+   * - -Wmissing-prototypes              
+     - Warn for global function missing prototype decl
+   * - -fvisibility=hidden               
+     - Only exported symbols in shared lib sym table
+   * - -fstack-protector-strong          
+     - Protect function calls with stack canaries
+   * - -fstack-clash-protection          
+     - Prevents stack-clash exploits
+   * - -ftrivial-auto-var-init=zero      
+     - Eliminate uninitialized stack memory leaks
+   * - -fzero-call-used-regs=used-gpr    
+     - Wipe general registers before returning
+   * - -mshstk                           
+     - Intel Shadow Stack protection
+   * - -fcf-protection                   
+     - Control-flow enforcement
+
+**Link Options**:
+
+.. tabularcolumns:: |>{\centering\arraybackslash}\X{35}{100}|>{\raggedright\arraybackslash}\X{65}{100}|
+
+.. list-table::
+   :widths: 35 65
+   :stub-columns: 1
+
+   * - -Wl,--as-needed                   
+     - Limit shared to 'as needed'
+   * - -Wl,-z,relro                      
+     - Mark relocation tables read-only
+   * - -Wl,-z,now                        
+     - Force immediate binding (Full RELRO)
+   * - -Wl,-z,noexecstack                
+     - Strictly enforce non-executable stack
+   * - -Wl,-z,pack-relative-relocs       
+     - Optimize layout with DT_RELR packing
+   * - -Wl,-z,defs                       
+     - Catch unresolved symbols at link time, not at runtime
+
+The test suite is also run using code compiled with *-fanalyzer* as 
+well as *-fsanitize=address,undefined* and no warnings or errors are found.
+
 Potential Todo Items
 ====================
 

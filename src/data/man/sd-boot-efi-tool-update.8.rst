@@ -32,7 +32,7 @@ The package must be managed by sd-boot with the package name one of those listed
 
 It takes two arguments. The first argument is the operation::
 
-   *add* | *remove* | *inspect* 
+   add | remove | inspect 
 
 followed by the package name that provides the tool.
 

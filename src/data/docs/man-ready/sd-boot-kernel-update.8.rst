@@ -23,7 +23,7 @@ The $BOOT partition, following the notation used by kernel-install, is usually o
 
 It takes two arguments. The first argument is the operation::
 
-    *add* | *remove* | *inspect* 
+    add | remove | inspect 
 
 followed by the package name providing the kernel.
 

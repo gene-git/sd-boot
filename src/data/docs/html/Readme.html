@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. sd-boot &mdash; sd-boot 6.5.4
+  <title>1. sd-boot &mdash; sd-boot 6.5.5
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8315fef2"></script>
+      <script src="_static/documentation_options.js?v=276d7aeb"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -178,19 +178,23 @@ the required tasks but that the code is robust, handles exceptions gracefully an
 not suffer from potential memory related issues. And of course no bugs!
 Sure, having zero bugs ever is tricky. While we cannot guarantee perfection,
 there are things we can do to minimize them and bolster confidence in the code.</p>
-<p>To help with this, sd-boot:</p>
+<p>To help with this, sd-boot has undegone:</p>
 <ul class="simple">
-<li><p>has undergone functional testing</p></li>
-<li><p>has undergone static analysis with tools such as clang-tidy</p></li>
-<li><p>has undergone compiler analysis using tools such as -fanalyzer</p></li>
-<li><p>is completely clean when run under valgrind</p></li>
-<li><p>has undergone human code review</p></li>
-<li><p>has underfone additional AI reviews.</p>
+<li><p>functional testing</p></li>
+<li><p>static analysis with tools such as clang-tidy</p></li>
+<li><p>compiler analysis with -fanalyzer and -fsanitize</p></li>
+<li><p>runs under valgrind tests and is completely clean</p></li>
+<li><p>human code review</p></li>
+<li><p>additional AI reviews.</p>
 <ul>
 <li><p>Assisted-by: Claude (Anthropic) &lt;<a class="reference external" href="https://claude.ai">https://claude.ai</a>&gt;</p></li>
 </ul>
 </li>
 </ul>
+<p>The shared library only contains the necessary exported symbol names and all code
+is compiled and linked with options that enhance safety and security of the compiled code.</p>
+<p>Additional detail on compile and link options are given in the <a class="reference internal" href="Appendix.html#build-options"><span class="std std-ref">Compile and Loader Options</span></a> of
+the Appendix.</p>
 </section>
 </section>
 <section id="quick-start">

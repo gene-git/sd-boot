@@ -99,16 +99,22 @@ not suffer from potential memory related issues. And of course no bugs!
 Sure, having zero bugs ever is tricky. While we cannot guarantee perfection, 
 there are things we can do to minimize them and bolster confidence in the code.
 
-To help with this, sd-boot:
+To help with this, sd-boot has undegone:
 
-- has undergone functional testing
-- has undergone static analysis with tools such as clang-tidy
-- has undergone compiler analysis using tools such as -fanalyzer
-- is completely clean when run under valgrind 
-- has undergone human code review
-- has underfone additional AI reviews.
+- functional testing
+- static analysis with tools such as clang-tidy
+- compiler analysis with -fanalyzer and -fsanitize
+- runs under valgrind tests and is completely clean 
+- human code review
+- additional AI reviews.
 
   - Assisted-by: Claude (Anthropic) <https://claude.ai>
+
+The shared library only contains the necessary exported symbol names and all code
+is compiled and linked with options that enhance safety and security of the compiled code.
+
+Additional detail on compile and link options are given in the :ref:`build_options` of
+the Appendix.
 
 Quick Start
 ===========

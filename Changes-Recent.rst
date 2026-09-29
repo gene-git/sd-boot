@@ -5,6 +5,10 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
+**6.5.6** Tue Sep 29 12:36:01 AM UTC 2026
+
+* Small documentation update
+
 **6.5.5** Mon Sep 28 11:04:28 PM UTC 2026
 
 * Reaadthedocs manual now includes man-pages:

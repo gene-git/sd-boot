@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>12. Appendix &mdash; sd-boot 6.5.4
+  <title>12. Appendix &mdash; sd-boot 6.5.5
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8315fef2"></script>
+      <script src="_static/documentation_options.js?v=276d7aeb"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -58,7 +58,8 @@
 <li class="toctree-l1"><a class="reference internal" href="Efi-Tools.html">10. Bootable efi tools</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Development.html">11. Development</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">12. Appendix</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#potential-todo-items">12.1. Potential Todo Items</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compile-and-loader-options">12.1. Compile and Loader Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#potential-todo-items">12.2. Potential Todo Items</a></li>
 </ul>
 </li>
 </ul>
@@ -96,8 +97,81 @@
              
   <section id="appendix">
 <h1><span class="section-number">12. </span>Appendix<a class="headerlink" href="#appendix" title="Link to this heading"></a></h1>
+<section id="compile-and-loader-options">
+<span id="build-options"></span><h2><span class="section-number">12.1. </span>Compile and Loader Options<a class="headerlink" href="#compile-and-loader-options" title="Link to this heading"></a></h2>
+<p>Compilers provide options that can enhance the safety of the compiled code.
+These are the options currently used to build sd-boot.</p>
+<p><strong>Compile Options</strong>:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p>-pipe</p></th>
+<td><p>Speeds up compilation</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-fno-plt Optimization</p></th>
+<td><p>for shared library calls</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>-Wmissing-prototypes</p></th>
+<td><p>Warn for global function missing prototype decl</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-fvisibility=hidden</p></th>
+<td><p>Only exported symbols in shared lib sym table</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>-fstack-protector-strong</p></th>
+<td><p>Protect function calls with stack canaries</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-fstack-clash-protection</p></th>
+<td><p>Prevents stack-clash exploits</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>-ftrivial-auto-var-init=zero</p></th>
+<td><p>Eliminate uninitialized stack memory leaks</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-fzero-call-used-regs=used-gpr</p></th>
+<td><p>Wipe general registers before returning</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>-mshstk</p></th>
+<td><p>Intel Shadow Stack protection</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-fcf-protection</p></th>
+<td><p>Control-flow enforcement</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Link Options</strong>:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><th class="stub"><p>-Wl,–as-needed</p></th>
+<td><p>Limit shared to ‘as needed’</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-Wl,-z,relro</p></th>
+<td><p>Mark relocation tables read-only</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>-Wl,-z,now</p></th>
+<td><p>Force immediate binding (Full RELRO)</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-Wl,-z,noexecstack</p></th>
+<td><p>Strictly enforce non-executable stack</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>-Wl,-z,pack-relative-relocs</p></th>
+<td><p>Optimize layout with DT_RELR packing</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>-Wl,-z,defs</p></th>
+<td><p>Catch unresolved symbols at link time, not at runtime</p></td>
+</tr>
+</tbody>
+</table>
+<p>The test suite is also run using code compiled with <em>-fanalyzer</em> as
+well as <em>-fsanitize=address,undefined</em> and no warnings or errors are found.</p>
+</section>
 <section id="potential-todo-items">
-<h2><span class="section-number">12.1. </span>Potential Todo Items<a class="headerlink" href="#potential-todo-items" title="Link to this heading"></a></h2>
+<h2><span class="section-number">12.2. </span>Potential Todo Items<a class="headerlink" href="#potential-todo-items" title="Link to this heading"></a></h2>
 <ul>
 <li><p>When switching layout from bls to uki, previous kernel is not removed
 since it was installed using bls layout while <em>kernel-install remove</em>
