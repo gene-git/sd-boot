@@ -6,16 +6,16 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. sd-boot &mdash; sd-boot 6.5.5
+  <title>1. sd-boot &mdash; sd-boot 6.5.6
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1dc0fa46" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=276d7aeb"></script>
+      <script src="_static/documentation_options.js?v=1095f081"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -115,11 +115,11 @@ from the <em>boot</em> partition.</p>
 It is usually mounted on either <em>/efi</em> or <em>/boot</em>.
 In the past it <em>/boot/efi</em> has also been used, but mounting the ESP under /boot is now strongly discouraged.</p>
 <p>The boot process requires access to the ESP partition
-and there are two distinct recommendations.</p>
-<p>Mount the ESP partition:</p>
+and there are two distinct recommendations on mount points.</p>
+<p>Mount the ESP partition on:</p>
 <ul class="simple">
-<li><p>onto <em>/efi</em> and an XBOOTLDR partition, if any, onto <em>/boot</em></p></li>
-<li><p>onto <em>/boot</em> or <em>/efi</em> if there is an XBOOTLDR partition and mount that on <em>/boot</em>.</p></li>
+<li><p><em>/efi</em> and an XBOOTLDR partition, if any, onto <em>/boot</em></p></li>
+<li><p><em>/boot</em> or on <em>/efi</em> if there is an XBOOTLDR partition and mount that on <em>/boot</em>.</p></li>
 </ul>
 <p>The first is recommended by kernel-install and the second by the
 <a class="reference external" href="https://uapi-group.org/specifications/specs/boot_loader_specification">UAPI Group Specifications: Mount Points</a>.</p>
@@ -193,7 +193,7 @@ there are things we can do to minimize them and bolster confidence in the code.<
 </ul>
 <p>The shared library only contains the necessary exported symbol names and all code
 is compiled and linked with options that enhance safety and security of the compiled code.</p>
-<p>Additional detail on compile and link options are given in the <a class="reference internal" href="Appendix.html#build-options"><span class="std std-ref">Compile and Loader Options</span></a> of
+<p>Additional details on compile and link options are given in the <a class="reference internal" href="Appendix.html#build-options"><span class="std std-ref">Compile and Loader Options</span></a> of
 the Appendix.</p>
 </section>
 </section>

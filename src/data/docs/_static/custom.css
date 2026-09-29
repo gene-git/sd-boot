@@ -1,18 +1,18 @@
-/* 1. Pull the official vector web fonts safely from Google Font APIs */
+/* Pull the Inter web fonts from Google Font APIs */
 @import url('https://googleapis.com');
 
-/* 2. Inject them into your Sphinx Theme standard CSS variables */
+/* Inject them into Sphinx Theme CSS variables */
 :root {
     --font-stack: 'Inter', system-ui, -apple-system, sans-serif;
     --font-stack--monospace: 'Fira Mono', ui-monospace, monospace;
 }
 
-/* 3. Universal Fallback Overrides for global elements */
+/* Universal Fallback Overrides for global elements */
 body, p, ul, ol, li {
     font-family: var(--font-stack) !important;
 }
 
-/* Keeps code blocks perfectly crisp and aligned */
+/* Keeps code blocks crisp and aligned */
 code, pre, kbd, samp, .highlight pre {
     font-family: var(--font-stack--monospace) !important;
     font-size: 0.9em !important;

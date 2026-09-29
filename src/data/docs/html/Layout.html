@@ -6,16 +6,16 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5. Layout: BLS vs UKI &mdash; sd-boot 6.5.5
+  <title>5. Layout: BLS vs UKI &mdash; sd-boot 6.5.6
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1dc0fa46" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=692cac0a" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=276d7aeb"></script>
+      <script src="_static/documentation_options.js?v=1095f081"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -93,25 +93,25 @@
              
   <section id="layout-bls-vs-uki">
 <h1><span class="section-number">5. </span>Layout: BLS vs UKI<a class="headerlink" href="#layout-bls-vs-uki" title="Link to this heading"></a></h1>
-<p>First off, I prefer <em>uki</em> layout. It is simpler, does not require separate loader entry
+<p>First off, we prefer the <em>uki</em> layout. It is simpler, does not require separate loader entry
 files, and both kernel and initrd are signed since they are in one file. The <em>uki</em> file
 itself is an <em>efi</em> file and can therefore be directly booted without the need of a boot manager
 should that ever be needed.</p>
-<p>For this reason the dafault <em>install.conf</em> file provided by <em>sd-boot</em> uses <em>uki</em> layout.</p>
-<p>UKI layout uses:</p>
+<p>For these reasons the default <em>install.conf</em> file provided by <em>sd-boot</em> uses <em>uki</em> layout.</p>
+<p>With UKI layout kernel image is written to:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$BOOT/EFI/Linux/&lt;machine-id&gt;-&lt;kernel-version&gt;.efi
 </pre></div>
 </div>
-<p>Of particular note is that there are no loader entry files in UKI layout.</p>
-<p>BLS layout uses:</p>
+<p>Of particular note is that there are no loader entry files with UKI layout.</p>
+<p>BLS layout uses three separate files:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>$BOOT/&lt;machine-id&gt;/&lt;kernel-version&gt;/linux
 $BOOT/&lt;machine-id&gt;/&lt;kernel-version&gt;/initrd
 $BOOT/loader/entries/&lt;&lt;machine-id&gt;-&lt;kernel-version&gt;.conf
 </pre></div>
 </div>
-<p>kernel install uses settings from <em>/usr/lib/kernel</em> which may be over-ridden
+<p>kernel-install uses settings taken from <em>/usr/lib/kernel</em> that may be overridden
 with files in <em>/etc/kernel</em>.</p>
-<p>sd-boot installs:</p>
+<p>sd-boot provides:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="mi">010</span><span class="o">-</span><span class="n">sd</span><span class="o">-</span><span class="n">boot</span><span class="o">-</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span>
 </pre></div>
 </div>
@@ -125,11 +125,11 @@ with files in <em>/etc/kernel</em>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">conf</span>
 </pre></div>
 </div>
-<p>with <em>layout=bls</em>.
+<p>and set <em>layout=bls</em>.
 Then install the kernel package again.</p>
-<p>BLS layout uses <em>type #1</em> loader entries. So if layout is changed from <em>bls</em> back to <em>uki</em>
+<p>BLS layout uses <em>type #1</em> loader entries. If layout is changed from <em>bls</em> back to <em>uki</em>
 neither the old BLS loader entry files nor the BLS kernel and initrd are automatically removed.
-These will need to be manually removed.</p>
+These need to be manually removed.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>rm $BOOT/loader/entries/&lt;&lt;machine-id&gt;-&lt;kernel-version&gt;.conf
 rm -rf $BOOT/&lt;machine-id&gt;/&lt;kernel-version&gt;
 </pre></div>

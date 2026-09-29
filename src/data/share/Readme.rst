@@ -18,12 +18,12 @@ It is usually mounted on either */efi* or */boot*.
 In the past it */boot/efi* has also been used, but mounting the ESP under /boot is now strongly discouraged.
 
 The boot process requires access to the ESP partition 
-and there are two distinct recommendations. 
+and there are two distinct recommendations on mount points. 
 
-Mount the ESP partition:
+Mount the ESP partition on:
 
-- onto */efi* and an XBOOTLDR partition, if any, onto */boot*
-- onto */boot* or */efi* if there is an XBOOTLDR partition and mount that on */boot*.
+- */efi* and an XBOOTLDR partition, if any, onto */boot*
+- */boot* or on */efi* if there is an XBOOTLDR partition and mount that on */boot*.
 
 The first is recommended by kernel-install and the second by the 
 `UAPI Group Specifications: Mount Points <https://uapi-group.org/specifications/specs/boot_loader_specification>`_.
@@ -113,7 +113,7 @@ To help with this, sd-boot has undegone:
 The shared library only contains the necessary exported symbol names and all code
 is compiled and linked with options that enhance safety and security of the compiled code.
 
-Additional detail on compile and link options are given in the :ref:`build_options` of
+Additional details on compile and link options are given in the :ref:`build_options` of
 the Appendix.
 
 Quick Start

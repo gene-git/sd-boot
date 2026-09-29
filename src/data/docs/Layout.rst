@@ -1,22 +1,22 @@
 Layout: BLS vs UKI
 ==================
 
-First off, I prefer *uki* layout. It is simpler, does not require separate loader entry
+First off, we prefer the *uki* layout. It is simpler, does not require separate loader entry
 files, and both kernel and initrd are signed since they are in one file. The *uki* file
 itself is an *efi* file and can therefore be directly booted without the need of a boot manager
 should that ever be needed.
 
-For this reason the dafault *install.conf* file provided by *sd-boot* uses *uki* layout.
+For these reasons the default *install.conf* file provided by *sd-boot* uses *uki* layout.
 
-UKI layout uses:
+With UKI layout kernel image is written to:
 
 .. code-block:: text
 
     $BOOT/EFI/Linux/<machine-id>-<kernel-version>.efi
 
-Of particular note is that there are no loader entry files in UKI layout.
+Of particular note is that there are no loader entry files with UKI layout.
 
-BLS layout uses:
+BLS layout uses three separate files:
 
 .. code-block:: text
 
@@ -24,10 +24,10 @@ BLS layout uses:
     $BOOT/<machine-id>/<kernel-version>/initrd
     $BOOT/loader/entries/<<machine-id>-<kernel-version>.conf
 
-kernel install uses settings from */usr/lib/kernel* which may be over-ridden
+kernel-install uses settings taken from */usr/lib/kernel* that may be overridden
 with files in */etc/kernel*.
 
-sd-boot installs::
+sd-boot provides::
 
     /usr/lib/kernel/install.conf.d/010-sd-boot-install.conf
 
@@ -41,12 +41,12 @@ To switch back to BLS from UKI layout create or edit the file::
 
     /etc/kernel/install.conf
 
-with *layout=bls*.
+and set *layout=bls*.
 Then install the kernel package again.
 
-BLS layout uses *type #1* loader entries. So if layout is changed from *bls* back to *uki*
+BLS layout uses *type #1* loader entries. If layout is changed from *bls* back to *uki*
 neither the old BLS loader entry files nor the BLS kernel and initrd are automatically removed.
-These will need to be manually removed.
+These need to be manually removed.
 
 .. code-block:: text
 
