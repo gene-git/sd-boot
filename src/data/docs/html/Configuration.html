@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Configuration &mdash; sd-boot 6.5.6
+  <title>2. Configuration &mdash; sd-boot 6.5.7
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=1095f081"></script>
+      <script src="_static/documentation_options.js?v=b4ed7498"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -114,18 +114,21 @@ sd-boot is permitted to install.</p>
 /proc/cmdline
 </pre></div>
 </div>
-<p>Putting kernel command line options into <em>/etc/kernel/cmdline</em> will then over-ride the
+<p>Putting kernel command line options into <em>/etc/kernel/cmdline</em> will then override the
 default. If no file provides the kernel options, then The default is to use /proc/cmdline
-which proivdes the kernel command line option of the currently booted kernel.</p>
-<p>On initial install sd-boot provides
-<em>/etc/kernel/install.conf</em> which sets the layout to <em>uki</em>, the initrd generator to <em>dracut</em>
-and the uki generator to <em>ukify</em>.</p>
+which provides the kernel command line option of the currently booted kernel.</p>
+<p>The sd-boot package provides defaults for kernel-install in:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/kernel/install.conf.d/010-sd-boot-install.conf
+</pre></div>
+</div>
+<p>which sets the layout to <em>uki</em>, the initrd generator to <em>dracut</em> and the uki generator to <em>ukify</em>.</p>
+<p>Any settings in <em>/etc/kernel/install.conf</em> will override the defaults.</p>
 <p>The <a class="reference external" href="https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/66#note_452083">RFC 66 Discussion</a>
-about changing to use <em>kernel-install</em> triggered me to migrate my own kernels and
-see how it works in practice. I found it works really well and am sharing this
+about changing to use <em>kernel-install</em> inspired us to migrate our kernels and
+see how it works in practice. We found it works really well and are now sharing this
 with the community in case its helpful to others.</p>
-<p>The original version of <em>sd-boot</em> was written in bash, but the current version
-coded in <em>C</em> has since replaced it.</p>
+<p>The first version of <em>sd-boot</em> was written in bash, but this was replaced by <em>C</em> code soon after
+and is what is used in the current version.</p>
 <section id="getting-started">
 <h2><span class="section-number">2.1. </span>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
 <p>For a kernel to be managed by <em>sd-boot</em> the kernel package should install to:</p>

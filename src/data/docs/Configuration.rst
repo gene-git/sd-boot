@@ -25,21 +25,25 @@ By default kernel-install sets kernel boot options using in order::
     /usr/lib/kernel/cmdline
     /proc/cmdline
 
-Putting kernel command line options into */etc/kernel/cmdline* will then over-ride the
+Putting kernel command line options into */etc/kernel/cmdline* will then override the
 default. If no file provides the kernel options, then The default is to use /proc/cmdline
-which proivdes the kernel command line option of the currently booted kernel.
+which provides the kernel command line option of the currently booted kernel.
 
-On initial install sd-boot provides
-*/etc/kernel/install.conf* which sets the layout to *uki*, the initrd generator to *dracut*
-and the uki generator to *ukify*.
+The sd-boot package provides defaults for kernel-install in::
+    
+    /usr/lib/kernel/install.conf.d/010-sd-boot-install.conf
+
+which sets the layout to *uki*, the initrd generator to *dracut* and the uki generator to *ukify*.
+
+Any settings in */etc/kernel/install.conf* will override the defaults.
 
 The `RFC 66 Discussion <https://gitlab.archlinux.org/archlinux/rfcs/-/merge_requests/66#note_452083>`_
-about changing to use *kernel-install* triggered me to migrate my own kernels and
-see how it works in practice. I found it works really well and am sharing this
+about changing to use *kernel-install* inspired us to migrate our kernels and
+see how it works in practice. We found it works really well and are now sharing this
 with the community in case its helpful to others.
 
-The original version of *sd-boot* was written in bash, but the current version
-coded in *C* has since replaced it.
+The first version of *sd-boot* was written in bash, but this was replaced by *C* code soon after
+and is what is used in the current version.
 
 Getting Started
 ===============

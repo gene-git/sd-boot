@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>7. Dracut options &mdash; sd-boot 6.5.6
+  <title>7. Dracut options &mdash; sd-boot 6.5.7
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=1095f081"></script>
+      <script src="_static/documentation_options.js?v=b4ed7498"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -97,13 +97,13 @@
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/usr/lib/dracut/dracut.conf.d/010-sd-boot-dracut.conf
 </pre></div>
 </div>
-<p>If changes are needed, then over-rides can be provided as usual using a drop in file:</p>
+<p>If changes are needed, then overrides can be provided as usual using a drop in file:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/etc/dracut.conf.d/xxx.conf
 </pre></div>
 </div>
 <p>since entries found in <em>/etc</em>/ take precedence over <em>/usr/lib/</em> as usual.
 Files within each directory are processed in alphanumeric order. For example a file called 020-dracut.conf
-will over-ride any settings 010-dracut.conf in the same directory.
+will override any settings 010-dracut.conf in the same directory.
 The last file read by dracut sets the options used.</p>
 <p>This treatment of configuration file precedence is standard on linux, and kernel-install follows the
 same rules for it’s configuration files.</p>

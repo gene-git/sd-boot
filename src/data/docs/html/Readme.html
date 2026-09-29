@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. sd-boot &mdash; sd-boot 6.5.6
+  <title>1. sd-boot &mdash; sd-boot 6.5.7
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=1095f081"></script>
+      <script src="_static/documentation_options.js?v=b4ed7498"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -204,11 +204,11 @@ the Appendix.</p>
 <li><p>kernel-install configuration</p></li>
 <li><p>sd-boot configuration</p></li>
 </ul>
-<p>Both follow the Linux standard priority order and <em>drop-in</em> files that over-ride
+<p>Both follow the Linux standard priority order and <em>drop-in</em> files that override
 settings in lower priority files. In rough terms:</p>
 <ul class="simple">
 <li><p>Files within a directory are prioritized alpha-numerically.</p></li>
-<li><p>Files in <em>/etc</em> over-ride those in <em>/usr</em></p></li>
+<li><p>Files in <em>/etc</em> override those in <em>/usr</em></p></li>
 <li><p>System provided files reside in <em>/usr</em></p></li>
 <li><p>Administration settings reside in <em>/etc</em></p></li>
 <li><p>Drop-in files in directory <em>xxx.d</em> may override partial settings.</p></li>
@@ -262,7 +262,7 @@ linux-stable
 </div>
 </li>
 </ul>
-<p>Unlike kernels whihc are all installed in a fixed location,
+<p>Unlike kernels which are all installed in a fixed location,
 efi tools must provide an <em>&lt;package-name&gt;.image</em> file which has the
 full path to the <em>.efi</em> program.</p>
 <p>These are included in sd-boot package:</p>

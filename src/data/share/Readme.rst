@@ -124,11 +124,11 @@ There are two sets of configuration files
 - kernel-install configuration
 - sd-boot configuration
 
-Both follow the Linux standard priority order and *drop-in* files that over-ride
+Both follow the Linux standard priority order and *drop-in* files that override
 settings in lower priority files. In rough terms:
 
 - Files within a directory are prioritized alpha-numerically.
-- Files in */etc* over-ride those in */usr*
+- Files in */etc* override those in */usr*
 - System provided files reside in */usr*
 - Administration settings reside in */etc*
 - Drop-in files in directory *xxx.d* may override partial settings. 
@@ -184,7 +184,7 @@ All the configuration files are located in */etc/sd-boot*:
     linux-test
     linux-stable
 
-Unlike kernels whihc are all installed in a fixed location,
+Unlike kernels which are all installed in a fixed location,
 efi tools must provide an *<package-name>.image* file which has the 
 full path to the *.efi* program.  
 
