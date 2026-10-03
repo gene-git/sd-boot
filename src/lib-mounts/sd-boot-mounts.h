@@ -41,6 +41,8 @@ typedef enum TriState: signed char {
 typedef struct MountInfo {
     char *device;
     char *mount;
+    char *guid;
+    char *uuid;
     TriState active;
     TriState current;
 } MountInfo;

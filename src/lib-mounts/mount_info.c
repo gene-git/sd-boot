@@ -24,6 +24,17 @@ void mount_info_free(MountInfo *mount_info) {
         free((void *)mount_info->mount);
         mount_info->mount = nullptr;
     }
+
+    if (mount_info->guid) {
+        free((void *)mount_info->guid);
+        mount_info->guid = nullptr;
+    }
+
+    if (mount_info->uuid) {
+        free((void *)mount_info->uuid);
+        mount_info->uuid = nullptr;
+    }
+
     mount_info->active = Unknown;
     mount_info->current = Unknown;
 }

@@ -9,7 +9,7 @@ SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
 
-SOURCES = conf.py ../../version.txt index.rst Readme.rst \
+SOURCES = conf.py ../../version.txt Makefile index.rst Readme.rst \
 		  Appendix.rst \
 		  Arch-Kernels.rst \
 		  Configuration.rst \
@@ -32,22 +32,21 @@ MAN_READY = ./man-ready/sd-boot-efifs-update.8.rst \
 			./man-ready/sd-boot-find-boot-mounts.8.rst \
 			./man-ready/sd-boot-kernel-update.8.rst
 
-.PHONY: help Makefile clean html latexpdf
+.PHONY: help clean html latexpdf
 
 HTML_EXCL   = --exclude _sources/ --exclude .buildinfo  --exclude .doctrees/
 
 
 html: $(BUILDDIR)/html/index.html
 latexpdf: $(PKG).pdf
-# man_pages: $(MAN_READY) 
 
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 $(BUILDDIR)/html/index.html: $(SOURCES) $(MAN_READY)
 	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
-	@$(SPHINXBUILD) -b html "$(SOURCEDIR)" "$(BUILDDIR)/html" $(SPHINXOPTS) $(O)
 	@rsync -a $(HTML_EXCL) _build/html .
+	@touch  _build/html/index.html
 	@echo "HTML doc build complete. Path: $@"
 
 $(PKG).pdf: $(SOURCES) $(MAN_READY)

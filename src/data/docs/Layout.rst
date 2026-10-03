@@ -1,3 +1,5 @@
+.. _layout:
+
 Layout: BLS vs UKI
 ==================
 

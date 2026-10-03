@@ -213,6 +213,7 @@ static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry,
 
     const char *p_type = udev_device_get_property_value(dev, "ID_PART_ENTRY_TYPE");
     const char *p_guid = udev_device_get_property_value(dev, "ID_PART_ENTRY_UUID");
+    const char *p_uuid = udev_device_get_property_value(dev, "ID_FS_UUID");
 
     if (!p_type || !p_guid) {
         goto exit;
@@ -233,6 +234,8 @@ static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry,
         MountInfo new_mount = {};
         new_mount.device = strdup(src);
         new_mount.mount = strdup(target ? target : " - ");
+        new_mount.guid = strdup(p_guid);
+        new_mount.uuid = strdup(p_uuid);
         new_mount.active = (TriState) active;
         new_mount.current = Unknown;
 
