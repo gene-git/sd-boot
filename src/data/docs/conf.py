@@ -48,8 +48,10 @@ latex_elements = {
 
     #
     # Font settings
-    #
-    # 'fvset': r'\fvset{fontsize=\small}',
+    # Adjust the font size of code blocks. 
+    # Options include: \footnotesize, \small, \scriptsize, \tiny
+     'fvset': r'\fvset{fontsize=\scriptsize}',
+    #'fvset': r'\fvset{fontsize=\footnotesize}',
 
     'fontpkg': r'''
         \usepackage{fontspec}

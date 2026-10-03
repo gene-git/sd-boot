@@ -52,9 +52,25 @@
 <li class="toctree-l1"><a class="reference internal" href="Loader-Entries.html">4. Boot Loader Entries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Layout.html">5. Layout: BLS vs UKI</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">6. Signing Kernels &amp; Secure Boot</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#signing-kernel">6.1. Signing Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#signing-bls-vs-uki">6.2. Signing BLS vs UKI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#secure-boot">6.3. Secure Boot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">6.1. Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#secure-boot-on">6.1.1. Secure Boot On</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#systemd-tpm2-setup">6.1.2. Systemd-TPM2-Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hardware">6.1.3. Hardware</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#what-to-do">6.2. What To Do</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#secure-boot-and-sbctl">6.2.1. Secure Boot and sbctl</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#signing-bls-vs-uki">6.2.1.1. Signing BLS vs UKI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#activating-secure-boot">6.2.1.2. Activating Secure Boot</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#systemd-tpm2">6.2.2. Systemd-TPM2-Setup</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#turn-off-the-service">6.2.2.1. Turn Off the Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configure-the-service">6.2.2.2. Configure the Service</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Dracut-Options.html">7. Dracut options</a></li>
@@ -102,8 +118,91 @@
 Many thanks to Foxboron for writing sbctl which simplifies things enormously.</p>
 <p>This is a very brief overview.
 Please see Arch wiki and man pages for details on secure boot and kernel signing.</p>
-<section id="signing-kernel">
-<h2><span class="section-number">6.1. </span>Signing Kernel<a class="headerlink" href="#signing-kernel" title="Link to this heading"></a></h2>
+<section id="overview">
+<h2><span class="section-number">6.1. </span>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This note is purposefully brief and incomplete but provides
+some background around this somewhat large and complex topic.
+For simplicity and because it is the current desirable approach I will
+focus on UKI and not BLS layout here.</p>
+<p>Signing a kernel provides a way to be sure that it has not changed after the
+signature was created. Signatures are stored to the TPM hardware from where
+they can be read during the boot process. There are several slots available
+and specific slots are designated for specific purposes.</p>
+<p>To skip to the section on configuring systemd-tpm2-setup, see: <a class="reference internal" href="#systemd-tpm2"><span class="std std-ref">Systemd-TPM2-Setup</span></a>.</p>
+<section id="secure-boot-on">
+<h3><span class="section-number">6.1.1. </span>Secure Boot On<a class="headerlink" href="#secure-boot-on" title="Link to this heading"></a></h3>
+<p>PCR slot 7 holds the UEFI secure boot state along with the valid certificate
+database, <em>db</em>. It also holds an ever growing list of invalid certificates, <em>dbx</em>.
+Some machines may even no longer have enough space to hold <em>dbx</em>.</p>
+<p>PCR 7 is required by secure boot. Only a UKI that can be validated by the certificates
+in slot 7 are permitted to boot by the UEFI firmware.</p>
+<p>That is all that is required for secure boot.</p>
+</section>
+<section id="systemd-tpm2-setup">
+<h3><span class="section-number">6.1.2. </span>Systemd-TPM2-Setup<a class="headerlink" href="#systemd-tpm2-setup" title="Link to this heading"></a></h3>
+<p>Systemd provides additional useful checks on the operating system
+via <em>systemd-tpm2-setup-early</em> and <em>systemd-tpm2-setup</em> services.
+This is most useful when secure boot is disabled. It’s pretty
+benign and redundant when using secure boot.</p>
+<p>To take advantage of these, <em>ukify</em> is used to provide keys and sign the hashes
+of the initrd, the kernel image, the kernel cmdline, any embedded OS-release metadata,
+splash screen image and, importantly, the systemd-stub.</p>
+<p>At boot time systemd-stub, computes the hash of the same set of inidividual hashes
+and pushes it down to PCR-11.  A little later in the boot cycle, systemd extracts the
+public key from the UKI along with the signed hash. It then uses the public key to verify
+the signature is authentic and that the hash inside the signature matches the value in PCR-11.
+If they match then all is well and the systemd service exits with success. If not, it exits with a fail.</p>
+<p>So that’s pretty useful. If anything changed, systemd advertizes the failure during boot
+and dmesg.</p>
+</section>
+<section id="hardware">
+<h3><span class="section-number">6.1.3. </span>Hardware<a class="headerlink" href="#hardware" title="Link to this heading"></a></h3>
+<p>There are presently two versions of hardware that can be used to store
+signatures on the motherboard. TPM version 1.2 and TPM version 2.0. The major
+difference between these is that 1.2 chips only support SHA-1, while 2.0 chips support SHA-256.
+Since (some) signatures now use SHA-256, these are not compatible with TPM 1.2.</p>
+<p>To check which is available. For TPM2:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>bootctl | head -7 | tail -3
+
+TPM2 Support: yes
+Measured UKI: yes
+Measured OS: yes
+</pre></div>
+</div>
+<p>whereas for version 1.2 they result shows three <em>no</em>’s.</p>
+</section>
+</section>
+<section id="what-to-do">
+<h2><span class="section-number">6.2. </span>What To Do<a class="headerlink" href="#what-to-do" title="Link to this heading"></a></h2>
+<p>Armed with the background on kernel signatures, here are some things
+that may be helpful.</p>
+<p>There are two:</p>
+<ul class="simple">
+<li><p>distinct validation / signatures</p></li>
+<li><p>sets of tools to create the keys / signatures</p></li>
+<li><p>target systems that validate them.</p></li>
+</ul>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Kernel Signing</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>What</strong></p></th>
+<th class="head"><p><strong>Secure Boot (sbctl –create-keys)</strong></p></th>
+<th class="head"><p><strong>Systemd OS (ukify genkeys)</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>does the Validation</p></td>
+<td><p>UEFI Firmware</p></td>
+<td><p>Systemd / Kernel (OS)</p></td>
+</tr>
+<tr class="row-odd"><td><p>is Validated</p></td>
+<td><p>Validates the UKI</p></td>
+<td><p>Validates the state of the OS</p></td>
+</tr>
+</tbody>
+</table>
+<section id="secure-boot-and-sbctl">
+<h3><span class="section-number">6.2.1. </span>Secure Boot and sbctl<a class="headerlink" href="#secure-boot-and-sbctl" title="Link to this heading"></a></h3>
 <p>The sbctl package must be installed.</p>
 <p>To have the kernels signed by local keys, first create the keys:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sbctl<span class="w"> </span>create-keys
@@ -113,31 +212,25 @@ Please see Arch wiki and man pages for details on secure boot and kernel signing
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sbctl<span class="w"> </span>setup<span class="w"> </span>--migrate
 </pre></div>
 </div>
-<p>Thats all that’s required. This will sign the kernel image. Note that if the
+<p>With the keys in place sbctl will sign the kernel UKI image. Note that if the
 layout is <em>bls</em> then the initrd is separate and unsigned.</p>
 <p>You may want to change to UKI where the initrd and the kernel image are packaged into
-a single file which gets signed. To change the layout simply edit
-<em>/etc/kernel/install.conf</em> and change the layout to uki:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">layout</span><span class="o">=</span>uki
-<span class="nv">initrd_generator</span><span class="o">=</span>dracut
-<span class="nv">uki_generator</span><span class="o">=</span>ukify
-</pre></div>
-</div>
+a single file which gets signed.
+To change the layout please see the <a class="reference internal" href="Layout.html#layout"><span class="std std-ref">Layout: BLS vs UKI</span></a> section of the manual</p>
 <p>That’s all that’s required to have a unified kernel image signed by the local keys.</p>
-</section>
 <section id="signing-bls-vs-uki">
-<h2><span class="section-number">6.2. </span>Signing BLS vs UKI<a class="headerlink" href="#signing-bls-vs-uki" title="Link to this heading"></a></h2>
-<p>When signing a kernel, the preferred way is to use uki layout as the initrd is part of
-the uki image that gets signed. In bls layout, the kernel is signed but the initrd
-is not.</p>
-<p>When using bls layout, the kernel signing is handled by the sbct plugin, <em>/usr/lib/91-sbctl.install</em>.
-When using uku layout, signing of the uki image is handled by ukify.</p>
-<p>Best I can tell, the sbctl plugin does not to attempt to sign the image a second time. However,
-being cautious, sd-boot will de-activate the sbctl plugin in this case to eliminate any possibility
-of a second signing happening.</p>
+<h4><span class="section-number">6.2.1.1. </span>Signing BLS vs UKI<a class="headerlink" href="#signing-bls-vs-uki" title="Link to this heading"></a></h4>
+<p>When it comes to kernel signing, the stronly preferred way is with uki layout. The initrd is part of
+the uki image that gets signed. In bls layout, the ony kernel is signed while neither the initrd
+nor the kernel command line are signed.</p>
+<p>With BLS layout, the kernel signing is handled by the sbctl plugin, <em>/usr/lib/91-sbctl.install</em>.
+With UKI layout, ukify handles signing the UKI image.</p>
+<p>Best I can tell, the sbctl plugin does not to attempt to double sign the image. However,
+being cautious, sd-boot de-activates the sbctl plugin in this case to eliminate any possibility
+of a second signature.</p>
 </section>
-<section id="secure-boot">
-<h2><span class="section-number">6.3. </span>Secure Boot<a class="headerlink" href="#secure-boot" title="Link to this heading"></a></h2>
+<section id="activating-secure-boot">
+<h4><span class="section-number">6.2.1.2. </span>Activating Secure Boot<a class="headerlink" href="#activating-secure-boot" title="Link to this heading"></a></h4>
 <p><strong>Big caveat</strong>. Per the wiki, using local keys can lead to significant problems and may even break
 the machine.</p>
 <p>To use secure boot, the keys must be enrolled and secure boot activated in the UEFI Bios.</p>
@@ -147,6 +240,86 @@ boot up the machine and use <em>sbctl</em> to enroll the keys.</p>
 </pre></div>
 </div>
 <p>At this point the machine is in secure boot mode and will only boot signed kernels.</p>
+</section>
+</section>
+<section id="systemd-tpm2">
+<span id="id1"></span><h3><span class="section-number">6.2.2. </span>Systemd-TPM2-Setup<a class="headerlink" href="#systemd-tpm2" title="Link to this heading"></a></h3>
+<p>When booting a UKI image with TPM2 hardware where systemd-tpm2-setup has not been configured,
+a warning is logged:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[FAILED] Failed to start Early TPM SRK Setup
+</pre></div>
+</div>
+<p>There are three ways to approach this:</p>
+<ul class="simple">
+<li><p>Ignore it since its benign</p></li>
+<li><p>Turn off the systemd service</p></li>
+<li><p>Configure the service</p></li>
+</ul>
+<section id="turn-off-the-service">
+<h4><span class="section-number">6.2.2.1. </span>Turn Off the Service<a class="headerlink" href="#turn-off-the-service" title="Link to this heading"></a></h4>
+<p>Simply mask the two services:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>systemctl<span class="w"> </span>mask<span class="w"> </span>systemd-tpm2-setup-early.service<span class="w"> </span>systemd-tpm2-setup.service
+</pre></div>
+</div>
+</section>
+<section id="configure-the-service">
+<h4><span class="section-number">6.2.2.2. </span>Configure the Service<a class="headerlink" href="#configure-the-service" title="Link to this heading"></a></h4>
+<p>All that’s needed to configure this is to generate a key pair
+and configure ukify to use them to sign the hashed OS components and rebuild the UKI image(s).</p>
+<p>This is the correct way to do this:</p>
+<p>Configure ukify:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cp /usr/lib/kernel/uki.conf /etc/kernel/uki.conf
+</pre></div>
+</div>
+<p>then edit <em>/etc/kernel/uki.conf</em> and change [PCRSignature:NAME] to [PCRSignature:all] and
+uncomment the three key lines:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[PCRSignature:all]
+PCRPrivateKey=/etc/systemd/tpm2-pcr-private-key.pem
+PCRPublicKey=/etc/systemd/tpm2-pcr-public-key.pem
+</pre></div>
+</div>
+<p>Next, generate the key pair:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ukify genkey --config=/etc/kernel/uki.conf
+</pre></div>
+</div>
+<p>Lastly, rebuild the UKI image for each kernel:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sd-boot-kernel-update add linux-customr
+sd-boot-kernel-update add linux-stable
+...
+</pre></div>
+</div>
+<p>You’ll see in the output something similar to:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/usr/lib/systemd/systemd-measure sign ...
+  --pcrpkey=/etc/systemd/tpm2-pcr-public-key.pem  ...
+  --private-key=/etc/systemd/tpm2-pcr-private-key.pem
+  --public-key=/etc/systemd/tpm2-pcr-public-key.pem ...
+
+Signing kernel /boot/EFI/Linux/&lt;machine-id&gt;-&lt;kernel-version&gt;.efi
+sd-boot: Completed kernel update linux-custom
+</pre></div>
+</div>
+<p>You can verify this worked on the new UKI image path shown using:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span># uki='/boot/EFI/Linux/&lt;machine-id&gt;-&lt;kernel-version&gt;.efi'
+# ukify inspect "$uki" | grep -E -A2 '\.(pcrpkey|pcrsig)'
+.pcrpkey:
+  size: 451 bytes
+  sha256: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+--
+.pcrsig:
+  size: 8398 bytes
+  sha256: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</pre></div>
+</div>
+<p>Of course use the real path of the UKI.</p>
+<p>Next time this kernel is booted the the fail log will be replaced with:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Starting TPM SRK Setup...
+</pre></div>
+</div>
+<p>Please note that while boot times are essentially unchanged, it does
+take a little longer to build the UKI due to the additional time needed
+to compute the various hashes.</p>
+</section>
+</section>
 </section>
 </section>
 

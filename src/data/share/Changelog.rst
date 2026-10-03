@@ -6,12 +6,29 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.5.7 (2026-09-29)
-	91 commits.
+	3.6.2 (2026-04-21) -> 6.5.8 (2026-10-03)
+	94 commits.
 
 Commits
 =======
 
+
+* 2026-10-03  : **6.5.8**
+
+.. code-block:: text
+
+              - release 6.5.8
+                * Expand the kernel signing documentation.
+            
+                  * Expand secure boot section
+                  * Add section on systemd validation of the kernel (sysetmd-tpm2-setup)
+                  * Add section on the (benign) systemd TPM2 warning: **Failed to start Early TPM SRK Setup**
+ 2026-09-29   ⋯
+
+.. code-block:: text
+
+              - minor doc tweaks
+              - more doc updates
 
 * 2026-09-29  : **6.5.7**
 
