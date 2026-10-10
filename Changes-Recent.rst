@@ -5,6 +5,9 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
+**6.6.1**
+
+* Update man page for sd-boot-find-boot-mounts
 
 **6.6.0**       Sat Oct 10 01:15:05 PM UTC 2026
 

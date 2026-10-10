@@ -6,14 +6,20 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.6.0, (2026-10-03)
-	94 commits.
+	3.6.2 (2026-04-21) -> 6.6.1 (2026-10-10)
+	95 commits.
 
 Commits
 =======
 
 
-* 2026-10-03  : **6.6.0,**
+* 2026-10-10  : **6.6.1**
+
+.. code-block:: text
+
+              - 6.6.1 : Update man page for sd-boot-find-boot-mounts
+
+* 2026-10-03  : **6.6.0, origin/master**
 
 .. code-block:: text
 

@@ -30,6 +30,8 @@ When machine boots the boot loader on the motherboard boots from an ESP and it s
 that *active* ESP partition into nvram. The *current* or expected ESP
 is the one that is designated by the boot order. 
 
+The UUID is also shown for each.
+
 Under normal circumstances and almost always,  *current* and *active* are the same.
 See 'Quirky Esp' section that discusses the situation when these differ and
 a possible resolution.
@@ -47,34 +49,37 @@ EXAMPLES
 
   One ESP::
 
-                                                    (c)urrent (a)ctive
-              Device Mount                          (c a) type
-      /dev/nvme0n1p1 /boot                          (✔ ✔) EFI
+                                       (c)urrent (a)ctive
+              Device Mount                          (c a)     Type UUID
+      /dev/nvme0n1p1 /boot                          (✔ ✔)      EFI A111-123A
 
 *  Example 2:
 
    One ESP and one XBOOTLDR::
 
 
-              Device Mount                          (c a) type
-           /dev/sda1 /efi                           (✔ ✔) EFI
-           /dev/sda5 /boot                          (✔ ✔) XBOOTLDR
+              Device Mount                          (c a)     Type UUID
+      /dev/nvme0n1p1 /efi                           (✔ ✔)      EFI B111-123B
+      /dev/nvme0n1p2 /boot                          (✔ ✔) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
 
   and the same when run as non-root user::
 
-              Device Mount                          (c a) type
-           /dev/sda1 /efi                           (✔ ✔) EFI
-           /dev/sda5 /boot                          (  ✔) XBOOTLDR
+              Device Mount                          (c a)     Type UUID
+      /dev/nvme0n1p1 /efi                           (✔ ✔)      EFI B111-123B
+      /dev/nvme0n1p2 /boot                          (  ✔) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 * Example 3
 
   Two ESP and two XBOOTLDR::
 
-              Device Mount                          (c a) type
-      /dev/nvme0n1p1 /efi                           (✔ ✔) EFI
-           /dev/sdg1 /mnt/root1/efi                 (   ) EFI
-      /dev/nvme0n1p2 /boot                          (✔ ✔) XBOOTLDR
-           /dev/sdg5 /mnt/root1/boot                (   ) XBOOTLDR
+              Device Mount                          (c a)     Type UUID
+      /dev/nvme0n1p1 /efi                           (✔ ✔)      EFI xxxx-xxxx
+           /dev/sda1 /mnt/root1/efi                 (   )      EFI xxxx-xxxx
+      /dev/nvme0n1p2 /boot                          (✔ ✔) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+           /dev/sda5 /mnt/root1/boot                (   ) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+
 
 When run as non-root user, any current XBOOTLDR remains unknown/unmarked.
 
