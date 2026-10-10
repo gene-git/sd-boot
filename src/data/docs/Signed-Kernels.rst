@@ -173,6 +173,8 @@ At this point the machine is in secure boot mode and will only boot signed kerne
 Systemd-TPM2-Setup
 ------------------
 
+This started with systemd-262 and may still require changes to dracut to fully resolve this.
+
 When booting a UKI image with TPM2 hardware where systemd-tpm2-setup has not been configured, 
 a warning is logged::
 
@@ -198,6 +200,11 @@ Configure the Service
 
 All that's needed to configure this is to generate a key pair
 and configure ukify to use them to sign the hashed OS components and rebuild the UKI image(s).
+
+First, if you're not using systemd's non-volatile secret TPM store then turn it off by
+creating the file */etc/systemd/tpm2-setup.conf* with this::
+
+    NvPCR=no
 
 This is the correct way to do this:
 
@@ -254,4 +261,68 @@ Next time this kernel is booted the fail message in the journal will be replaced
 Please note that while boot times are essentially unchanged, it does
 take a little longer to build the UKI due to the additional time needed 
 to compute the various hashes.
+
+
+Fails in Early TPM SRK Setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In spite of sensible settings, there can still be failures with non-volative PCR (NvPCR)
+happening in early boot.
+
+If you're not using NvPCR, then perhaps turning it off, but keeping OS measurement
+is reasonable.
+
+To do this we'll :
+
+* mask some services
+* add some missing items to dracut.
+
+  These will no dount be in a future dracut version. After that happens, 
+  those added items can be removed, but it is harmless to leave them as well.
+
+* Omit some items
+
+**Mask services**::
+    
+    systemctl mask systemd-tpm2-setup-early.service systemd-tpm2-setup.service 
+    systemctl mask systemd-pcrproduct.service "systemd-pcrlogin@.service
+
+**Dracut config changes**
+
+Create the file */etc/dracut.conf.d/010-tpm2.conf* with::
+
+    #
+    # Common to PCR11
+    # - no NvPCR
+    # - with NvPCR
+    #
+    install_items+=" /usr/lib/systemd/systemd-pcrextend "
+    install_items+=" /usr/lib/systemd/system/systemd-pcrosseparator.service "
+    install_items+=" /usr/lib/systemd/system/systemd-pcrextend.socket "
+    install_items+=" /usr/lib/systemd/system/systemd-pcrextend@.service "
+
+    install_items+=" /usr/lib/systemd/system/sockets.target.wants/systemd-pcrextend.socket "
+    install_items+=" /usr/lib/systemd/system/initrd.target.wants/systemd-pcrphase-initrd.service "
+    install_items+=" /usr/lib/systemd/system/sysinit.target.wants/systemd-pcrnvdone.service "
+    install_items+=" /usr/lib/systemd/system/sysinit.target.wants/systemd-pcrosseparator.service "
+
+    install_optional_items+=" /usr/lib/systemd/system/systemd-pcrextend.socket.d/ "
+    install_optional_items+=" /usr/lib/systemd/system/systemd-pcrextend@.service.d/ "
+
+    #
+    # no NvPCR
+    #
+    omit_items+=" /usr/lib/systemd/systemd-tpm2-setup "
+    omit_items+=" /usr/lib/systemd/system/systemd-tpm2-setup-early.service "
+
+    #
+    # With NvPCR
+    # install_items+=" /usr/lib/systemd/systemd-tpm2-setup "
+    # install_items+=" /usr/lib/systemd/system/systemd-tpm2-setup-early.service "
+
+
+**Rebuild the UKI**::
+
+    sd-boot-kernel-update add linux-custom
+
 

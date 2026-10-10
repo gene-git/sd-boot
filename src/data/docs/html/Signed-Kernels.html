@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>6. Signing Kernels &amp; Secure Boot &mdash; sd-boot 6.6.0
+  <title>6. Signing Kernels &amp; Secure Boot &mdash; sd-boot 6.7.0
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ed1b3abe"></script>
+      <script src="_static/documentation_options.js?v=9cce70e7"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -67,6 +67,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#systemd-tpm2">6.2.2. Systemd-TPM2-Setup</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#turn-off-the-service">6.2.2.1. Turn Off the Service</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#configure-the-service">6.2.2.2. Configure the Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fails-in-early-tpm-srk-setup">6.2.2.3. Fails in Early TPM SRK Setup</a></li>
 </ul>
 </li>
 </ul>
@@ -244,6 +245,7 @@ boot up the machine and use <em>sbctl</em> to enroll the keys.</p>
 </section>
 <section id="systemd-tpm2">
 <span id="id1"></span><h3><span class="section-number">6.2.2. </span>Systemd-TPM2-Setup<a class="headerlink" href="#systemd-tpm2" title="Link to this heading"></a></h3>
+<p>This started with systemd-262 and may still require changes to dracut to fully resolve this.</p>
 <p>When booting a UKI image with TPM2 hardware where systemd-tpm2-setup has not been configured,
 a warning is logged:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>[FAILED] Failed to start Early TPM SRK Setup
@@ -266,6 +268,11 @@ a warning is logged:</p>
 <h4><span class="section-number">6.2.2.2. </span>Configure the Service<a class="headerlink" href="#configure-the-service" title="Link to this heading"></a></h4>
 <p>All that’s needed to configure this is to generate a key pair
 and configure ukify to use them to sign the hashed OS components and rebuild the UKI image(s).</p>
+<p>First, if you’re not using systemd’s non-volatile secret TPM store then turn it off by
+creating the file <em>/etc/systemd/tpm2-setup.conf</em> with this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>NvPCR=no
+</pre></div>
+</div>
 <p>This is the correct way to do this:</p>
 <p>Configure ukify:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>cp /usr/lib/kernel/uki.conf /etc/kernel/uki.conf
@@ -318,6 +325,63 @@ sd-boot: Completed kernel update linux-custom
 <p>Please note that while boot times are essentially unchanged, it does
 take a little longer to build the UKI due to the additional time needed
 to compute the various hashes.</p>
+</section>
+<section id="fails-in-early-tpm-srk-setup">
+<h4><span class="section-number">6.2.2.3. </span>Fails in Early TPM SRK Setup<a class="headerlink" href="#fails-in-early-tpm-srk-setup" title="Link to this heading"></a></h4>
+<p>In spite of sensible settings, there can still be failures with non-volative PCR (NvPCR)
+happening in early boot.</p>
+<p>If you’re not using NvPCR, then perhaps turning it off, but keeping OS measurement
+is reasonable.</p>
+<p>To do this we’ll :</p>
+<ul>
+<li><p>mask some services</p></li>
+<li><p>add some missing items to dracut.</p>
+<p>These will no dount be in a future dracut version. After that happens,
+those added items can be removed, but it is harmless to leave them as well.</p>
+</li>
+<li><p>Omit some items</p></li>
+</ul>
+<p><strong>Mask services</strong>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>systemctl mask systemd-tpm2-setup-early.service systemd-tpm2-setup.service
+systemctl mask systemd-pcrproduct.service "systemd-pcrlogin@.service
+</pre></div>
+</div>
+<p><strong>Dracut config changes</strong></p>
+<p>Create the file <em>/etc/dracut.conf.d/010-tpm2.conf</em> with:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#
+# Common to PCR11
+# - no NvPCR
+# - with NvPCR
+#
+install_items+=" /usr/lib/systemd/systemd-pcrextend "
+install_items+=" /usr/lib/systemd/system/systemd-pcrosseparator.service "
+install_items+=" /usr/lib/systemd/system/systemd-pcrextend.socket "
+install_items+=" /usr/lib/systemd/system/systemd-pcrextend@.service "
+
+install_items+=" /usr/lib/systemd/system/sockets.target.wants/systemd-pcrextend.socket "
+install_items+=" /usr/lib/systemd/system/initrd.target.wants/systemd-pcrphase-initrd.service "
+install_items+=" /usr/lib/systemd/system/sysinit.target.wants/systemd-pcrnvdone.service "
+install_items+=" /usr/lib/systemd/system/sysinit.target.wants/systemd-pcrosseparator.service "
+
+install_optional_items+=" /usr/lib/systemd/system/systemd-pcrextend.socket.d/ "
+install_optional_items+=" /usr/lib/systemd/system/systemd-pcrextend@.service.d/ "
+
+#
+# no NvPCR
+#
+omit_items+=" /usr/lib/systemd/systemd-tpm2-setup "
+omit_items+=" /usr/lib/systemd/system/systemd-tpm2-setup-early.service "
+
+#
+# With NvPCR
+# install_items+=" /usr/lib/systemd/systemd-tpm2-setup "
+# install_items+=" /usr/lib/systemd/system/systemd-tpm2-setup-early.service "
+</pre></div>
+</div>
+<p><strong>Rebuild the UKI</strong>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sd-boot-kernel-update add linux-custom
+</pre></div>
+</div>
 </section>
 </section>
 </section>

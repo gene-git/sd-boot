@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3. sd-boot-find-boot-mounts &mdash; sd-boot 6.6.0
+  <title>3. sd-boot-find-boot-mounts &mdash; sd-boot 6.7.0
  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=ed1b3abe"></script>
+      <script src="../_static/documentation_options.js?v=9cce70e7"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
@@ -121,6 +121,7 @@ This partition, the one active at boot time, is also marked.</p>
 <p>When machine boots the boot loader on the motherboard boots from an ESP and it saves
 that <em>active</em> ESP partition into nvram. The <em>current</em> or expected ESP
 is the one that is designated by the boot order.</p>
+<p>The UUID is also shown for each.</p>
 <p>Under normal circumstances and almost always,  <em>current</em> and <em>active</em> are the same.
 See ‘Quirky Esp’ section that discusses the situation when these differ and
 a possible resolution.</p>
@@ -134,37 +135,37 @@ a possible resolution.</p>
 <ul>
 <li><p>Example 1</p>
 <p>One ESP:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>                                              (c)urrent (a)ctive
-        Device Mount                          (c a) type
-/dev/nvme0n1p1 /boot                          (✔ ✔) EFI
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>                                 (c)urrent (a)ctive
+        Device Mount                          (c a)     Type UUID
+/dev/nvme0n1p1 /boot                          (✔ ✔)      EFI A111-123A
 </pre></div>
 </div>
 </li>
 <li><p>Example 2:</p>
 <p>One ESP and one XBOOTLDR:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   Device Mount                          (c a) type
-/dev/sda1 /efi                           (✔ ✔) EFI
-/dev/sda5 /boot                          (✔ ✔) XBOOTLDR
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a)     Type UUID
+/dev/nvme0n1p1 /efi                           (✔ ✔)      EFI B111-123B
+/dev/nvme0n1p2 /boot                          (✔ ✔) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 </pre></div>
 </div>
 </li>
 </ul>
 <blockquote>
 <div><p>and the same when run as non-root user:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>   Device Mount                          (c a) type
-/dev/sda1 /efi                           (✔ ✔) EFI
-/dev/sda5 /boot                          (  ✔) XBOOTLDR
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a)     Type UUID
+/dev/nvme0n1p1 /efi                           (✔ ✔)      EFI B111-123B
+/dev/nvme0n1p2 /boot                          (  ✔) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 </pre></div>
 </div>
 </div></blockquote>
 <ul>
 <li><p>Example 3</p>
 <p>Two ESP and two XBOOTLDR:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a) type
-/dev/nvme0n1p1 /efi                           (✔ ✔) EFI
-     /dev/sdg1 /mnt/root1/efi                 (   ) EFI
-/dev/nvme0n1p2 /boot                          (✔ ✔) XBOOTLDR
-     /dev/sdg5 /mnt/root1/boot                (   ) XBOOTLDR
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>        Device Mount                          (c a)     Type UUID
+/dev/nvme0n1p1 /efi                           (✔ ✔)      EFI xxxx-xxxx
+     /dev/sda1 /mnt/root1/efi                 (   )      EFI xxxx-xxxx
+/dev/nvme0n1p2 /boot                          (✔ ✔) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+     /dev/sda5 /mnt/root1/boot                (   ) XBOOTLDR xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 </pre></div>
 </div>
 </li>
