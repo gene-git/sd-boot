@@ -6,14 +6,23 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.7.0, (2026-10-10)
-	95 commits.
+	3.6.2 (2026-04-21) -> 6.8.0 (2026-11-01)
+	96 commits.
 
 Commits
 =======
 
 
-* 2026-10-10  : **6.7.0,**
+* 2026-11-01  : **6.8.0**
+
+.. code-block:: text
+
+              - **6.8.0**
+            
+                * Update manual on using sd-boot with Arch kernels
+                * Add a couple more defensive memory checks for find_boot_mounts.
+
+* 2026-10-10  : **6.7.0, origin/master**
 
 .. code-block:: text
 

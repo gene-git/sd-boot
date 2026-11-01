@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3. Installing Arch Kernels With sd-boot &mdash; sd-boot 6.7.0
+  <title>3. Installing Arch Kernels With sd-boot &mdash; sd-boot 6.8.0
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=9cce70e7"></script>
+      <script src="_static/documentation_options.js?v=2adddf63"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -94,17 +94,38 @@
   <section id="installing-arch-kernels-with-sd-boot">
 <span id="arch-kernels"></span><h1><span class="section-number">3. </span>Installing Arch Kernels With sd-boot<a class="headerlink" href="#installing-arch-kernels-with-sd-boot" title="Link to this heading"></a></h1>
 <p>By default the Archlinux kernel package, <em>linux</em>, is not in the list of kernels managed by sd-boot.</p>
-<p>In order for sd-boot to manage it, there are two steps that must be done.</p>
+<p>In order for sd-boot to manage it, there are three steps that must be done.</p>
 <ul>
 <li><p>Add <strong>linux</strong> to the list of sd-boot managed kernels:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>echo linux &gt;&gt; /etc/sd-boot/kernel.packages
+<blockquote>
+<div><p>echo linux &gt;&gt; /etc/sd-boot/kernel.packages</p>
+</div></blockquote>
+</li>
+<li><p>Prevent mkinitcpio from installing a duplicate of the same kernel:</p>
+<blockquote>
+<div><ul>
+<li><p>Option 1</p>
+<p>Remove mkinicpio package</p>
+</li>
+<li><p>Option 2.</p>
+<p>Mask the mkinitcpio hooks.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/etc/pacman.d/hooks
+sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/dev/null<span class="w"> </span>/etc/pacman.d/hooks/60-mkinitcpio-remove.hook
+sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/dev/null<span class="w"> </span>/etc/pacman.d/hooks/90-mkinitcpio-install.hook
 </pre></div>
 </div>
 </li>
-<li><p>Prevent mkinitcpio from installing a duplicate of the same kernel:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>sudo mkdir -p /etc/pacman.d/hooks
-sudo ln -s /dev/null /etc/pacman.d/hooks/60-mkinitcpio-remove.hook
-sudo ln -s /dev/null /etc/pacman.d/hooks/90-mkinitcpio-install.hook
+</ul>
+</div></blockquote>
+</li>
+<li><p>Mask 2 dracut pacman hooks</p>
+<p>As of now, the archlinux dracut package incluides two ALPM hooks which can
+cause an arch kernel and initrd files to be instaleld in /boot. This is bad,
+especially since <em>/boot</em> is hardcoded in the scripts invoked by the hooks.</p>
+<p>Mask these so they do not fire.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/etc/pacman.d/hooks
+sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span>/dev/null<span class="w"> </span>/etc/pacman.d/hooks/90-dracut-install.hook
+sudo<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span>/dev/null<span class="w"> </span>/etc/pacman.d/hooks/60-dracut-remove.hook
 </pre></div>
 </div>
 </li>

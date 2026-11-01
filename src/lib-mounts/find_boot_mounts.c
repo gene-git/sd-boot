@@ -30,6 +30,7 @@
 
 #include "sd-boot-config.h"
 #include "sd-boot-mounts.h"
+#include "sd-boot-msg.h"
 #include "sd-boot.h"
 
 enum MiscConstants { BUF_LEN = 128, };
@@ -124,7 +125,7 @@ static dev_t active_parent_dev_t(struct udev *udev, struct libmnt_table *mount_t
         const char *src = mnt_fs_get_srcpath(mount_entry);
         struct stat stat_buf = {};
 
-        if (skip_mount(mount_entry) || stat(src, &stat_buf) < 0) {
+        if (!src || skip_mount(mount_entry) || stat(src, &stat_buf) < 0) {
             continue;
         }
 
@@ -175,6 +176,21 @@ static bool is_active(bool is_esp, bool is_xboot, const char *guid,
     }
 
     return false;
+}
+
+/*
+ * Free the strdup'd strings of a MountInfo not (yet) owned by boot_mounts.
+ * free(nullptr) is a no-op so partially filled structs are fine.
+ */
+static void free_mount_strings(MountInfo *mount) {
+    free((void *)mount->device);
+    free((void *)mount->mount);
+    free((void *)mount->guid);
+    free((void *)mount->uuid);
+    mount->device = nullptr;
+    mount->mount = nullptr;
+    mount->guid = nullptr;
+    mount->uuid = nullptr;
 }
 
 /**
@@ -231,17 +247,26 @@ static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry,
 
         bool active = is_active(is_esp, is_xboot, p_guid, active_uuid, parent_devnum, active_esp_dev_t);
 
+        /*
+         * p_uuid (ID_FS_UUID) may be NULL - e.g. partition typed as ESP/XBOOTLDR
+         * but not yet formatted (common mid-install). Use a placeholder.
+         */
         MountInfo new_mount = {};
         new_mount.device = strdup(src);
         new_mount.mount = strdup(target ? target : " - ");
         new_mount.guid = strdup(p_guid);
-        new_mount.uuid = strdup(p_uuid);
+        new_mount.uuid = strdup(p_uuid ? p_uuid : " - ");
         new_mount.active = (TriState) active;
         new_mount.current = Unknown;
 
+        if (!new_mount.device || !new_mount.mount || !new_mount.guid || !new_mount.uuid) {
+            msg(MSG_ERR, "  ! sd-boot: memory allocation fail\n");
+            free_mount_strings(&new_mount);
+            goto exit;
+        }
+
         if (boot_mounts_add_mount(is_esp, new_mount, boot_mounts) != 0){
-            free((void *)new_mount.device);
-            free((void *)new_mount.mount);
+            free_mount_strings(&new_mount);
         }
     }
 
