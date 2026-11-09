@@ -265,12 +265,15 @@ int kernel_install_run(SdBoot *conf, Array_str *argp, Array_str *envp) {
 
     /*
      * Run kernel-install
+     * If needed give generous timeout (>= 600 should be sufficcient time for kernel-install
+     * to complete. When timeout > 0, the kernel-install child process group will be killed.
      */
     int child_ret = 0;
     constexpr uint16_t margin = 4U;
     constexpr int line_len = 72;
+    constexpr int timeout_secs = 0; 
 
-    ret = run_cmd_output_show(arg_all.rows, env_all.rows, &child_ret, margin, line_len);
+    ret = run_cmd_output_show(arg_all.rows, env_all.rows, &child_ret, margin, line_len, timeout_secs);
     if (ret != 0) {
         msg(MSG_ERR, "  ! Error running %s\n", arg_all.rows[0]);
         ret = -1;

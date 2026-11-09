@@ -9,7 +9,7 @@ Checks: '*,
   modernize-*,
   performance-*,
   readability-*,
-  misc-include-cleaner,
+  misc-include-cleaner.IgnoreHeaders,
   clang-diagnostic-unused-variable,
   clang-diagnostic-format,
   -misc-use-internal-linkage,
@@ -26,3 +26,5 @@ Checks: '*,
   '
 WarningsAsErrors: 'bugprone-*'
 
+CheckOptions:
+  misc-include-cleaner.IgnoreHeaders: 'bits/.*;asm/.*;asm-generic/.*;linux/.*'

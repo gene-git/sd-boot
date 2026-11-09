@@ -5,9 +5,10 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
-**6.9.0**
+**6.10.0**
 
-* Improve output format from subprocess (sbctl).
+* Improve output format from subprocesses by capture of child process stdout/stderr
+  and formatting appropriately indented.
 * Openssl 4.x requires different valgrind suppression rules 3.x
   to silence its global allocated cache not being freed.
 * Tidy ups to keep clang-tidy 23.1.4 happy

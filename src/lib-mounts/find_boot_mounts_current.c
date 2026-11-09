@@ -117,7 +117,8 @@ int find_boot_mounts_current(SdBoot *conf, MountInfo *efi, MountInfo *xbootldr) 
     /*
      * Run cmd
      */
-    ret = run_cmd_output(argv, env_base->rows, &output, &child_ret);
+    int timeout_secs = 0;
+    ret = run_cmd_output(argv, env_base->rows, &output, nullptr, &child_ret, timeout_secs);
     if (ret != 0) {
         msg(MSG_ERR, "  ! sd-boot: failed get efi from bootctl\n");
         return -1;
