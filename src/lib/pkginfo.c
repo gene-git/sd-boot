@@ -3,10 +3,10 @@
 /**
  * Free memory in PkgInfo
  */
+#include "sd-boot.h"
+
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot.h"
 
 void pkginfo_free(PkgInfo *info) {
 
@@ -37,5 +37,4 @@ void pkginfo_free(PkgInfo *info) {
     memset((void *)info, 0, sizeof(PkgInfo));
 
     info->managed = false;
-
 }

@@ -3,11 +3,11 @@
 /**
  * Misc tools
  */
+#include "sd-boot-utils.h"
+
 #include <limits.h>
 #include <linux/limits.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
 
 void strip_file_extension(char *filename, const char *ext) {
     /*
@@ -19,4 +19,3 @@ void strip_file_extension(char *filename, const char *ext) {
         *dot = '\0';
     }
 }
-

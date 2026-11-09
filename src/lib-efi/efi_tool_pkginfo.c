@@ -7,11 +7,10 @@
  *  - info->ki_image
  */
 
-#include "sd-boot-msg.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
+#include "sd-boot-msg.h"
 #include "sd-boot.h"
-
 
 int efi_tool_pkginfo(SdBoot *conf, PkgInfo *info) {
     int ret = 0;

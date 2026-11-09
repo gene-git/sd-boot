@@ -3,14 +3,14 @@
 /**
  * Trigger paths come without a leading "/"
  *
- * This makes a copy and adds the "/" 
+ * This makes a copy and adds the "/"
  *
  * Caller must free the memory.
  */
+#include "sd-boot-utils.h"
+
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
 
 int path_add_slash(char *path, char **path_p) {
 
@@ -35,10 +35,10 @@ int path_add_slash(char *path, char **path_p) {
         (*path_p)[0] = '/';
 
         size_t new_len = len + 1;
-        if (strlcpy(& (*path_p)[1], path, new_len) >= new_len) {
+        if (strlcpy(&(*path_p)[1], path, new_len) >= new_len) {
             return -1;
         }
     }
-   
-    return 0; 
+
+    return 0;
 }

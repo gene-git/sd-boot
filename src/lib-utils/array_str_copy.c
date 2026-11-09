@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
-
 
 /**
  * Append copies of all (non-null) rows from arr_1 onto arr_2
@@ -36,7 +35,7 @@ int array_str_copy_rows(Array_str *arr_1, Array_str *arr_2) {
     }
 
     /*
-     * Copy 
+     * Copy
      */
     size_t num_final = first_new_row;
     for (size_t i = 0; i < arr_1->num_rows; i++) {

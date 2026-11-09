@@ -10,12 +10,12 @@
  *  1 = file not available
  * -1 = error
  */
+#include "sd-boot-keyval.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-keyval.h"
 
 enum ReadInfo { CHUNK = 32 };
 
@@ -42,7 +42,6 @@ static bool is_length_valid(const char *str, size_t max_len) {
     }
     return strnlen(str, max_len + 1) <= max_len;
 }
-
 
 /**
  * Set KvElema value:
@@ -163,7 +162,6 @@ static int parse_key_val(KvElem *elem, char *trimmed, size_t max_len) {
     return assign_value(elem, raw_val, max_len, was_quoted);
 }
 
-
 /**
  * Read file (at path) containing key = value pairs.
  * Comments are ignored.
@@ -239,4 +237,3 @@ int parse_keyval_file(const char *path, KvList *list) {
 
     return status;
 }
-

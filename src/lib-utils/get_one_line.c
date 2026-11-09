@@ -4,9 +4,9 @@
  * From a buffer of text characters
  * Return one "line" by over-writing newline in buffer with null
  */
-#include <string.h>
-
 #include "sd-boot-utils.h"
+
+#include <string.h>
 
 char *get_one_line(char **ptr_p) {
     /**
@@ -17,11 +17,11 @@ char *get_one_line(char **ptr_p) {
      * Returns:
      *  Pointer to start of current line, or nullptr if done.
      * NB
-     *  the string pointed to by *state_p MNUST be null terminated 
+     *  the string pointed to by *state_p MNUST be null terminated
      */
     if (*ptr_p == nullptr || (*ptr_p)[0] == '\0') {
         // End of string
-        return nullptr; 
+        return nullptr;
     }
 
     /*
@@ -36,11 +36,10 @@ char *get_one_line(char **ptr_p) {
     if (*ptr_p) {
         (*ptr_p)[0] = '\0';
         (*ptr_p)++;
-    } 
+    }
 
     /*
      * return start of this line or nullptr
      */
     return ptr_0;
 }
-

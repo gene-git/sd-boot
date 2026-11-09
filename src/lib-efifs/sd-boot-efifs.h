@@ -12,5 +12,3 @@
 SD_BOOT_EXPORT int efifs_add_remove(SdBoot *conf);
 
 #endif
-
-

@@ -6,12 +6,12 @@
 #ifndef SD_BOOT_KERNEL_H
 #define SD_BOOT_KERNEL_H
 
-#include <stddef.h>
-
 #include "sd-boot-config.h"
 #include "sd-boot-export.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
+
+#include <stddef.h>
 
 /*
  * Function declarations
@@ -24,7 +24,6 @@ int kernel_pkginfos_from_triggers(TriggerInfo *tinfo, Tool *tool);
 int parse_kernel_triggers(TriggerInfo *tinfo);
 
 int kernel_update_one(SdBoot *conf, PkgInfo *info);
-
 
 int kernel_pkginfo_from_kernel_image(Tool *tool, PkgInfo *info);
 int kernel_pkginfos_all(Tool *tool);

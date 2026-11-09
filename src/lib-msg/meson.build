@@ -9,5 +9,6 @@ inc_dir += include_directories('.')
 
 lib_sources += files(
     'msg.c',
+    'msg_buf.c'
     )
 

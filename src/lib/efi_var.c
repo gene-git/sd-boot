@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Read EFI variable from firmware and convert the UTF-16 data into 
+ * Read EFI variable from firmware and convert the UTF-16 data into
  * ascii characters
  *
  * efi paths are the ones provided by kernel:
@@ -13,14 +13,14 @@
  * - drops newlines as well (ascii 10)
  * - buffer end is signalled by utf16 null 0x0000
  */
+#include "sd-boot-msg.h"
+#include "sd-boot.h"
+
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot.h"
 
 #define IS_PRINT(c) ((c) >= 32 && (c) <= 128)
 
@@ -30,8 +30,7 @@ enum Constants {
     VAR_LEN_MAX = (8 * 1024),
 };
 
-
-/* 
+/*
  * Convert utf16 to ascii
  * - eof is utf16 null (0x0000)
  */
@@ -50,10 +49,9 @@ static void utf16_to_ascii(const uint16_t *buf, size_t buflen, char *text) {
     text[cnt] = '\0';
 }
 
-
 /*
  * Return allocated string that caller responsible for freeing.
- * Returns nullptr if 
+ * Returns nullptr if
  */
 char *read_efi_var_string(const char *efi_path) {
     char *efi_var = nullptr;
@@ -67,7 +65,7 @@ char *read_efi_var_string(const char *efi_path) {
     /*
      * file size
      */
-    struct stat st_buf = {};
+    struct stat st_buf = {}; // NOLINT(misc-include-cleaner)
     if (stat(efi_path, &st_buf) != 0) {
         return nullptr;
     }
@@ -112,7 +110,6 @@ char *read_efi_var_string(const char *efi_path) {
         goto exit;
     }
 
-    //size_t num_read = fread((void *)buf, sizeof(uint16_t), num_elems, fptr);
     size_t bytes_read = fread((void *)buf, 1, f_size, fptr);
 
     size_t num_active_elements = bytes_read / sizeof(uint16_t);

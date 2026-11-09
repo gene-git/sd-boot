@@ -7,15 +7,15 @@
  * - In development mode, the outputs go to the testing root (conf->root)
  * - dev mode is active whenev euid is non-root and the env SBD_DEV_TEST is set.
  */
-#include <stdlib.h>
-#include <string.h>
-
 #include "sd-boot-cmd.h"
 #include "sd-boot-config.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
-#include <sd-boot.h>
+#include "sd-boot.h"
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*
  * Solely for 90-loaderentry.install in test dev area
@@ -25,7 +25,7 @@ static char *env_boot_mnt(SdBoot *conf) {
     char *var = nullptr;
     const char *env_name = "BOOT_MNT";
     size_t len = 0;
-    
+
     if (!conf->env_boot_root.rows) {
         return var;
     }
@@ -50,7 +50,7 @@ static char *env_boot_mnt(SdBoot *conf) {
 }
 
 /*
- * Environ: Combine 
+ * Environ: Combine
  * - BOOT_ROOT
  * - PATH
  * - envp provided by caller
@@ -114,7 +114,6 @@ exit:
     return ret;
 }
 
-
 /*
  * --esp-path=<path to EFI>
  * --boot-path=<..>
@@ -152,17 +151,16 @@ static void esp_boot_path_option_test(SdBoot *conf, char **opt_esp, char **opt_b
     strlcat(*opt_boot, o_boot, len);
     strlcat(*opt_boot, conf->root, len);
     strlcat(*opt_boot, efi, len);
-
 }
 
 /*
- * Argv 
+ * Argv
  */
 static int arg_init(SdBoot *conf, Array_str *argp, Array_str *arg_all) {
 
     int ret = 0;
 
-    ret = array_str_new(1, arg_all); 
+    ret = array_str_new(1, arg_all);
     if (ret != 0) {
         goto exit;
     }
@@ -205,7 +203,6 @@ static int arg_init(SdBoot *conf, Array_str *argp, Array_str *arg_all) {
 
         esp_boot_path_option_test(conf, &opt_esp, &opt_boot);
 
-
         if (opt_esp && opt_boot) {
 
             size_t num = arg_all->num_rows;
@@ -241,7 +238,7 @@ int kernel_install_run(SdBoot *conf, Array_str *argp, Array_str *envp) {
      *  args = The arguments to pass to kernel-install.
      *  envp = the environment variables to pass on.
      *
-     * Returns 
+     * Returns
      *  0 = all well
      */
     int ret = 0;
@@ -257,8 +254,8 @@ int kernel_install_run(SdBoot *conf, Array_str *argp, Array_str *envp) {
     }
 
     /*
-     * Argv 
-     * - cmd, arg1, arg2, ... 
+     * Argv
+     * - cmd, arg1, arg2, ...
      * - use system installed kernel-install
      */
     ret = arg_init(conf, argp, &arg_all);
@@ -270,8 +267,10 @@ int kernel_install_run(SdBoot *conf, Array_str *argp, Array_str *envp) {
      * Run kernel-install
      */
     int child_ret = 0;
+    constexpr uint16_t margin = 4U;
+    constexpr int line_len = 72;
 
-    ret = run_cmd(arg_all.rows, env_all.rows, &child_ret);
+    ret = run_cmd_output_show(arg_all.rows, env_all.rows, &child_ret, margin, line_len);
     if (ret != 0) {
         msg(MSG_ERR, "  ! Error running %s\n", arg_all.rows[0]);
         ret = -1;

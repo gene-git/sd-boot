@@ -6,12 +6,12 @@
  * Provides num_rows_used as a convenience when caller allocated in chunks
  * to reduce malloc() calls.
  */
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
 
 /*
  * initialize the list of pointers with "num_rows" rows.
@@ -68,7 +68,7 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
             arr->rows[i] = nullptr;
         }
     }
-    
+
     /*
      *  special case "free" - dont use realloc / reallocarray() even though ok to do.
      */
@@ -83,25 +83,25 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
         arr->row_len = nullptr;
         arr->num_rows = 0;
         arr->num_rows_used = 0;
-        
+
         return 0;
-    } 
+    }
 
     void *tmp_ptr = nullptr;
 
     tmp_ptr = reallocarray((void *)arr->rows, num_rows, sizeof(char *));
-    if (!tmp_ptr){
+    if (!tmp_ptr) {
         perror("realloc failed");
         return -1;
     }
-    arr->rows = (char **)tmp_ptr; 
+    arr->rows = (char **)tmp_ptr;
 
     tmp_ptr = reallocarray((void *)arr->row_len, num_rows, sizeof(size_t));
-    if (!tmp_ptr){
+    if (!tmp_ptr) {
         perror("realloc failed");
         return -1;
     }
-    arr->row_len = (size_t *)tmp_ptr; 
+    arr->row_len = (size_t *)tmp_ptr;
 
     arr->num_rows = num_rows;
     if (arr->num_rows_used > num_rows) {
@@ -115,7 +115,7 @@ static int array_str_fewer_rows(size_t num_rows, Array_str *arr) {
  * num_rows bigger
  */
 static int array_str_more_rows(size_t num_rows, Array_str *arr) {
-    
+
     if (!arr || num_rows <= arr->num_rows) {
         return -1;
     }
@@ -123,14 +123,14 @@ static int array_str_more_rows(size_t num_rows, Array_str *arr) {
     void *tmp_ptr = nullptr;
 
     tmp_ptr = reallocarray((void *)arr->rows, num_rows, sizeof(char *));
-    if (!tmp_ptr){
+    if (!tmp_ptr) {
         perror("realloc failed");
         return -1;
     }
     arr->rows = (char **)tmp_ptr;
 
     tmp_ptr = reallocarray((void *)arr->row_len, num_rows, sizeof(size_t));
-    if (!tmp_ptr){
+    if (!tmp_ptr) {
         perror("realloc failed");
         return -1;
     }

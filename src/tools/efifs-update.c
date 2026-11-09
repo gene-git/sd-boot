@@ -7,11 +7,11 @@
  *
  */
 
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efifs.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-tool.h"
+#include "sd-boot.h"
 
 /*
  * Takes one argument:
@@ -27,7 +27,7 @@
  *
  * Triggers:
  *  - none
- * 
+ *
  * Required Input Files:
  *  - none
  */
@@ -56,4 +56,3 @@ exit:
     tool_free(&tool);
     return ret;
 }
-

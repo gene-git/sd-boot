@@ -6,15 +6,15 @@
  * This is all plugins without any in the skip list: conf->skip_kernel_plugins
  *
  */
+#include "sd-boot-config.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+#include "sd-boot.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-config.h"
-#include "sd-boot-utils.h"
-#include "sd-boot.h"
 
 /*
  * Return list of active plugins.
@@ -73,7 +73,7 @@ int get_active_plugins(SdBoot *conf) {
     int ret = 0;
     size_t num_plugins = 0;
     Array_str *all_plugins = &conf->all_plugins;
-    Array_str *active_plugins = &conf->active_plugins; 
+    Array_str *active_plugins = &conf->active_plugins;
 
     /*
      * Nothing being skipped
@@ -82,8 +82,8 @@ int get_active_plugins(SdBoot *conf) {
         ret = array_str_dup(all_plugins, active_plugins);
         return ret;
     }
-    
-    /* 
+
+    /*
      * Defensive (initialized in load_config())
      */
     if (!conf->root) {
@@ -131,4 +131,3 @@ int get_active_plugins(SdBoot *conf) {
 exit:
     return ret;
 }
-

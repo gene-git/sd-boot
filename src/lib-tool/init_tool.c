@@ -16,14 +16,13 @@
  *   - is_sd_boot_managed
  *
  */
-#include <stddef.h>
-#include <stdlib.h>
-
-#include "sd-boot-msg.h"
 #include "sd-boot-config.h"
+#include "sd-boot-msg.h"
 #include "sd-boot-tool.h"
 #include "sd-boot.h"
 
+#include <stddef.h>
+#include <stdlib.h>
 
 /*
  * Initialize:
@@ -94,7 +93,7 @@ int initialize_tool(ToolType tool_type, int num_argc, int argc, char *argv[], To
 
     /*
      * Initialize pkginfos from either:
-     * - triggers 
+     * - triggers
      * or
      * - package name
      *   And name "--all--" means all packages of same tool type
@@ -113,7 +112,6 @@ int initialize_tool(ToolType tool_type, int num_argc, int argc, char *argv[], To
         char *pkg_name = argv[2];
 
         ret = pkginfos_from_pkg_name(pkg_name, tool);
-
     }
     if (ret != 0) {
         goto exit;

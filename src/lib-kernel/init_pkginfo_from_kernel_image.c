@@ -16,9 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
+// #include "sd-boot-msg.h"
 #include "sd-boot-kernel.h"
+#include "sd-boot-utils.h"
 #include "sd-boot.h"
 
 /**
@@ -53,7 +53,7 @@ int kernel_mod_dir_to_pkg_name(PkgInfo *info) {
     char path[PATH_MAX] = {};
     char *str = nullptr;
 
-    for (size_t i = 0 ; i < num_files; i++) {
+    for (size_t i = 0; i < num_files; i++) {
         if (snprintf(path, PATH_MAX, "%s/%s", info->mod_dir, files[i]) < 0) {
             ret = -1;
             goto exit;
@@ -64,7 +64,7 @@ int kernel_mod_dir_to_pkg_name(PkgInfo *info) {
             info->pkg_name = str;
             str = nullptr;
             break;
-        } 
+        }
     }
 
     if (!info->pkg_name) {
@@ -79,7 +79,6 @@ int kernel_mod_dir_to_pkg_name(PkgInfo *info) {
 exit:
     return ret;
 }
-
 
 /**
  * Kernel image to:
@@ -108,7 +107,6 @@ int init_pkginfo_from_kernel_image(PkgInfo *info) {
         ret = -1;
         goto exit;
     }
-
 
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     char *mod_dir = dirname(ki_image);
@@ -140,4 +138,3 @@ exit:
     }
     return ret;
 }
-

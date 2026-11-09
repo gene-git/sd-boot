@@ -8,25 +8,25 @@
  * - <etc-root>/etc/kernel/install.d/.
  *
  * Where <etc-root> is:
- * -  "/" in production mode 
+ * -  "/" in production mode
  * - root of the testing tree in testing mode.
  *   For example /path/to/Testing/__root__
  *
- * Note that usr plugins are taken from /usr/lib/... 
+ * Note that usr plugins are taken from /usr/lib/...
  *
  */
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
+#include "sd-boot.h"
+
 #include <linux/limits.h>
 #include <stddef.h>
 #include <stdio.h>
 
-#include "sd-boot.h"
-#include "sd-boot-config.h"
-#include "sd-boot-utils.h"
-
 int get_all_plugins(SdBoot *conf) {
     /*
      * Gets list of all available plugins:
-     * This means all files ~ *.install from: 
+     * This means all files ~ *.install from:
      * - usr plugins from <root>/usr/lib/kernel/install.d
      * - etc plugins from "<root>/etc/kernel/install.d
      */
@@ -77,4 +77,3 @@ exit:
     array_str_free(&etc_plugins);
     return ret;
 }
-

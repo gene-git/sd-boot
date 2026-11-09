@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Current Date Time String: 
+ * Current Date Time String:
  * Format: ""%Y-%m-%d %H:%M:%S" ~ "YYYY-MM-DD HH:MM:SS"
  * returns 0 on success.
  */
+#include "sd-boot-utils.h"
+
 #include <stdio.h>
 #include <time.h>
-
-#include "sd-boot-utils.h"
 
 int current_datetime_str(size_t buflen, char *buf) {
 

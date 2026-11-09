@@ -2,9 +2,12 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  * read and parse kernel-install "install.conf" config files.
- * See man kernel-install and below for more detail on "install.conf" 
+ * See man kernel-install and below for more detail on "install.conf"
  * and companion drop in files and the priority order etc before usr and otherwise alaphanumeric.
  */
+#include "sd-boot-config.h"
+#include "sd-boot-keyval.h"
+
 #include <dirent.h>
 #include <linux/limits.h>
 #include <stddef.h>
@@ -13,10 +16,6 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include "sd-boot-config.h"
-#include "sd-boot-keyval.h"
-
-
 /*
  *  Precedence order array for base files and directory roots
  */
@@ -24,12 +23,12 @@ static const char *const CONF_PATHS[] = {
     "etc/kernel",
     "run/kernel",
     "usr/local/lib/kernel",
-    "usr/lib/kernel"
+    "usr/lib/kernel",
 };
-enum { CONF_PATHS_COUNT = 4, MIN_CONF_LEN = 6};
+enum { CONF_PATHS_COUNT = 4, MIN_CONF_LEN = 6 };
 
 /**
- * Extraction helper: Iterates over a populated KvList, isolates your 
+ * Extraction helper: Iterates over a populated KvList, isolates your
  * 3 target properties, and duplicates their values into your config struct.
  */
 static void extract_values(const KvList *list, SdBoot *conf) {
@@ -94,7 +93,7 @@ static int conf_file_filter(const struct dirent *entry) {
 
     size_t len = strlen(entry->d_name);
     if (len < MIN_CONF_LEN) {
-        return 0; 
+        return 0;
     }
     return strcmp(entry->d_name + len - (MIN_CONF_LEN - 1), ".conf") == 0;
 }
@@ -110,13 +109,13 @@ static void process_dropin_dir(const char *base_path, KvList *list, SdBoot *conf
     size_t size = sizeof(dpath);
 
     ret = snprintf(dpath, size, "%s%s/install.conf.d", conf->root, base_path);
-    if (ret < 0 ||  ret >= (int)size) {
+    if (ret < 0 || ret >= (int)size) {
         return;
     }
 
     struct dirent **namelist = nullptr;
     /*
-     *  alphasort provides files in alphanumeric sort order 
+     *  alphasort provides files in alphanumeric sort order
      *  e.g., 10-local.conf before 50-dist.conf
      */
     int num = scandir(dpath, &namelist, conf_file_filter, alphasort);
@@ -129,10 +128,8 @@ static void process_dropin_dir(const char *base_path, KvList *list, SdBoot *conf
         size = sizeof(file);
 
         ret = snprintf(file, size, "%s/%s", dpath, namelist[i]->d_name);
-        if (ret < (int)size) {
-            if (parse_keyval_file(file, list) == 0) {
-                extract_values(list, conf);
-            }
+        if (ret < (int)size && parse_keyval_file(file, list) == 0) {
+            extract_values(list, conf);
         }
         free(namelist[i]);
     }
@@ -145,7 +142,7 @@ int read_kernel_install_files(SdBoot *conf) {
         return -1;
     }
 
-    KvList list = { .max_str_len = PATH_MAX };
+    KvList list = {.max_str_len = PATH_MAX};
 
     /*
      *  Find and parse the (monolithic) primary file
@@ -160,7 +157,7 @@ int read_kernel_install_files(SdBoot *conf) {
             continue;
         }
 
-        struct stat fst = {};
+        struct stat fst = {}; // NOLINT(misc-include-cleaner)
         if (stat(file, &fst) == 0) {
             /*
              *  First Match Wins:
@@ -174,7 +171,7 @@ int read_kernel_install_files(SdBoot *conf) {
 
     /*
      * Read any drop-in (*.conf) over-rides in priority order ---
-     * Instead of short-circuiting, we sweep ALL directories from lowest priority 
+     * Instead of short-circuiting, we sweep ALL directories from lowest priority
      * (/usr/lib) up to highest priority (/etc) to layer configurations correctly.
      */
     for (int i = CONF_PATHS_COUNT - 1; i >= 0; i--) {

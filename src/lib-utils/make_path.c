@@ -10,19 +10,18 @@
  * makepath:
  *      Makes all the directories in the provided path.
  */
+#include "sd-boot-utils.h"
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot-utils.h"
-
-
 /*
  * Make all directory elements of a path
  *
- * Note: 
- * mode should apply to final directory 
+ * Note:
+ * mode should apply to final directory
  * and others should use the parent mode - this is not important
  * for our use case, so we make every dir that we create same mode.
  *
@@ -54,7 +53,7 @@ int makepath(const char *path, mode_t mode) {
                 goto exit;
             }
         }
-    } 
+    }
 
     /*
      * final dir

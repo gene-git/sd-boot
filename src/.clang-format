@@ -1,1 +1,25 @@
+Language: C
+Standard: Latest
+
+# Include sorting and grouping
+SortIncludes: 
+  Enabled:         true
+  IgnoreCase:      false
+  IgnoreExtension: false
+
+# Preserve Or 'Regroup' depending on whether you want blank lines between blocks
+IncludeBlocks: Regroup 
+
+# General styling rules
+BasedOnStyle: LLVM
 IndentWidth: 4
+ColumnLimit: 110
+UseTab: Never
+SpacesBeforeTrailingComments: 1
+
+# Continuation of conditions should be indented to not be confused with
+# the statements that get executed when condition is true.
+AlignAfterOpenBracket: false
+ContinuationIndentWidth: 8
+BracedInitializerIndentWidth: 4
+

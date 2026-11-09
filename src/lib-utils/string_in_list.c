@@ -3,16 +3,16 @@
 /**
  * Check if the string 'name' is in a list of strings.
  */
-#include <string.h>
-
 #include "sd-boot-utils.h"
+
+#include <string.h>
 
 bool string_in_list(const char *name, size_t num_names, char **names) {
     /*
      * Return true if name in names
      * else false
      */
-    if (!name || !names ) {
+    if (!name || !names) {
         return false;
     }
 

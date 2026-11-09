@@ -9,16 +9,16 @@
  * This is only necessary in the event that the layout is not already bls.
  * but the decision to make the copy is up to the caller.
  */
+#include "sd-boot-config.h"
+#include "sd-boot-efi.h"
+#include "sd-boot-utils.h"
+
 #include <fcntl.h>
 #include <linux/limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "sd-boot-config.h"
-#include "sd-boot-efi.h"
-#include "sd-boot-utils.h"
-//#include "sd-boot.h"
+// #include "sd-boot.h"
 
 /*
  * Creates the source and destination "install.conf"
@@ -76,10 +76,9 @@ int ki_make_kernel_conf_bls(SdBoot *conf) {
         goto exit;
     }
 
-    const char *install_conf = 
-        "layout = bls\n"
-        "initrd_generator = \n"
-        "uki_generator = \n";
+    const char *install_conf = "layout = bls\n"
+                               "initrd_generator = \n"
+                               "uki_generator = \n";
 
     size_t size = strlen(install_conf);
     int flags = WRITE_FLAGS_DEF;

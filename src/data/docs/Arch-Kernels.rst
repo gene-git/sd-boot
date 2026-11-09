@@ -41,3 +41,11 @@ In order for sd-boot to manage it, there are three steps that must be done.
     sudo ln -sf /dev/null /etc/pacman.d/hooks/90-dracut-install.hook
     sudo ln -sf /dev/null /etc/pacman.d/hooks/60-dracut-remove.hook
 
+
+In addition please be aware that, as of time of writing,  the two microcode packages
+
+* intel-ucode
+* amd-ucode
+
+both intall an image into */boot*. This happends independently of where the ESP is mounted.
+It is also legacy and unnecessary, since it is no longer used by anything.

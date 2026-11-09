@@ -14,17 +14,16 @@
  *  usr/lib/modules/<kern-vers>vmlinuz. So when package is removed pacman
  *  tells us to remove it.
  */
-#include <linux/limits.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
 
+#include <linux/limits.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static int extract_ki_vers(char *lead, Array_str *paths, size_t len_tail, PkgInfo *pkginfo) {
 
@@ -44,10 +43,10 @@ static int extract_ki_vers(char *lead, Array_str *paths, size_t len_tail, PkgInf
          */
         if (len_tail > 0) {
             mark = paths->row_len[i] - len_tail;
-            paths->rows[i][mark] = '\0' ;
+            paths->rows[i][mark] = '\0';
         }
 
-        char * pkg_vers = paths->rows[i] + len_lead;
+        char *pkg_vers = paths->rows[i] + len_lead;
         char ki_vers[PATH_MAX] = {};
         size_t size = sizeof(ki_vers);
 
@@ -56,19 +55,17 @@ static int extract_ki_vers(char *lead, Array_str *paths, size_t len_tail, PkgInf
         if (ret < 0 || ret > (int)size) {
             return -1;
         }
-        if (strcmp(ki_vers, pkginfo->ki_vers) != 0) {
-            if (!string_in_list(ki_vers, ki_vers_old->num_rows, ki_vers_old->rows)) {
-                ret = array_str_add_string(ki_vers, ki_vers_old);
-                if (ret != 0) {
-                    return -1;
-                }
+        if (strcmp(ki_vers, pkginfo->ki_vers) != 0 &&
+                !string_in_list(ki_vers, ki_vers_old->num_rows, ki_vers_old->rows)) {
+            ret = array_str_add_string(ki_vers, ki_vers_old);
+            if (ret != 0) {
+                return -1;
             }
         }
     }
 
     return 0;
 }
-
 
 int efi_tool_ki_vers_old(SdBoot *conf, PkgInfo *pkginfo) {
 
@@ -90,7 +87,7 @@ int efi_tool_ki_vers_old(SdBoot *conf, PkgInfo *pkginfo) {
      */
 
     /*
-     * - Files: $BOOT/loader/entries/<ENTRY-TOKEN>-<pkg-name>-<pkg-vers>.conf 
+     * - Files: $BOOT/loader/entries/<ENTRY-TOKEN>-<pkg-name>-<pkg-vers>.conf
      */
     char lead[PATH_MAX] = {};
     char pattern[PATH_MAX] = {};
@@ -99,7 +96,8 @@ int efi_tool_ki_vers_old(SdBoot *conf, PkgInfo *pkginfo) {
     Array_str paths_found = {};
 
     int ret = 0;
-    ret = snprintf(lead, size_lead, "%s/loader/entries/%s-%s-", dol_boot, conf->entry_token, pkginfo->pkg_name);
+    ret = snprintf(
+            lead, size_lead, "%s/loader/entries/%s-%s-", dol_boot, conf->entry_token, pkginfo->pkg_name);
     if (ret < 0 || ret > (int)size_lead) {
         ret = -1;
         goto exit;

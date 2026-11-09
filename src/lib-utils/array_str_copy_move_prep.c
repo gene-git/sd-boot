@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
-
 
 /**
  * Prepares arr_2 for copy or move rows :
@@ -39,10 +38,8 @@ int array_str_copy_move_prep(Array_str *arr_1, Array_str *arr_2, size_t *first_n
     /*
      * Clean up in case if arr_2 has non-null rows after a null row
      */
-    if (first_new_row < arr_2->num_rows) {
-        if (array_str_resize(first_new_row, arr_2) != 0) {
-            return -1;
-        }
+    if (first_new_row < arr_2->num_rows && array_str_resize(first_new_row, arr_2) != 0) {
+        return -1;
     }
 
     /*
@@ -66,16 +63,13 @@ int array_str_copy_move_prep(Array_str *arr_1, Array_str *arr_2, size_t *first_n
         return 0;
     }
 
-
     /*
      * Allocate whats needed
      */
     size_t num_rows = first_new_row + rows_to_append;
-    if (num_rows > arr_2->num_rows) {
-        if (array_str_resize(num_rows, arr_2) != 0) {
-            msg(MSG_ERR, "  sd-boot: memoray allocation fail\n");
-            return -1;
-        }
+    if (num_rows > arr_2->num_rows && array_str_resize(num_rows, arr_2) != 0) {
+        msg(MSG_ERR, "  sd-boot: memoray allocation fail\n");
+        return -1;
     }
 
     /*

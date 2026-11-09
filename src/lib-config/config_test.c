@@ -6,23 +6,23 @@
  * Note that the development directory structure is:
  * - src/tests/Testing
  * - when in test mode the current working dir must be src/tests/Testing or src/tests.
- * 
- * When in test mode 
+ *
+ * When in test mode
  * - Supports non-root testing in directory (Testing/__root__/)
  * - Activated by non-root user and env variable set:
  *   SDB_DEV_TEST
  *
  */
+#include "sd-boot-config.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <libgen.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "sd-boot-config.h"
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
 
 static int init_test_root_dir(SdBoot *conf) {
     char cwd_env[PATH_MAX] = {};
@@ -45,7 +45,7 @@ static int init_test_root_dir(SdBoot *conf) {
      * test-root:
      *  ~ <cwd>/Testing/__root__/
      *  ~ <cwd>/__root__/   (if cwd ~/Testing)
-     */ 
+     */
     if (strcmp(cwd_base, testing) != 0) {
         if (snprintf(cwd_env, PATH_MAX, "%s/%s", top_dir, testing) < 0) {
             perror(nullptr);
@@ -54,7 +54,7 @@ static int init_test_root_dir(SdBoot *conf) {
         if (strlcpy(top_dir, cwd_env, PATH_MAX) >= PATH_MAX) {
             return -1;
         }
-    } 
+    }
 
     if (snprintf(root, PATH_MAX, "%s/__root__/", top_dir) < 0) {
         perror(nullptr);
@@ -114,7 +114,7 @@ exit:
  * Make a usable development test tree anchored at conf->root
  * - we dont know if test system has efi on /efi or /boot
  *   set up both for simplicity
- */ 
+ */
 static int init_test_tree(SdBoot *conf) {
 
     const char *dirs[] = {
@@ -142,7 +142,7 @@ static int init_test_tree(SdBoot *conf) {
     /*
      * make testing root tree
      */
-    int num_dirs = sizeof(dirs)/sizeof(dirs[0]);
+    int num_dirs = sizeof(dirs) / sizeof(dirs[0]);
     char path[PATH_MAX] = {};
 
     for (int i = 0; i < num_dirs; i++) {
@@ -199,4 +199,3 @@ int config_test_init(SdBoot *conf) {
 
     return 0;
 }
-

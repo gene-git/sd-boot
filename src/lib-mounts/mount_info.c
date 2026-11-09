@@ -3,12 +3,11 @@
 /**
  * Information about a mount; Used for ESP and XBOOTLDR mounts.
  */
+#include "sd-boot-mounts.h"
+#include "sd-boot-msg.h"
+
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-mounts.h"
-
 
 void mount_info_free(MountInfo *mount_info) {
     if (!mount_info) {

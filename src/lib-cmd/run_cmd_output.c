@@ -4,14 +4,14 @@
  * Run executable with standard execve() arguments.
  * Child stdout is captured and returned to caller.
  */
+#include "sd-boot-cmd.h"
 #include <fcntl.h>
+#include <sched.h>
 #include <spawn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-#include "sd-boot-cmd.h"
 
 
 static int init_file_actions(int *fds, posix_spawn_file_actions_t *actions) {
@@ -197,16 +197,12 @@ exit:
         close(fds[1]);
     }
 
-    if (actions_inited) {
-        if (posix_spawn_file_actions_destroy(&actions) != 0) {
-            perror("posix_spawn_file_actions_destroy");
-        }
+    if (actions_inited && posix_spawn_file_actions_destroy(&actions) != 0) {
+        perror("posix_spawn_file_actions_destroy");
     }
 
-    if (spawn_attr_inited) {
-        if (posix_spawnattr_destroy(&spawn_attr) != 0) {
-            perror("posix_spawnattr_destroy");
-        }
+    if (spawn_attr_inited && posix_spawnattr_destroy(&spawn_attr) != 0) {
+        perror("posix_spawnattr_destroy");
     }
     return ret;
 }

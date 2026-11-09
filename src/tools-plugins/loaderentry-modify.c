@@ -14,14 +14,14 @@
  *  - linux <efi-file> => efi <efi-file>
  *  - options ..       => remove this line (these are kernel options only)
  */
-#include <stddef.h>
-#include <string.h>
-
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-msg.h"
+#include "sd-boot.h"
+
+#include <stddef.h>
+#include <string.h>
 
 /*
  * main entry
@@ -29,7 +29,7 @@
 int main(int argc, const char *argv[]) {
     /*
      * Invoked by kernel-install.
-     * Installed in: 
+     * Installed in:
      *  /usr/lib/kernel/install.d/95-sd-boot-loaderentry-modify.install
      */
     KIplugin plugin = {};

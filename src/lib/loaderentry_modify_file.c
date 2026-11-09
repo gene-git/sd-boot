@@ -8,13 +8,13 @@
  *
  * @return 0 = success, -1 = error
  */
+#include "sd-boot.h"
+
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "sd-boot.h"
 
 enum Constants {
     ROW_SZ = 1024,
@@ -48,7 +48,7 @@ static int open_temp_file(const char *dir, char *path, FILE **fptr_p) {
         goto exit;
     }
 
-    // Convert to FILE stream 
+    // Convert to FILE stream
     *fptr_p = fdopen(tmp_fd, "w");
     if (*fptr_p == nullptr) {
         perror(nullptr);
@@ -64,7 +64,7 @@ static int open_entry_file(const char *dir, const char *file, char *path, FILE *
     /*
      * Open entry file for read
      * Return -1 if open fails.
-     */ 
+     */
     int ret = 0;
 
     if (snprintf(path, PATH_MAX, "%s/%s", dir, file) < 0) {
@@ -156,7 +156,7 @@ static int efi_tool_update(size_t row_len, char *row_in, char *row_out, bool *mo
 static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, char *row_out) {
     /*
      * Process one line
-     */ 
+     */
     int ret = 0;
     bool modified = false;
 
@@ -175,7 +175,7 @@ static int entry_row_modify(LoaderEntry *entry, size_t row_len, char *row_in, ch
     }
 
     /*
-     * no mods made 
+     * no mods made
      */
     if (strlcpy(row_out, row_in, row_len) >= row_len) {
         ret = -1;
@@ -201,12 +201,12 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     FILE *tmp_fptr = nullptr;
     FILE *fptr = nullptr;
 
-    if (!entry || !entry->loader_entry_dir || !entry->loader_entry_file || 
+    if (!entry || !entry->loader_entry_dir || !entry->loader_entry_file ||
             entry->loader_entry_file[0] == '\0') {
         return -1;
     }
 
-    /* 
+    /*
      * existing entry file
      * - load entry is only relevant for bls. So
      *   not an error if no loader entry file found.
@@ -226,7 +226,7 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     }
 
     /*
-     * read / edit 
+     * read / edit
      */
     char row[ROW_SZ] = {};
     char row_mod[ROW_SZ] = {};
@@ -251,32 +251,29 @@ int loaderentry_modify_file(LoaderEntry *entry) {
     /*
      * close
      */
-    (void) fclose(fptr);
-    (void) fclose(tmp_fptr);
+    (void)fclose(fptr);
+    (void)fclose(tmp_fptr);
     fptr = nullptr;
     tmp_fptr = nullptr;
 
     // All well then rename the file (atomic)
-    if (ret == 0) {
-        if (rename(path_tmp, path) != 0) {
-            perror(nullptr);
-            (void) unlink(path_tmp);
-            path_tmp[0] = '\0';
-            ret = -1;
-        }
+    if (ret == 0 && rename(path_tmp, path) != 0) {
+        perror(nullptr);
+        (void)unlink(path_tmp);
+        path_tmp[0] = '\0';
+        ret = -1;
     }
+
 exit:
     if (tmp_fptr) {
-        (void) fclose(tmp_fptr);
+        (void)fclose(tmp_fptr);
     }
     if (fptr) {
-        (void) fclose(fptr);
+        (void)fclose(fptr);
     }
     if (ret != 0 && path_tmp[0] != '\0') {
-        (void) unlink(path_tmp);
+        (void)unlink(path_tmp);
     }
 
     return ret;
 }
-
-

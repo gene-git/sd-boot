@@ -4,18 +4,17 @@
 /**
  * Locate ESP mount points (efi) and (if exist) any xbootldr partition mount points.
  *
- * NB this marks current efi / xbootldr mount points as reported by "bootctl" with 
+ * NB this marks current efi / xbootldr mount points as reported by "bootctl" with
  * asterisk.
  */
+#include "sd-boot-config.h"
+#include "sd-boot-mounts.h"
+#include "sd-boot-msg.h"
+
 #include <stddef.h>
 #include <string.h>
 
-#include "sd-boot-msg.h"
-#include "sd-boot-config.h"
-#include "sd-boot-mounts.h"
-
 enum Const { BUF = 8 };
-
 
 static void print_header() {
     msg(MSG_NORMAL, "%57s\n", "(c)urrent (a)ctive");
@@ -24,18 +23,18 @@ static void print_header() {
 
 static char *marker(TriState state, char *t_str, char *f_str, char *u_str) {
     switch (state) {
-        case True:
-            return t_str;
-            break;
+    case True:
+        return t_str;
+        break;
 
-        case False:
-            return f_str;
-            break;
+    case False:
+        return f_str;
+        break;
 
-        case Unknown:
-        default:
-            return u_str;
-            break;
+    case Unknown:
+    default:
+        return u_str;
+        break;
     }
 }
 
@@ -43,14 +42,14 @@ static void print_row(char *ptype, MountInfo *mount) {
     char *active = marker(mount->active, "✔", " ", "?");
     char *current = marker(mount->current, "✔", " ", " ");
 
-    msg(MSG_NORMAL, "%20s %-30s (%s %s) %8s %s\n", 
-            mount->device, mount->mount, current, active, ptype, mount->uuid);
+    msg(MSG_NORMAL, "%20s %-30s (%s %s) %8s %s\n", mount->device, mount->mount, current, active, ptype,
+            mount->uuid);
 }
 
 int main() {
     int ret = 0;
     /*
-     * print the efi 
+     * print the efi
      */
     BootMounts boot_mounts = {};
     SdBoot conf = {};

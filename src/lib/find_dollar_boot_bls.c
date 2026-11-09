@@ -15,17 +15,17 @@
  *
  * First directory found is $BOOT
  *
- * See man kernel-install 
+ * See man kernel-install
  *
  * Returns allocated string if found else null.
  */
+#include "sd-boot-config.h"
+#include "sd-boot.h"
+
 #include <linux/limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "sd-boot-config.h"
-#include "sd-boot.h"
 
 char *find_dollar_boot_bls(SdBoot *conf) {
     const char *dirs[] = {
@@ -33,20 +33,20 @@ char *find_dollar_boot_bls(SdBoot *conf) {
         "boot",
         "boot/efi",
     };
-    enum { NUM_DIRS = 3};
+    enum { NUM_DIRS = 3 };
 
     char *subdirs[] = {
         "loader/entries",
         conf->entry_token,
     };
-    enum { NUM_SUBDIRS = 2};
+    enum { NUM_SUBDIRS = 2 };
 
     InstallConf *iconf = &conf->install_conf;
 
     /*
-     * boot_root 
+     * boot_root
      * - if test => conf->root
-     * - else if conf->install_conf.boot_root 
+     * - else if conf->install_conf.boot_root
      * - else conf->root
      */
     char *root = nullptr;
@@ -96,4 +96,3 @@ char *find_dollar_boot_bls(SdBoot *conf) {
     }
     return nullptr;
 }
-

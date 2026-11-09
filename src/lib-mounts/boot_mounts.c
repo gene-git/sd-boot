@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  * Container for ESP and XBOOTLDR mount points.
- */ 
-#include <stdlib.h>
-
+ */
 #include "sd-boot-mounts.h"
+
+#include <stdlib.h>
 
 static void free_content(size_t num_0, size_t num_1, MountInfo *mount) {
 
@@ -20,7 +20,7 @@ static void free_content(size_t num_0, size_t num_1, MountInfo *mount) {
 
 /*
  * Alloc one of efis / xbootlrds.
- * Input is 
+ * Input is
  * - num_new = new number of elements in array.
  * - num_p = address of number of elems in array.
  * - address of array of BountMount
@@ -47,9 +47,9 @@ static int realloc_one(size_t num_new, size_t *num_p, MountInfo **mounts_p) {
         *num_p = num_new;
 
         return 0;
-    } 
-    
-    if (num_new < *num_p) { 
+    }
+
+    if (num_new < *num_p) {
         /*
          * shrinking
          */
@@ -70,13 +70,13 @@ static int realloc_one(size_t num_new, size_t *num_p, MountInfo **mounts_p) {
         /*
          * Growing
          */
-        //ptr = realloc(mounts, num_new * sizeof(MountInfo));
-        //if (!ptr) {
-        //    *num_p = 0;
-        //    return -1;
-        // }
+        // ptr = realloc(mounts, num_new * sizeof(MountInfo));
+        // if (!ptr) {
+        //     *num_p = 0;
+        //     return -1;
+        //  }
         //*mounts_p = (MountInfo *)ptr;
-        //mounts = *mounts_p;
+        // mounts = *mounts_p;
         for (size_t i = *num_p; i < num_new; i++) {
             mounts[i].device = nullptr;
             mounts[i].mount = nullptr;
@@ -142,8 +142,8 @@ void boot_mounts_free(BootMounts *mounts) {
 
 /*
  * Allocate and copy 'this_mount' into the appropriate slot.
- * If 'is_esp' then saves to mounts->efis otherwise to 
- * mounts->xbootldrs. 
+ * If 'is_esp' then saves to mounts->efis otherwise to
+ * mounts->xbootldrs.
  * Returns 0 on success. Any failure is memory allocation related.
  */
 int boot_mounts_add_mount(bool is_esp, MountInfo this_mount, BootMounts *mounts) {
@@ -156,7 +156,7 @@ int boot_mounts_add_mount(bool is_esp, MountInfo this_mount, BootMounts *mounts)
 
     /*
      * NB- since we explicitly allocated >= 1 element the error path
-     *      if (mounts->efis) should never be false - but clang-tidy imagines 
+     *      if (mounts->efis) should never be false - but clang-tidy imagines
      *      the num of new elems can be 0 for some (buggy) reason.
      */
     if (is_esp) {
@@ -183,9 +183,7 @@ int boot_mounts_add_mount(bool is_esp, MountInfo this_mount, BootMounts *mounts)
             return -1;
         }
         mounts->xbootldrs[num] = this_mount;
-
     }
 
     return 0;
 }
-

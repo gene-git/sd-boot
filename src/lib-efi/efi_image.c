@@ -8,6 +8,11 @@
  * Contents are comments (# ...)
  * first non-comment line is the path
  */
+#include "sd-boot-config.h"
+#include "sd-boot-efi.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <glob.h>
 #include <libgen.h>
 #include <linux/limits.h>
@@ -15,11 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-config.h"
-#include "sd-boot-efi.h"
-#include "sd-boot-utils.h"
 
 char *package_to_efi_image(SdBoot *conf, const char *pkg) {
     /*
@@ -31,7 +31,7 @@ char *package_to_efi_image(SdBoot *conf, const char *pkg) {
      * Reads the file /etc/sd-boot/<package-name>.image (if it exists)
      *
      * efi_path is allocated - caller must free()
-     * 
+     *
      */
     char path[PATH_MAX] = {};
     char *efi_path = nullptr;
@@ -67,7 +67,7 @@ char *efi_image_to_package(SdBoot *conf, const char *path) {
     }
 
     /*
-     * Read all files in /etc/sd-boot/ 
+     * Read all files in /etc/sd-boot/
      *   named: *.image
      * - check if image path matches.
      * - should never be duplicates - for safety we take first matching package
@@ -82,12 +82,12 @@ char *efi_image_to_package(SdBoot *conf, const char *path) {
         perror(nullptr);
         goto exit;
     }
-    int ret = glob(pattern, 0, nullptr, &gstruct);  // NOLINT(concurrency-mt-unsafe)
+    int ret = glob(pattern, 0, nullptr, &gstruct); // NOLINT(concurrency-mt-unsafe)
 
     if (ret == 0) {
         bool matched = false;
 
-        for (size_t idx = 0; ! matched && idx < gstruct.gl_pathc; idx++) {
+        for (size_t idx = 0; !matched && idx < gstruct.gl_pathc; idx++) {
 
             this_path = read_file_first_row((const char *)gstruct.gl_pathv[idx]);
 

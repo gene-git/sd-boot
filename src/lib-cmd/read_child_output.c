@@ -12,15 +12,15 @@
  *        caller should free memory.
  *          
  */
+#include "sd-boot-cmd.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
-
-#include "sd-boot-cmd.h"
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
 
 enum BufSize {
     CHUNK = 4096,

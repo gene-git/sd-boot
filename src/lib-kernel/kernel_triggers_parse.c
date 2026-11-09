@@ -7,13 +7,12 @@
  * pacman's ALPM hooks contain list of triggers - when a trigger "changes" then
  * pacman writes each changed trigger to the invoked action (Exec) program's stdin.
  */
-#include <stdlib.h>
-#include <string.h>
-
 #include "sd-boot-kernel.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
 
+#include <stdlib.h>
+#include <string.h>
 
 /**
  * Triggers are passed in
@@ -22,11 +21,11 @@
  *
  * General approach:
  *
- * (a) if any package name triggers - save one or more to trigger_info->pkgs_special 
+ * (a) if any package name triggers - save one or more to trigger_info->pkgs_special
  *     If find any - stop parsing as all kernels will be updated.
  *
  * (b) Check for kernel module triggers - save to  trigger_info->paths_special.
- *     each of these kernels will be udpated 
+ *     each of these kernels will be udpated
  *
  * (c) if find any non-kernel module path triggers (save to trigger_info->paths_other)
  *     stop - as this will update all kernels.
@@ -62,9 +61,9 @@ int parse_kernel_triggers(TriggerInfo *tinfo) {
         return 0;
     }
 
-    bool is_kernel_module = false; 
+    bool is_kernel_module = false;
     for (size_t i = 0; i < tinfo->paths.num_rows; i++) {
-        is_kernel_module = false; 
+        is_kernel_module = false;
         is_kernel_image_path(tinfo->paths.rows[i], &is_kernel_module);
 
         if (is_kernel_module) {
@@ -78,7 +77,6 @@ int parse_kernel_triggers(TriggerInfo *tinfo) {
 
             tinfo->paths_other.rows[num_paths_other++] = tinfo->paths.rows[i];
             tinfo->paths.rows[i] = nullptr;
-
         }
 
         /*
@@ -92,4 +90,3 @@ int parse_kernel_triggers(TriggerInfo *tinfo) {
 exit:
     return ret;
 }
-

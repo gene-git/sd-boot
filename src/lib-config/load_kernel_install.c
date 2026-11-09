@@ -2,15 +2,15 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  * read and parse kernel-install "install.conf" config files.
- * See man kernel-install and below for more detail on "install.conf" 
+ * See man kernel-install and below for more detail on "install.conf"
  * and the companion drop in files are read.
  */
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
-#include "sd-boot-config.h"
 
 /*
  * Check BOOT_ROOT and MACHINE_ID
@@ -29,7 +29,7 @@ static int load_env_vars(SdBoot *conf) {
     env_var = secure_getenv("MACHINE-ID");
     if (env_var) {
         conf->install_conf.env_var_machine_id = strdup(env_var);
-        if (!conf->install_conf.env_var_machine_id ) {
+        if (!conf->install_conf.env_var_machine_id) {
             return -1;
         }
     }
@@ -148,4 +148,3 @@ int load_kernel_install_conf(SdBoot *conf) {
 
     return 0;
 }
-

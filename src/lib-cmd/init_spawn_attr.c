@@ -6,10 +6,9 @@
  * Note: caller must clean up with posix_spawnattr_destroy() 
  *       with or withour errors.
  */
+#include "sd-boot-cmd.h"
 #include <signal.h>
 #include <spawn.h>
-
-#include "sd-boot-cmd.h"
 
 
 int init_spawn_attr(posix_spawnattr_t *attr) {

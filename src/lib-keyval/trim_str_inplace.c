@@ -5,10 +5,10 @@
  * - in place - return pointer into the string of first non-space
  * - string is modified.
  */
+#include "sd-boot-keyval.h"
+
 #include <ctype.h>
 #include <string.h>
-
-#include "sd-boot-keyval.h"
 
 char *trim_str_inplace(char *str) {
 
@@ -31,5 +31,3 @@ char *trim_str_inplace(char *str) {
     *(end + 1) = '\0';
     return str;
 }
-
-

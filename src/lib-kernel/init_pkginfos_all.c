@@ -5,7 +5,7 @@
  * - /usr/lib/modules/<kern-vers>vmlinuz
  * - init pkginfo for each
  *
- * calls init_pkginfo_from_kernel_image() so each pkginfo has 
+ * calls init_pkginfo_from_kernel_image() so each pkginfo has
  * initialized the elements:
  * - info->pkg_name
  * - info->ki_image
@@ -22,14 +22,13 @@
  *
  * Internal to lib-kernel
  */
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "sd-boot-kernel.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
 
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 int init_kernel_pkginfos_all(Tool *tool) {
     int ret = 0;

@@ -4,10 +4,10 @@
  * Strip out leading/trailing whitespce
  * - in place
  */
+#include "sd-boot-utils.h"
+
 #include <ctype.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
 
 /*
  * Trim white space from str.
@@ -52,6 +52,4 @@ char *trim_string(char *str, size_t max_len) {
     end[1] = '\0';
 
     return ptr;
-
 }
-

@@ -4,16 +4,15 @@
  * Dynamic string
  * Handles strings up to MEM_MAX ~ 100 MB
  */
-#include <stdlib.h>
-#include <string.h>
-
 #include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 enum Constants {
     MEM_MAX = 100 * 1024 * 1024,
 };
-
 
 int dynamic_str_alloc(size_t num, Dynamic_str *str) {
     /*
@@ -61,6 +60,4 @@ int dynamic_str_alloc(size_t num, Dynamic_str *str) {
     return 0;
 }
 
-void dynamic_str_free(Dynamic_str *str) {
-    (void) dynamic_str_alloc(0, str);
-}
+void dynamic_str_free(Dynamic_str *str) { (void)dynamic_str_alloc(0, str); }

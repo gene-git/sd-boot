@@ -3,11 +3,11 @@
 /**
  * Display a message string to terminal.
  * Supports verbosity level.
- */ 
-#include <stdarg.h>
-#include <stdio.h>      
-
+ */
 #include "sd-boot-msg.h"
+
+#include <stdarg.h>
+#include <stdio.h>
 
 /*
  * Non-mt is fine for this pupose
@@ -16,10 +16,10 @@ static int VerbLevel = MSG_NORMAL; // NOLINT(cppcoreguidelines-avoid-non-const-g
 
 /**
  * Set message level
- * - permitted values are from 0 to 3 
+ * - permitted values are from 0 to 3
  *                                          Message Level
  *                          MSG_ERR     MSG_NORM    MSG_VERB    "kernel-install -v"
- *   verb-level             0           1           2           3 
+ *   verb-level             0           1           2           3
  *   0 = quiet              Y
  *   1 = normal             Y           Y
  *   2 = verbose            Y           Y           Y
@@ -39,13 +39,15 @@ void set_verb_level(int verb_level) {
     }
 }
 
+int get_verb_level() { return VerbLevel; }
+
 /**
  * For MSG_ERR goes to stderr otherwise to stdout
  */
 [[gnu::format(printf, 2, 3)]]
 void msg(int msg_level, const char *fmt, ...) {
 
-    if (!fmt ) {
+    if (!fmt) {
         return;
     }
     if (VerbLevel >= msg_level) {
@@ -61,7 +63,7 @@ void msg(int msg_level, const char *fmt, ...) {
         num = vfprintf(stream, fmt, args);
         va_end(args);
         // NOLINTEND(clang-analyzer-security.VAList)
-        
+
         (void)fflush(stream);
 
         if (num < 0) {
@@ -70,4 +72,3 @@ void msg(int msg_level, const char *fmt, ...) {
         }
     }
 }
-

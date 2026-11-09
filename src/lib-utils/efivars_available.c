@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Check if "efivars" are available. 
+ * Check if "efivars" are available.
  *
  * Often not the case when we're being run inside a chroot
  * For example building a package in a chroot the tests are run.
@@ -10,10 +10,10 @@
  *
  * Return true if efivars are available
  */
+#include "sd-boot-utils.h"
+
 #include <dirent.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
 
 bool efivars_available() {
 
@@ -27,7 +27,6 @@ bool efivars_available() {
     if (!dir) {
         return false;
     }
-
 
     /*
      * Check content
@@ -44,6 +43,6 @@ bool efivars_available() {
         break;
     }
 
-    (void) closedir(dir);
+    (void)closedir(dir);
     return has_efivars;
-} 
+}

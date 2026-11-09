@@ -13,7 +13,7 @@
  * where the layout is set to bls. This is a bit ugly but kernel install
  * provides limited dynamic controls.
  *
- * We also limit the list of plugins to those the only relevant ones which 
+ * We also limit the list of plugins to those the only relevant ones which
  * are loader entry plugins.
  *
  * See ki_plugins_efi_update_env()
@@ -21,15 +21,15 @@
  *    Which is only the plugins to manage loader entries. The other plugins
  *    are relevant only for kernels not efi tools.
  */
+#include "sd-boot-config.h"
+#include "sd-boot-efi.h"
+#include "sd-boot-utils.h"
+
 #include <linux/limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-config.h"
-#include "sd-boot-efi.h"
-#include "sd-boot-utils.h"
 
 int ki_efi_update_env(SdBoot *conf, Array_str *env) {
     /*
@@ -90,4 +90,3 @@ int ki_efi_update_env(SdBoot *conf, Array_str *env) {
 exit:
     return ret;
 }
-

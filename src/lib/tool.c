@@ -3,18 +3,17 @@
 /**
  * Allocate and Free Memory of UpdateWork
  */
-#include <stdlib.h>
-#include <string.h>
-
 #include "sd-boot-config.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
 
+#include <stdlib.h>
+#include <string.h>
 
 static void tool_free_pkginfo(Tool *tool) {
     if (!tool->pkginfo) {
         return;
-    } 
+    }
     for (size_t i = 0; i < tool->num_pkgs; i++) {
         pkginfo_free(&tool->pkginfo[i]);
     }
@@ -22,7 +21,6 @@ static void tool_free_pkginfo(Tool *tool) {
     free((void *)tool->pkginfo);
     tool->pkginfo = nullptr;
     tool->num_pkgs = 0;
-
 }
 
 int tool_alloc(size_t num_pkgs, Tool *tool) {
@@ -62,4 +60,3 @@ void tool_free(Tool *tool) {
 
     memset((void *)tool, 0, sizeof(Tool));
 }
-

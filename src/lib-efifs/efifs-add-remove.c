@@ -6,16 +6,15 @@
  * /usr/lib/efifs-x64/ ==> "$efi"/EFI/systemd/drivers
  *
  */
+#include "sd-boot-msg.h"
+
 #include <linux/limits.h>
 #include <stdio.h>
-
-#include "sd-boot-msg.h"
-//#include "sd-boot-cmd.h"
+// #include "sd-boot-cmd.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efifs.h"
 #include "sd-boot-mounts.h"
 #include "sd-boot-utils.h"
-
 
 /*
  * Filesystem destination dir
@@ -97,35 +96,35 @@ int efifs_add_remove(SdBoot *conf) {
     }
 
     switch (conf->oper) {
-        case KI_ADD:
-            msg(MSG_NORMAL, "⦁ sd-boot: Copying efi filesystem drivers to %s\n", dst);
-            /*
-             * Will be cross device so use_fast = slow
-             */
-            ret = copy_directory_files(src, dst, false);
-            if (ret != 0) {
-                msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
-                ret = 1;
-                goto exit;
-            }
-            break;
+    case KI_ADD:
+        msg(MSG_NORMAL, "⦁ sd-boot: Copying efi filesystem drivers to %s\n", dst);
+        /*
+         * Will be cross device so use_fast = slow
+         */
+        ret = copy_directory_files(src, dst, false);
+        if (ret != 0) {
+            msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
+            ret = 1;
+            goto exit;
+        }
+        break;
 
-        case KI_REMOVE:
-            msg(MSG_NORMAL, "⦁ sd-boot: Removing efi filesystem drivers from %s\n", dst);
+    case KI_REMOVE:
+        msg(MSG_NORMAL, "⦁ sd-boot: Removing efi filesystem drivers from %s\n", dst);
 
-            ret = rm_rf(dst);
-            if (ret != 0) {
-                msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
-                ret = 1;
-                goto exit;
-            }
-            break;
+        ret = rm_rf(dst);
+        if (ret != 0) {
+            msg(MSG_ERR, "  ! sd-boot: error installing efi filesystem drivers\n");
+            ret = 1;
+            goto exit;
+        }
+        break;
 
-        default:
-            /*
-             * cannot get here
-             */
-            break;
+    default:
+        /*
+         * cannot get here
+         */
+        break;
     }
 
 exit:
@@ -136,4 +135,3 @@ exit:
     mount_info_free(&xbootldr_info);
     return ret;
 }
-

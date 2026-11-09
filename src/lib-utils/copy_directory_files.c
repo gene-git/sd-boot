@@ -5,15 +5,14 @@
  * Non recursive - only the files directly under the src_dir.
  * Only copies files (not links).
  */
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <dirent.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
-
 
 /*
  * We Ignore non-files.
@@ -29,7 +28,7 @@ static int check_is_regular_file(struct dirent *entry, char *src_path, bool *is_
         *is_reg_file = true;
 
     } else if (entry->d_type == DT_UNKNOWN) {
-        struct stat stat_buf = {};
+        struct stat stat_buf = {}; // NOLINT(misc-include-cleaner)
         if (stat(src_path, &stat_buf) < 0) {
             perror("stat failed");
             return -1;
@@ -79,7 +78,7 @@ static int do_copy(char *src_path, char *dst_path, bool use_fast) {
  *  src:    directory to copy from
  *  dst:    copy src/<file> to dst/<file>
  *  use_fast: if trye, use copy_file_fast() which uses copy_file_range().
- *          This has limitations (e.g. cross filesystem/cross device etc). 
+ *          This has limitations (e.g. cross filesystem/cross device etc).
  *          See man copy_file_range()
  *          If unsure use false.
  */
@@ -98,7 +97,7 @@ int copy_directory_files(const char *src, const char *dst, bool use_fast) {
     }
 
     /*
-     * Prep 
+     * Prep
      */
     DIR *dir_src = opendir(src);
     if (!dir_src) {
@@ -108,7 +107,7 @@ int copy_directory_files(const char *src, const char *dst, bool use_fast) {
 
     char *dst_path = nullptr;
     char *src_path = nullptr;
-    ret   = alloc_paths(&src_path, &dst_path);
+    ret = alloc_paths(&src_path, &dst_path);
     if (ret != 0) {
         goto exit;
     }
@@ -117,7 +116,7 @@ int copy_directory_files(const char *src, const char *dst, bool use_fast) {
      * Get files and copy them
      */
     struct dirent *entry = nullptr;
-    
+
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     while ((entry = readdir(dir_src))) {
 

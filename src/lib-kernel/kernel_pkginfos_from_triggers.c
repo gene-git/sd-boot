@@ -12,21 +12,21 @@
 #include "sd-boot.h"
 
 /**
- * 
+ *
  * 2 kinds of triggers:
  * a) kernel specific triggers (/usr/lib/modules/<kern-vers>/vmlinuz
  *    gather relevant kernel info for these
  *
- * b) any other trigger - package or path - these affact all kernels 
+ * b) any other trigger - package or path - these affact all kernels
  *    For these keep a count how many not the trigger itself..
  *
  * Approach:
- * - check for any package name triggers - 
+ * - check for any package name triggers -
  *   - if found - update all kernels
  *   - if no package names, check all path based triggers:
  *     - check if any kernel image path triggers.
- *     - if kernel images are the only triggers, 
- *       update those kernels, 
+ *     - if kernel images are the only triggers,
+ *       update those kernels,
  *     - if any other path triggers then update all kernels.
  *
  * Note:
@@ -78,4 +78,3 @@ int kernel_pkginfos_from_triggers(TriggerInfo *tinfo, Tool *tool) {
 exit:
     return ret;
 }
-

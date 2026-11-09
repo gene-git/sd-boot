@@ -10,12 +10,12 @@
  *     - <string>
  *     ...
  */
+#include "sd-boot-config.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <cyaml/cyaml.h>
 #include <linux/limits.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-config.h"
-#include "sd-boot-utils.h"
 
 /*
  * Plain struct libcyaml populates. libcyaml can't fill SdBoot's
@@ -46,13 +46,10 @@ static const cyaml_schema_value_t plugin_entry_schema = {
  * Rest can remain same.
  */
 static const cyaml_schema_field_t top_mapping_schema[] = {
-    CYAML_FIELD_INT(
-        "verb", CYAML_FLAG_OPTIONAL,
-        YamlConfig, verb),
-    CYAML_FIELD_SEQUENCE(
-        "skip_kernel_plugins", (unsigned int)CYAML_FLAG_OPTIONAL | (unsigned int)CYAML_FLAG_POINTER,
-        YamlConfig, skip_kernel_plugins,
-        &plugin_entry_schema, 0, CYAML_UNLIMITED),
+    CYAML_FIELD_INT("verb", CYAML_FLAG_OPTIONAL, YamlConfig, verb),
+    CYAML_FIELD_SEQUENCE("skip_kernel_plugins",
+            (unsigned int)CYAML_FLAG_OPTIONAL | (unsigned int)CYAML_FLAG_POINTER, YamlConfig,
+            skip_kernel_plugins, &plugin_entry_schema, 0, CYAML_UNLIMITED),
     CYAML_FIELD_END,
 };
 
@@ -116,7 +113,7 @@ int load_config_yaml(SdBoot *conf) {
     }
 
     if (err != CYAML_OK) {
-        msg(MSG_ERR,"!  sd-boot: yaml config parse error: %s\n", cyaml_strerror(err));
+        msg(MSG_ERR, "!  sd-boot: yaml config parse error: %s\n", cyaml_strerror(err));
         return -1;
     }
 

@@ -28,7 +28,6 @@ typedef struct {
     size_t max_str_len;
 } KvList;
 
-
 /*
  * Function decls
  */

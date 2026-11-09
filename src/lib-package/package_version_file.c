@@ -4,16 +4,16 @@
  * Read Package Versions File
  * - /var/lib/sd-boot/<package-name>.version
  */
-#include <linux/limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-package.h"
 #include "sd-boot-utils.h"
+#include "sd-boot.h"
+
+#include <linux/limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*
  * Filename with curr/prev versions

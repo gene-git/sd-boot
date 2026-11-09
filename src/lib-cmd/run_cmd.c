@@ -5,6 +5,7 @@
  * child output ignored.
  * Needs _GNU_SOURCE (see meson.build)
  */
+#include "sd-boot-cmd.h"
 #include <sched.h>
 #include <spawn.h>
 #include <stdint.h>
@@ -12,7 +13,6 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-#include "sd-boot-cmd.h"
 
 
 int run_cmd(char **argv, char **envp, int *child_ret_p) {

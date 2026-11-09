@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
+#include "sd-boot-utils.h"
+
 #include <stddef.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
 
 /**
  * Add terminal nullptr to list if not present

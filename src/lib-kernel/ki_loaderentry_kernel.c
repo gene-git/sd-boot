@@ -6,19 +6,19 @@
  * This updates:
  *  - title xxx        => kernel package name
  */
-#include <stddef.h>
-#include <string.h>
-
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-tool.h"
 #include "sd-boot-utils.h"
+#include "sd-boot.h"
+
+#include <stddef.h>
+#include <string.h>
 
 int loaderentry_modify_kernel(SdBoot *conf, KIplugin *plugin) {
     /*
-     * plugins are always called - each plugin decidws 
+     * plugins are always called - each plugin decidws
      * if input is something to act on or ignore.
      */
     int ret = 0;

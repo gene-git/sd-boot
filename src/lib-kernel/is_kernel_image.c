@@ -5,9 +5,9 @@
  *
  * i.e. whether image ~ "/usr/lib/modules/<kern-vers>/vmlinux
  */
-#include <regex.h>
-
 #include "sd-boot-kernel.h"
+
+#include <regex.h>
 
 int is_kernel_image_path(char *image, bool *is_kernel) {
     int ret = 0;

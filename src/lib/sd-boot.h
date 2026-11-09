@@ -6,19 +6,19 @@
 #ifndef SD_BOOT_LIB_H
 #define SD_BOOT_LIB_H
 
-#include <limits.h>
-#include <stddef.h>
-
 #include "sd-boot-config.h"
 #include "sd-boot-export.h"
 #include "sd-boot-utils.h"
+
+#include <limits.h>
+#include <stddef.h>
 
 /*
  *
  * Kernel-Install Plugin
  */
 typedef struct {
-    // args 
+    // args
     char *command;
     char *kernel_version;
     char *entry_dir_abs;
@@ -101,7 +101,7 @@ typedef struct Tool {
  *   - pkgs_other
  *   - paths_special
  *   - paths_other
- * Which packages/paths are considered useful is 
+ * Which packages/paths are considered useful is
  * done by lib-efi and lib-kernel for their tool type
  */
 typedef struct TriggerInfo {
@@ -145,7 +145,6 @@ int tool_alloc(size_t num_pkgs, Tool *tool);
 bool trigger_is_path(const char *trigger);
 
 void triggerinfo_free(TriggerInfo *trig);
-
 
 /*
  * Public API

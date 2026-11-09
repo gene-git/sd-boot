@@ -3,12 +3,11 @@
 /**
  * Free memory in SdBoot
  */
-#include <stdlib.h>
-#include <string.h>
-
 #include "sd-boot-config.h"
 #include "sd-boot-utils.h"
 
+#include <stdlib.h>
+#include <string.h>
 
 static void install_conf_clean(InstallConf *iconf) {
 
@@ -52,7 +51,7 @@ static void install_conf_clean(InstallConf *iconf) {
 void config_clean(SdBoot *conf) {
 
     array_str_free(&conf->skip_kernel_plugins);
-    
+
     if (conf->root) {
         free((void *)conf->root);
     }
@@ -103,5 +102,4 @@ void config_clean(SdBoot *conf) {
     array_str_free(&conf->env_base);
 
     memset((void *)conf, 0, sizeof(SdBoot));
-
 }

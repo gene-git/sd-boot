@@ -5,10 +5,10 @@
  * - if file exists its not an error
  *   basically "rm -f"
  */
+#include "sd-boot-utils.h"
+
 #include <errno.h>
 #include <stdio.h>
-
-#include "sd-boot-utils.h"
 
 int remove_file(const char *path) {
 
@@ -18,7 +18,7 @@ int remove_file(const char *path) {
 
     int ret = remove(path);
     if (ret != 0) {
-        if (errno == ENOENT) {          // NOLINT(misc-include-cleaner)
+        if (errno == ENOENT) { // NOLINT(misc-include-cleaner)
             ret = 0;
         } else {
             perror("Error deleting file");

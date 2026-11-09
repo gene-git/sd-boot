@@ -7,12 +7,12 @@
  * Returns list of pointers to strings - caller responsible for freeing the mem.
  * using array_str_free().
  */
+#include "sd-boot-utils.h"
+
 #include <glob.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
 
 int file_list_glob(const char *pattern, Array_str *files) {
     int ret = 0;
@@ -47,5 +47,4 @@ exit:
         globfree(&gstruct);
     }
     return ret;
-} 
-
+}

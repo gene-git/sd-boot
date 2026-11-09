@@ -3,20 +3,20 @@
 /**
  *  * pacman's ALPM Hooks contain lists of triggers. When a trigger changes then
  * pacman writes it to the stdin of the "Action" executable (that's us) one trigger per line.
- *  
- * Read and return the list of all triggers from stdin. 
+ *
+ * Read and return the list of all triggers from stdin.
  * Thay are either a path or a package name.
- * Return the list of triggers 
+ * Return the list of triggers
  */
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+#include "sd-boot.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
-#include "sd-boot.h"
 
 enum ReadInfo { CHUNK = 32 };
 
@@ -24,7 +24,7 @@ enum ReadInfo { CHUNK = 32 };
  * - Update mem allocated if needed (increase only)
  * - save the data
  */
-static int process_one_line(const char *row, ssize_t len, Array_str *arr) {
+static int process_one_line(const char *row, ssize_t len, Array_str *arr) { // NOLINT(misc-include-cleaner)
     int ret = 0;
     size_t n_row = arr->num_rows_used++;
 
@@ -106,4 +106,3 @@ int read_triggers(Array_str *arr) {
 
     return status;
 }
-

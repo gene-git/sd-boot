@@ -5,12 +5,12 @@
  *
  * - called by efi-tool-update[-triggers]
  */
+#include "sd-boot-efi.h"
+#include "sd-boot.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot.h"
-#include "sd-boot-efi.h"
 
 /*
  * Install, remove or inspect an efi tool.
@@ -50,4 +50,3 @@ int efi_tool_update_execute(Tool *tool) {
 exit:
     return ret;
 }
-

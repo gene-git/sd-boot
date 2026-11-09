@@ -5,19 +5,19 @@
  * - /etc/sd-boot/config
  * - /etc/kernel/install.conf
  *
- * Contents can be 
+ * Contents can be
  * - key = value pairs
  * - skips comments (# ...)
  */
-#include <limits.h>
-#include <linux/limits.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "sd-boot-config.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
+
+#include <limits.h>
+#include <linux/limits.h>
+#include <string.h>
+#include <unistd.h>
 
 /**
  * read config files
@@ -31,7 +31,7 @@
  *
  * Return:
  *   0 = success (includes no config files)
- *  -1 = failed to load (warning) 
+ *  -1 = failed to load (warning)
  *  -2 = fatal (root required)
  */
 
@@ -62,7 +62,7 @@ exit:
 
 /*
  * Read sd-boot config
- * - try yaml first 
+ * - try yaml first
  * - if no yaml, read toml (if available) and then convert to yaml.
  *   Conversion errors are non-fatal.
  */
@@ -86,7 +86,6 @@ static void read_config_file(SdBoot *conf) {
          * yaml
          */
         (void)load_config_yaml(conf);
-
     }
 }
 
@@ -114,7 +113,7 @@ int load_config(SdBoot *conf) {
 
     /*
      * Plugins:
-     * update 
+     * update
      *   - conf->all_plugins
      *   - conf->active_plugins
      * - must do after config is read since it has list of plugins to skip.
@@ -189,9 +188,7 @@ int load_config(SdBoot *conf) {
         return -1;
     }
 
-
     conf->is_uki = (bool)(strcmp(conf->layout, "uki") == 0);
 
     return 0;
 }
-

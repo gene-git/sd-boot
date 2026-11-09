@@ -11,17 +11,17 @@
  *
  * Return true if unshare is availabl
  */
+#include "sd-boot-utils.h"
+
 #include <sched.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-#include "sd-boot-utils.h"
 
 /*
  * Check by fork child which attempts to create a new namespace
  */
 bool unshare_available() {
-    pid_t pid = fork();
+    pid_t pid = fork(); // NOLINT(misc-include-cleaner)
 
     if (pid < 0) {
         return false;
@@ -30,19 +30,18 @@ bool unshare_available() {
     if (pid == 0) {
         if (unshare(CLONE_NEWUSER | CLONE_NEWNS) == 0) {
             _exit(0);
-        } else {
-            _exit(1);
         }
-    } else {
-        int wstatus = -1;
+        _exit(1);
+    }
 
-        if (waitpid(pid, &wstatus, 0) < 0) {
-            return false;
-        }
+    int wstatus = -1;
 
-        if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 0) {
-            return true;
-        }
+    if (waitpid(pid, &wstatus, 0) < 0) {
+        return false;
+    }
+
+    if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus) == 0) {
+        return true;
     }
     return false;
-} 
+}

@@ -5,6 +5,14 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
+**6.9.0**
+
+* Improve output format from subprocess (sbctl).
+* Openssl 4.x requires different valgrind suppression rules 3.x
+  to silence its global allocated cache not being freed.
+* Tidy ups to keep clang-tidy 23.1.4 happy
+* clang-format to enforce consistent style.
+
 **6.8.0**
 
 * Update manual on using sd-boot with Arch kernels

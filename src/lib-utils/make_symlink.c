@@ -7,19 +7,19 @@
  *
  * Replaces any existing linkname if the target is not the same.
  */
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <linux/limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
-
 /*
  * Check whether symlink is neede linkis same as requested
  * returns
- * -1 = error 
+ * -1 = error
  *  0 = all is fine.
  *      need_link true = nothing to do - target matches
  *      need_link true = create new link
@@ -28,7 +28,7 @@
 static int is_symlink_needed(const char *target, const char *linkname, bool *need_link) {
     int ret = 0;
 
-    struct stat link_stat = {};
+    struct stat link_stat = {}; // NOLINT(misc-include-cleaner)
     char curr_targ[PATH_MAX] = {};
     ssize_t bytes_read = 0;
     *need_link = true;
@@ -42,7 +42,7 @@ static int is_symlink_needed(const char *target, const char *linkname, bool *nee
              * Linkname exists
              * - delete if wrong target
              */
-            bytes_read = readlink(linkname, curr_targ, PATH_MAX-1);
+            bytes_read = readlink(linkname, curr_targ, PATH_MAX - 1);
             if (bytes_read < 0) {
                 ret = -1;
                 goto exit;
@@ -76,7 +76,7 @@ exit:
 int make_symlink(const char *target, const char *linkname) {
     int ret = 0;
 
-    if (!target || !linkname ) {
+    if (!target || !linkname) {
         msg(MSG_ERR, "  ! sd-boot bad input to make symlink\n");
         ret = -1;
         goto exit;
@@ -101,4 +101,3 @@ int make_symlink(const char *target, const char *linkname) {
 exit:
     return ret;
 }
-

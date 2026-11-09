@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Path to yaml or toml sd-boot config files 
+ * Path to yaml or toml sd-boot config files
  *
  * Buffer passed in must be of length PATH_MAX
  */
+#include "sd-boot-config.h"
+
 #include <linux/limits.h>
 #include <stdio.h>
-
-#include "sd-boot-config.h"
 
 int yaml_config_path(SdBoot *conf, char *path) {
 
@@ -37,4 +37,3 @@ int yaml_config_sample_path(SdBoot *conf, char *path) {
 
     return 0;
 }
-

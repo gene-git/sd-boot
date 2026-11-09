@@ -31,14 +31,12 @@ int efi_tool_ki_vers_old(SdBoot *conf, PkgInfo *pkginfo);
 
 int ki_make_kernel_conf_bls(SdBoot *conf);
 int ki_efi_update_env(SdBoot *conf, Array_str *env);
-int ki_plugins_efi_update_env(char *root, Array_str *env) ;
-
+int ki_plugins_efi_update_env(char *root, Array_str *env);
 
 /*
  * Public API
  */
 SD_BOOT_EXPORT int efi_tool_update_execute(Tool *tool);
 SD_BOOT_EXPORT int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin);
-
 
 #endif

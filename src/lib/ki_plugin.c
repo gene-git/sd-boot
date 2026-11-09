@@ -4,7 +4,7 @@
  *
  * Kernel Install Plugins
  *
- * plugins called from kernel-install get passed information via 
+ * plugins called from kernel-install get passed information via
  * - command line and
  * - environment variables
  *
@@ -30,15 +30,15 @@
  *               77 = terminate the entire chain
  *
  */
+#include "sd-boot-kernel.h"
+#include "sd-boot-msg.h"
+#include "sd-boot.h"
+
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-
-#include "sd-boot.h"
-#include "sd-boot-kernel.h"
-#include "sd-boot-msg.h"
 
 enum Constants {
     MAX_STR = PATH_MAX,
@@ -50,7 +50,6 @@ enum Constants {
     CMD_6 = 6,
 
 };
-
 
 static int copy_argv_item(int idx, int argc, const char **argv, char **ptr) {
     /*
@@ -64,7 +63,7 @@ static int copy_argv_item(int idx, int argc, const char **argv, char **ptr) {
     }
 
     char *str = nullptr;
-    if (idx > argc || argv[idx] == nullptr) { 
+    if (idx > argc || argv[idx] == nullptr) {
         str = "";
     } else {
         str = (char *)argv[idx];
@@ -205,10 +204,8 @@ static int env_var_init(KIplugin *plugin) {
     if (ret != 0) {
         goto exit;
     }
-    if (plugin->layout && plugin->layout[0] != '\0') {
-        if (strcasecmp(plugin->layout, "uki") == 0) {
-            plugin->is_uki = true;
-        }
+    if (plugin->layout && plugin->layout[0] != '\0' && strcasecmp(plugin->layout, "uki") == 0) {
+        plugin->is_uki = true;
     }
 
     ret = copy_env_item("KERNEL_INSTALL_VERBOSE", &plugin->verbose);
@@ -245,7 +242,7 @@ int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
     int ret = 0;
 
     /*
-     * command line 
+     * command line
      */
     ret = command_line_init(argc, argv, plugin);
     if (ret != 0) {
@@ -253,7 +250,7 @@ int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
     }
 
     /*
-     * env 
+     * env
      */
     ret = env_var_init(plugin);
     if (ret != 0) {
@@ -269,10 +266,10 @@ int plugin_init(int argc, const char *argv[], KIplugin *plugin) {
     }
 
     /*
-     * Determine if the image is a kernel source 
+     * Determine if the image is a kernel source
      */
     ret = is_kernel_image_path(plugin->kernel_image, &plugin->is_kernel);
-    
+
     /*
      * dev debug
     print_ki_plugin(plugin);
@@ -287,56 +284,54 @@ void plugin_free(KIplugin *plugin) {
      * free up any non-null mem
      */
     if (plugin->command) {
-        free((void *) plugin->command);
+        free((void *)plugin->command);
     }
 
     if (plugin->kernel_version) {
-        free((void *) plugin->kernel_version);
+        free((void *)plugin->kernel_version);
     }
 
     if (plugin->entry_dir_abs) {
-        free((void *) plugin->entry_dir_abs);
+        free((void *)plugin->entry_dir_abs);
     }
 
     if (plugin->kernel_image) {
-        free((void *) plugin->kernel_image);
+        free((void *)plugin->kernel_image);
     }
 
     if (plugin->initrd_1) {
-        free((void *) plugin->initrd_1);
+        free((void *)plugin->initrd_1);
     }
 
     if (plugin->initrd_2) {
-        free((void *) plugin->initrd_2);
+        free((void *)plugin->initrd_2);
     }
 
     if (plugin->layout) {
-        free((void *) plugin->layout);
+        free((void *)plugin->layout);
     }
 
     if (plugin->verbose) {
-        free((void *) plugin->verbose);
+        free((void *)plugin->verbose);
     }
 
     if (plugin->machine_id) {
-        free((void *) plugin->machine_id);
+        free((void *)plugin->machine_id);
     }
 
     if (plugin->entry_token) {
-        free((void *) plugin->entry_token);
+        free((void *)plugin->entry_token);
     }
 
     if (plugin->boot_root) {
-        free((void *) plugin->boot_root);
+        free((void *)plugin->boot_root);
     }
 
     if (plugin->loader_entry_dir) {
-        free((void *) plugin->loader_entry_dir);
+        free((void *)plugin->loader_entry_dir);
     }
 
     if (plugin->loader_entry_file) {
-        free((void *) plugin->loader_entry_file);
+        free((void *)plugin->loader_entry_file);
     }
 }
-
-

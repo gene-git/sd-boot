@@ -10,35 +10,34 @@
  * Identify the parent disk of that active ESP (e.g., nvme0n1).
  * Active Flag Logic:
  *
- * ESP: 
+ * ESP:
  * - active if its partition UUID matches LoaderDevicePartUUID exactly.
  *
- * XBOOTLDR: 
- * - active if on same physical disk as the active ESP. 
- *  (Per Freedesktop Boot Loader Specification, a companion XBOOTLDR partition must 
+ * XBOOTLDR:
+ * - active if on same physical disk as the active ESP.
+ *  (Per Freedesktop Boot Loader Specification, a companion XBOOTLDR partition must
  *   share the same physical drive structure as the booting ESP to be parsed by systemd-boot).
  */
-#include <libmount/libmount.h> 
+#include "sd-boot-config.h"
+#include "sd-boot-mounts.h"
+#include "sd-boot-msg.h"
+#include "sd-boot.h"
+
+#include <libmount/libmount.h>
 #include <libudev.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <sys/stat.h> 
-#include <sys/types.h> 
+#include <sys/stat.h>
 
-#include "sd-boot-config.h"
-#include "sd-boot-mounts.h"
-#include "sd-boot-msg.h"
-#include "sd-boot.h"
-
-enum MiscConstants { BUF_LEN = 128, };
+enum MiscConstants { BUF_LEN = 128 };
 
 /**
  * Get active boot partition UUID from efivars.
  */
-static char *get_active_esp_uuid(void) {
+static char *get_active_esp_uuid() {
     char efi_var_path[BUF_LEN] = {};
     char *uuid_str = nullptr;
     const char *efi_vars = "/sys/firmware/efi/efivars/";
@@ -90,13 +89,13 @@ static bool skip_mount(struct libmnt_fs *entry) {
         return true;
     }
 
-    for (size_t i = 0 ; i < num_names; i++) {
+    for (size_t i = 0; i < num_names; i++) {
         const char *name = names[i];
         size_t len = strlen(name);
         if (strncmp(target, name, len) == 0 && (target[len] == '\0' || target[len] == '/')) {
             return true;
         }
-     }
+    }
 
     return false;
 }
@@ -105,7 +104,8 @@ static bool skip_mount(struct libmnt_fs *entry) {
  * Use active partition UUID to resolve its parent physical disk device number (dev_t).
  * Return: The dev_t device identifier of the parent disk, or 0 on failure.
  */
-static dev_t active_parent_dev_t(struct udev *udev, struct libmnt_table *mount_table, const char *active_uuid) {
+static dev_t active_parent_dev_t(
+        struct udev *udev, struct libmnt_table *mount_table, const char *active_uuid) {
     dev_t dev = 0;
     dev_t parent_dev = 0;
     struct libmnt_iter *iter = nullptr;
@@ -113,7 +113,7 @@ static dev_t active_parent_dev_t(struct udev *udev, struct libmnt_table *mount_t
     struct udev_device *device = nullptr;
     struct udev_device *parent_device = nullptr;
 
-    if (!udev || !mount_table || !active_uuid) { 
+    if (!udev || !mount_table || !active_uuid) {
         return dev;
     }
 
@@ -123,7 +123,7 @@ static dev_t active_parent_dev_t(struct udev *udev, struct libmnt_table *mount_t
     }
     while (mnt_table_next_fs(mount_table, iter, &mount_entry) == 0) {
         const char *src = mnt_fs_get_srcpath(mount_entry);
-        struct stat stat_buf = {};
+        struct stat stat_buf = {};      // NOLINT(misc-include-cleaner)
 
         if (!src || skip_mount(mount_entry) || stat(src, &stat_buf) < 0) {
             continue;
@@ -161,8 +161,8 @@ exit:
 /*
  * Is partition active
  */
-static bool is_active(bool is_esp, bool is_xboot, const char *guid,
-                      const char *active_uuid, dev_t parent_num, dev_t active_num) {
+static bool is_active(bool is_esp, bool is_xboot, const char *guid, const char *active_uuid, dev_t parent_num,
+        dev_t active_num) {
 
     /*
      * ESP match from the motherboard NVRAM
@@ -195,10 +195,10 @@ static void free_mount_strings(MountInfo *mount) {
 
 /**
  * Extract the mount info of esp and xbootldr partitions.
- * - skip non-block filesystems. 
+ * - skip non-block filesystems.
  */
-static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry,
-        const char *active_uuid, dev_t active_esp_dev_t, BootMounts *boot_mounts) {
+static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry, const char *active_uuid,
+        dev_t active_esp_dev_t, BootMounts *boot_mounts) {
     struct udev_device *dev = nullptr;
     struct udev_device *parent = nullptr;
     const char *GPT_ESP_TYPE = "c12a7328-f81f-11d2-ba4b-00a0c93ec93b";
@@ -256,7 +256,7 @@ static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry,
         new_mount.mount = strdup(target ? target : " - ");
         new_mount.guid = strdup(p_guid);
         new_mount.uuid = strdup(p_uuid ? p_uuid : " - ");
-        new_mount.active = (TriState) active;
+        new_mount.active = (TriState)active;
         new_mount.current = Unknown;
 
         if (!new_mount.device || !new_mount.mount || !new_mount.guid || !new_mount.uuid) {
@@ -265,7 +265,7 @@ static void process_one_mount(struct udev *udev, struct libmnt_fs *mount_entry,
             goto exit;
         }
 
-        if (boot_mounts_add_mount(is_esp, new_mount, boot_mounts) != 0){
+        if (boot_mounts_add_mount(is_esp, new_mount, boot_mounts) != 0) {
             free_mount_strings(&new_mount);
         }
     }
@@ -275,7 +275,6 @@ exit:
         udev_device_unref(dev);
     }
 }
-
 
 static int initialize(struct libmnt_table **mount_table_p, struct udev **udev_p) {
     int ret = 0;
@@ -315,7 +314,7 @@ exit:
 /**
  * Check system block topologies, identifying every ESP and XBOOTLDR partition.
  * - check whats mounted using libmount (and /proc/mounts)
- * returns 
+ * returns
  *  - 0 on a success else -1
  *
  *  Our approach identifes every ESP and XBOOTLDR and
@@ -370,9 +369,8 @@ int find_boot_mounts(SdBoot *conf, BootMounts *boot_mounts) {
     ret = boot_mounts_mark_current(conf, boot_mounts);
     if (ret != 0) {
         ret = 0;
-        //goto exit;
+        // goto exit;
     }
-
 
 exit:
     if (iter) {
@@ -393,4 +391,3 @@ exit:
 
     return ret;
 }
-

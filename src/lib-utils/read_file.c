@@ -6,21 +6,21 @@
  * - key = value pairs
  *
  * - read_file():
- *   returns all data 
+ *   returns all data
  *
  * - read_file_first_row()
  *   returns the first data row.
  */
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <errno.h>
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
-
-enum Sizes { 
+enum Sizes {
     NUM_ROWS = 64,
     ROW_MAX = 256,
 };
@@ -31,7 +31,7 @@ char *read_file_first_row(const char *path) {
      * - ignore empty, comments
      * - return first non empty row
      * - caller must free memory returned
-     * 
+     *
      * 0 = success
      * 1 = no file available (fopen failed) empty file
      * -1 = error
@@ -42,7 +42,7 @@ char *read_file_first_row(const char *path) {
 
     ret = read_file(path, &arr);
     if (ret == 1) {
-        // no such file 
+        // no such file
         goto exit;
     }
 
@@ -76,7 +76,7 @@ int read_file(const char *path, Array_str *arr) {
      *
      * Returns:
      *  Array_str filled out - the array is in arr->rows;
-     * 
+     *
      * 0 = success
      * 1 = no such file (fopen failed ENOENT)
      * -1 = error

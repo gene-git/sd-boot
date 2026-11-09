@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
  * Identify the first argument to kernel-install which is the operation to perform
- * - must be one of: 
+ * - must be one of:
  *   add, remove, inspect, add-all, list
- *   At moment, sd-boot uses add/remove 
+ *   At moment, sd-boot uses add/remove
  */
-#include <string.h>
-
 #include "sd-boot-config.h"
+
+#include <string.h>
 
 enum Const {
     ARG_SZ = 16,
@@ -39,5 +39,3 @@ Operation ki_operation(const char *oper) {
     }
     return KI_BAD;
 }
-
-

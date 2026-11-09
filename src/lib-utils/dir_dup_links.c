@@ -3,6 +3,8 @@
 /**
  * Given a source directory, make symlinks dst/link -> src/link
  */
+#include "sd-boot-utils.h"
+
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -11,8 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "sd-boot-utils.h"
 
 static int do_one_link(const char *src, int dst_fd, const char *name) {
 
@@ -30,7 +30,6 @@ static int do_one_link(const char *src, int dst_fd, const char *name) {
         return -1;
     }
 
-    
     /*
      * Create the symlink: 'dst/name' -> src/name (target_path)
      */
@@ -88,7 +87,6 @@ static int do_one_link(const char *src, int dst_fd, const char *name) {
  */
 int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
 
-
     if (!src || !dst) {
         return -1;
     }
@@ -124,10 +122,9 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
 
         const char *name = entry->d_name;
 
-        if (skips && skips->rows && skips->num_rows > 0) {
-            if (string_in_list(name, skips->num_rows, skips->rows)) {
-                continue;
-            }
+        if (skips && skips->rows && skips->num_rows > 0 &&
+                string_in_list(name, skips->num_rows, skips->rows)) {
+            continue;
         }
 
         ret = do_one_link(src, dst_fd, name);
@@ -136,11 +133,9 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
         }
     }
 
-    if (dst_fd != -1) {
-        if (close(dst_fd) != 0) {
-            perror("close failed");
-            ret = -1;
-        }
+    if (dst_fd != -1 && close(dst_fd) != 0) {
+        perror("close failed");
+        ret = -1;
     }
 
     if (closedir(src_dir) != 0) {
@@ -150,4 +145,3 @@ int dir_dup_links(const char *src, const char *dst, Array_str *skips) {
 
     return ret;
 }
-

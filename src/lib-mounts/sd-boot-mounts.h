@@ -6,33 +6,33 @@
 #ifndef SD_BOOT_MOUNTS_H
 #define SD_BOOT_MOUNTS_H
 
+#include "sd-boot-config.h"
+#include "sd-boot-export.h"
+
 #include <libmount/libmount.h>
 #include <limits.h>
 #include <stddef.h>
 
-#include "sd-boot-config.h"
-#include "sd-boot-export.h"
-
 /*
  * Mount Points : efi and xbootldr partitions.
  *
- * With mulitple ESP partitions (multiple disks), 
+ * With mulitple ESP partitions (multiple disks),
  * the currently mounted ESP mount may differ from that used to 'boot'
- * and saved to nvram by the boot loader we show both views. 
+ * and saved to nvram by the boot loader we show both views.
  *
  * We report these using:
- * - current = for currently mounted 
+ * - current = for currently mounted
  * - active = as reported by boot loader and saved to nvram.
  *
  * For currently mounted determination we use bootctl.
- * 
+ *
  * - efi - visible to all users.
- * - xbootldr - requires root 
+ * - xbootldr - requires root
  *
  * Provided by udev/libmount:
  * - all ESP and XBOOTLDR mount points.
  */
-typedef enum TriState: signed char {
+typedef enum TriState : signed char {
     Unknown = -1,
     False = 0,
     True = 1,

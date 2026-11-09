@@ -10,17 +10,17 @@
  * - pkginfo->pkg_vers
  *
  * - pkginfo->mod_dir
- * - 
+ * -
  * - pkginfo->managed
  *
  */
 
-#include <stddef.h>
-
-#include "sd-boot-utils.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-package.h"
+#include "sd-boot-utils.h"
 #include "sd-boot.h"
+
+#include <stddef.h>
 
 int kernel_pkginfo_from_kernel_image(Tool *tool, PkgInfo *pkginfo) {
     int ret = 0;
@@ -64,4 +64,3 @@ int kernel_pkginfo_from_kernel_image(Tool *tool, PkgInfo *pkginfo) {
 exit:
     return ret;
 }
-

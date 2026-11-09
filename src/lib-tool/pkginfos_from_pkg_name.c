@@ -16,17 +16,16 @@
  *   - is_sd_boot_managed
  *
  */
-#include <stddef.h>
-#include <stdlib.h>
-
-#include "sd-boot-utils.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-package.h"
 #include "sd-boot-tool.h"
+#include "sd-boot-utils.h"
 #include "sd-boot.h"
 
+#include <stddef.h>
+#include <stdlib.h>
 
 /*
  * Update one pkginfo
@@ -57,33 +56,32 @@ static int update_one(PkgInfo *pkginfo, Tool *tool) {
      * Rest of pkginfo
      */
     switch (tool->conf.tool_type) {
-        case SDB_KERNEL:
-            ret = kernel_pkginfo_from_pkg_name(tool, pkginfo);
-            if (ret != 0) {
-                goto exit;
-            }
-            break;
+    case SDB_KERNEL:
+        ret = kernel_pkginfo_from_pkg_name(tool, pkginfo);
+        if (ret != 0) {
+            goto exit;
+        }
+        break;
 
-        case SDB_EFI_TOOL:
-            ret = efi_tool_pkginfo(&tool->conf, pkginfo);
-            if (ret != 0) {
-                goto exit;
-            }
-            break;
+    case SDB_EFI_TOOL:
+        ret = efi_tool_pkginfo(&tool->conf, pkginfo);
+        if (ret != 0) {
+            goto exit;
+        }
+        break;
 
-        case SDB_EFIFS:
-        default:
-            break;
+    case SDB_EFIFS:
+    default:
+        break;
     }
 exit:
     return ret;
 }
 
-
 /*
  * Have package name, gather the remaining pkginfo elements:
  * Input:
- *  pkginfos where each has been initialized with: 
+ *  pkginfos where each has been initialized with:
  *  pkg_name, managed:
  *
  * Output fields udpated.
@@ -118,7 +116,6 @@ exit:
     return ret;
 }
 
-
 /*
  * Update each package info in the list:
  * Input:
@@ -131,7 +128,7 @@ exit:
  *  tool->pkginfo[i].ki_vers
  *  tool->pkginfo[i].ki_image
  *  x tool->pkginfo[i].mod_dir (kernels only)
- */  
+ */
 int pkginfos_update_from_pkg_name(Tool *tool) {
     int ret = 0;
     Array_str *managed_pkgs = &tool->managed_pkgs;

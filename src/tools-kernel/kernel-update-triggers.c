@@ -14,23 +14,23 @@
  * See man kernel-install for "boot_root"
  */
 
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-tool.h"
+#include "sd-boot.h"
 
 static bool operation_supported(Operation oper) {
 
     switch (oper) {
-        case KI_ADD:
-        case KI_REMOVE:
-            return true;
-            break;
+    case KI_ADD:
+    case KI_REMOVE:
+        return true;
+        break;
 
-        default:
-            return false;
-            break;
+    default:
+        return false;
+        break;
     }
 }
 
@@ -104,4 +104,3 @@ exit:
     tool_free(&tool);
     return ret;
 }
-

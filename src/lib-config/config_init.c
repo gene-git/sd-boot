@@ -7,18 +7,18 @@
  *   SDB_DEV_TEST
  *
  */
+#include "sd-boot-config.h"
+#include "sd-boot-msg.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#include "sd-boot-config.h"
-#include "sd-boot-msg.h"
 
 /*
  * Initialize config and dev setup when SDB_DEV_TEST is set.
  * Note that dev test requires:
  * - non-root user.
- * - we use secure_getenv() 
+ * - we use secure_getenv()
  *
  * Normal mode:
  * - conf->root = "/"

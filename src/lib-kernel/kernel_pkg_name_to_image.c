@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Find the kernel image path from the 
+ * Find the kernel image path from the
  */
+#include "sd-boot-kernel.h"
+#include "sd-boot-utils.h"
+#include "sd-boot.h"
+
 #include <libgen.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot.h"
-#include "sd-boot-kernel.h"
-#include "sd-boot-utils.h"
 
 int kernel_pkg_name_to_image(char *pkg_name, char **ki_image_p) {
     int ret = 0;
@@ -36,7 +36,7 @@ int kernel_pkg_name_to_image(char *pkg_name, char **ki_image_p) {
      * match pkg_name to identofy the matching kernel image
      */
     for (size_t i = 0; i < image_paths.num_rows; i++) {
-        
+
         ki_image = strdup(image_paths.rows[i]);
         if (!ki_image) {
             ret = -1;
@@ -80,4 +80,3 @@ exit:
 
     return ret;
 }
-

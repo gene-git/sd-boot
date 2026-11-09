@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Container for list of  (key, value) pairs which 
+ * Container for list of  (key, value) pairs which
  * are read in from a file
  */
-#include <stdlib.h>
-
 #include "sd-boot-keyval.h"
 
+#include <stdlib.h>
 
 void kvelem_free(KvElem *elem) {
     if (!elem) {
@@ -98,5 +97,3 @@ int kvlist_alloc(size_t num_elems, KvList *list) {
 
     return 0;
 }
-
-

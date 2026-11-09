@@ -15,12 +15,11 @@
  * See also man kernel-install.
  */
 
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-tool.h"
-
+#include "sd-boot.h"
 
 static void usage() {
     msg(MSG_ERR, "! sd-boot-kernel-update: Usage: \n");
@@ -32,18 +31,17 @@ static void usage() {
 static bool operation_supported(Operation oper) {
 
     switch (oper) {
-        case KI_ADD:
-        case KI_INSPECT:
-        case KI_REMOVE:
-            return true;
-            break;
+    case KI_ADD:
+    case KI_INSPECT:
+    case KI_REMOVE:
+        return true;
+        break;
 
-        default:
-            return false;
-            break;
+    default:
+        return false;
+        break;
     }
 }
-
 
 static int initialize(int argc, char *argv[], Tool *tool) {
     /*
@@ -69,7 +67,6 @@ exit:
     return ret;
 }
 
-
 /**
  *
  * 2 command line args:
@@ -87,7 +84,7 @@ exit:
  *   display information about the kernel-package provided on command line.
  *
  * Package Name:
- *   The name of a kernel package. 
+ *   The name of a kernel package.
  *   Or a special package name "--all--" means all kernels managed by sd-boot
  *
  *  (a) /etc/sd-boot/kernel-install.packages
@@ -126,4 +123,3 @@ exit:
     tool_free(&tool);
     return ret;
 }
-

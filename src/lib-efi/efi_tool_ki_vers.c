@@ -6,11 +6,11 @@
  * ki_vers ~ <package-name>-<package-version>
  */
 
+#include "sd-boot-efi.h"
+#include "sd-boot-msg.h"
+
 #include <stdio.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-efi.h"
 
 char *efi_tool_ki_vers(char *pkg_name, char *pkg_vers) {
     char version[EFI_ROW_MAX] = {};
@@ -20,7 +20,7 @@ char *efi_tool_ki_vers(char *pkg_name, char *pkg_vers) {
         return ki_vers;
     }
 
-    if (snprintf(version, EFI_ROW_MAX-1, "%s-%s", pkg_name, pkg_vers) < 0) {
+    if (snprintf(version, EFI_ROW_MAX - 1, "%s-%s", pkg_name, pkg_vers) < 0) {
         msg(MSG_ERR, "  ! sd-boot: efi tool: error creating ki_vers: %s %s\n", pkg_name, pkg_vers);
         return ki_vers;
     }
@@ -28,4 +28,3 @@ char *efi_tool_ki_vers(char *pkg_name, char *pkg_vers) {
     ki_vers = strdup(version);
     return ki_vers;
 }
-

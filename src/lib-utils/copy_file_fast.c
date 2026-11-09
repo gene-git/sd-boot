@@ -1,23 +1,22 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /*
- * Copy src_file to dst_file using copy_file_range() 
+ * Copy src_file to dst_file using copy_file_range()
  * Supported on all kernels 5.19+ but not for all device / filesystems.
  * If not supported we fall back to regular userspace read / write copy.
  *
  * Not all device/filesystem configurations are supported by the kernel.
- * For example if src and dst are not on  the  same  filesystem and the 
+ * For example if src and dst are not on  the  same  filesystem and the
  * filesystems are not of the same type or filesystem(s) do not support cross-filesystem copy.
  */
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
 #include <unistd.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
-
 
 static int close_fds(int *fd_src, int *fd_dst) {
 
@@ -48,7 +47,7 @@ static int close_fds(int *fd_src, int *fd_dst) {
  * Args:
  *  src:   File pathname to copy
  *  dst:   Where to write the copy
- *  flags: flags passed to open() on the destination file. 
+ *  flags: flags passed to open() on the destination file.
  *  mode:  permisions on dst_file
  */
 int copy_file_fast(const char *src, const char *dst, int flags, mode_t mode) {
@@ -72,7 +71,7 @@ int copy_file_fast(const char *src, const char *dst, int flags, mode_t mode) {
         return -1;
     }
 
-    /* 
+    /*
      * kernel copy is efficent.
      */
     unsigned int copy_flags = 0;
@@ -106,8 +105,8 @@ int copy_file_fast(const char *src, const char *dst, int flags, mode_t mode) {
         }
     }
     // NOLINTEND(misc-include-cleaner)
-    
-    /* 
+
+    /*
      * copy_file_range not available - use standard read/write
      */
     if (use_fallback) {

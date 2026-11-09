@@ -1,12 +1,11 @@
 /*
  * gcc -O2 version_check.c -o pkg_ver $(pkg-config --cflags --libs libalpm)
  */
-#include <alpm.h>
-#include <string.h>
-
 #include "sd-boot-alpm.h"
 #include "sd-boot-msg.h"
 
+#include <alpm.h>
+#include <string.h>
 
 char *get_curr_pkg_vers_alpm(char *pkg_name) {
 
@@ -28,7 +27,7 @@ char *get_curr_pkg_vers_alpm(char *pkg_name) {
 
     /*
      * Open local package database
-     * - lookup package version 
+     * - lookup package version
      */
     alpm_db_t *db_local = alpm_get_localdb(handle);
     if (db_local) {
@@ -47,4 +46,3 @@ char *get_curr_pkg_vers_alpm(char *pkg_name) {
     alpm_release(handle);
     return pkg_vers;
 }
-

@@ -3,11 +3,11 @@
 /*
  * Append a new row with the provided string.
  */
-#include <stdio.h>
-#include <string.h>
-
 #include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
+
+#include <stdio.h>
+#include <string.h>
 
 /**
  * Add one string to arr->rows[]
@@ -15,7 +15,7 @@
  *  string
  *
  * Returns 0 on success.
- *  
+ *
  */
 int array_str_add_string(const char *string, Array_str *arr) {
 
@@ -36,7 +36,7 @@ int array_str_add_string(const char *string, Array_str *arr) {
         perror("strip fail");
 
         /*
-         * restore original 
+         * restore original
          */
         (void)array_str_resize(n_row, arr);
         return -1;
@@ -47,4 +47,3 @@ int array_str_add_string(const char *string, Array_str *arr) {
 
     return 0;
 }
-

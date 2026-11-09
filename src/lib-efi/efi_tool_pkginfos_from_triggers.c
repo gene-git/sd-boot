@@ -14,13 +14,13 @@
  * (b) pathname
  *     update every managed efi-tool packages
  */
+#include "sd-boot-efi.h"
+#include "sd-boot-tool.h"
+#include "sd-boot.h"
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot.h"
-#include "sd-boot-efi.h"
-#include "sd-boot-tool.h"
 
 /*
  * Any paths => (update) all managed efi-tools

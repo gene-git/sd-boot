@@ -7,14 +7,13 @@
  *
  * Parses output of systemd's bootctl.
  */
+#include "sd-boot-config.h"
+#include "sd-boot-mounts.h"
+#include "sd-boot-msg.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-config.h"
-#include "sd-boot-mounts.h"
-
 
 int boot_mounts_mark_current(SdBoot *conf, BootMounts *boot_mounts) {
     /*
@@ -26,7 +25,7 @@ int boot_mounts_mark_current(SdBoot *conf, BootMounts *boot_mounts) {
      * will be returned.
      *
      * Caller must free content.
-     */ 
+     */
     int ret = 0;
     MountInfo efi = {};
     MountInfo xbootldr = {};

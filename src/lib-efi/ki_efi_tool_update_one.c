@@ -5,15 +5,15 @@
  * Install bootable efi programs (e.g. efi-shell) from the EFI partition.
  * Also handles "inspect" oper.
  */
-#include <stdlib.h>
-#include <string.h>
-
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-package.h"
 #include "sd-boot-utils.h"
+#include "sd-boot.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 static int remove_prev_vers(SdBoot *conf, PkgInfo *info, Array_str *env_arr) {
 
@@ -21,7 +21,7 @@ static int remove_prev_vers(SdBoot *conf, PkgInfo *info, Array_str *env_arr) {
     Array_str arg_arr = {};
 
     /*
-     * Get list of any older ki_vers 
+     * Get list of any older ki_vers
      * - remove all listed in pkginfo->ki_vers_old
      */
     ret = efi_tool_ki_vers_old(conf, info);
@@ -89,41 +89,41 @@ static int init_arg_arr(SdBoot *conf, PkgInfo *info, Array_str *arg_arr) {
     int ret = 0;
 
     switch (conf->oper) {
-        case KI_REMOVE:
-            ret = array_str_new(2, arg_arr);
-            if (ret != 0) {
-                goto exit;
-            }
-
-            arg_arr->rows[0] = strdup(conf->oper_str);
-            arg_arr->rows[1] = strdup(info->ki_vers);
-
-            if (!arg_arr->rows[0] || !arg_arr->rows[1]) {
-                ret = -1;
-                goto exit;
-            }
-            break;
-
-        case KI_ADD:
-        case KI_INSPECT:
-            ret = array_str_new(3, arg_arr);
-            if (ret != 0) {
-                goto exit;
-            }
-
-            arg_arr->rows[0] = strdup(conf->oper_str);
-            arg_arr->rows[1] = strdup(info->ki_vers);
-            arg_arr->rows[2] = strdup(info->ki_image);
-
-            if (!arg_arr->rows[0] || !arg_arr->rows[1] || !arg_arr->rows[2]) {
-                ret = -1;
-                goto exit;
-            }
-            break;
-
-        default:
+    case KI_REMOVE:
+        ret = array_str_new(2, arg_arr);
+        if (ret != 0) {
             goto exit;
-            break;
+        }
+
+        arg_arr->rows[0] = strdup(conf->oper_str);
+        arg_arr->rows[1] = strdup(info->ki_vers);
+
+        if (!arg_arr->rows[0] || !arg_arr->rows[1]) {
+            ret = -1;
+            goto exit;
+        }
+        break;
+
+    case KI_ADD:
+    case KI_INSPECT:
+        ret = array_str_new(3, arg_arr);
+        if (ret != 0) {
+            goto exit;
+        }
+
+        arg_arr->rows[0] = strdup(conf->oper_str);
+        arg_arr->rows[1] = strdup(info->ki_vers);
+        arg_arr->rows[2] = strdup(info->ki_image);
+
+        if (!arg_arr->rows[0] || !arg_arr->rows[1] || !arg_arr->rows[2]) {
+            ret = -1;
+            goto exit;
+        }
+        break;
+
+    default:
+        goto exit;
+        break;
     }
 
     array_str_refresh_row_len(arg_arr);
@@ -131,7 +131,6 @@ static int init_arg_arr(SdBoot *conf, PkgInfo *info, Array_str *arg_arr) {
 exit:
     return ret;
 }
-
 
 int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
     /*
@@ -141,7 +140,6 @@ int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
     int ret = 0;
     Array_str env_arr = {};
     Array_str arg_arr = {};
-
 
     if (!info) {
         msg(MSG_ERR, "  ! sd-boot: efi tool update bad input\n");
@@ -153,11 +151,11 @@ int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
         goto exit;
     }
 
-    msg(MSG_NORMAL, "⦁ sd-boot: Updating (%s) efi tool %s %s\n", 
-            conf->oper_str, info->pkg_name, info->pkg_vers);
+    msg(MSG_NORMAL, "⦁ sd-boot: Updating (%s) efi tool %s %s\n", conf->oper_str, info->pkg_name,
+            info->pkg_vers);
 
     /*
-     * Use special efi plugins via env variable 
+     * Use special efi plugins via env variable
      */
     ret = ki_efi_update_env(conf, &env_arr);
     if (ret != 0) {
@@ -183,7 +181,6 @@ int efi_tool_update_one(SdBoot *conf, PkgInfo *info) {
     }
 
     msg(MSG_NORMAL, "  ↳ sd-boot: %s %s %s\n", conf->oper_str, info->pkg_name, info->pkg_vers);
-
 
     ret = init_arg_arr(conf, info, &arg_arr);
     if (ret != 0) {
@@ -213,4 +210,3 @@ exit:
     array_str_free(&env_arr);
     return ret;
 }
-

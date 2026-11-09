@@ -6,12 +6,12 @@
 #ifndef SD_BOOT_CONFIG_H
 #define SD_BOOT_CONFIG_H
 
-#include <limits.h>
-#include <stddef.h>
-#include <sys/types.h>
-
 #include "sd-boot-export.h"
 #include "sd-boot-utils.h"
+
+#include <limits.h>
+#include <stddef.h>
+#include <sys/types.h> // NOLINT(misc-include-cleaner)
 
 /*
  *
@@ -47,7 +47,7 @@ typedef enum {
  *   - layout
  *   - initrd_generator
  *   - uki_generator;
- * 
+ *
  * - /etc/kernel/entry-token (if exists)
  *   -> entry_token_etc (use machine-id if not found in install.conf files)
  *
@@ -64,7 +64,7 @@ typedef enum {
  * machine_id_etc is read from /etc/machine-id
  *
  * Note that sd-boot test code uses the environ BOOT_ROOT to ensure tests are run in
- * the testing directory. sd-boot uses an otherwise clean environment to 
+ * the testing directory. sd-boot uses an otherwise clean environment to
  * spawn kernel-install
  */
 typedef struct {
@@ -89,7 +89,7 @@ typedef struct {
     Array_str skip_kernel_plugins;
 
     bool test;
-    uid_t euid;
+    uid_t euid; // NOLINT(misc-include-cleaner)
     char *root;
 
     InstallConf install_conf;
@@ -156,7 +156,6 @@ typedef struct {
 /*
  * Function declarations
  */
-
 
 /*
  * lib-config

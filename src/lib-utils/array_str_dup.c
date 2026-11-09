@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
 
 /**
  * Make a duplicate copy
@@ -59,4 +59,3 @@ int array_str_dup(Array_str *arr_1, Array_str *arr_2) {
 
     return 0;
 }
-

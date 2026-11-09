@@ -9,6 +9,7 @@
 #include <limits.h>
 #include <spawn.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /*
  * Function declarations
@@ -18,5 +19,6 @@ int read_child_output(int fdes, char **output_p);
 
 int run_cmd(char **argv, char **envp, int *child_ret_p);
 int run_cmd_output(char **argv, char **envp, char **output_p, int *child_ret_p);
+int run_cmd_output_show(char **argv, char **envp, int *child_ret_p, uint16_t margin, int line_len);
 
 #endif

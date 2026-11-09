@@ -4,12 +4,12 @@
  * Create array of pkinfos for all installed kernels
  * (whether managed or not)
  */
-#include <stddef.h>
-
-#include "sd-boot.h"
 #include "sd-boot-kernel.h"
 #include "sd-boot-package.h"
 #include "sd-boot-utils.h"
+#include "sd-boot.h"
+
+#include <stddef.h>
 
 int kernel_pkginfos_all(Tool *tool) {
     int ret = 0;
@@ -54,4 +54,3 @@ int kernel_pkginfos_all(Tool *tool) {
 exit:
     return ret;
 }
-

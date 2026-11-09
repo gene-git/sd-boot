@@ -9,15 +9,15 @@
  *    Which is only the plugins to manage loader entries. The other plugins
  *    are relevant only for kernels not efi tools.
  */
+#include "sd-boot-efi.h"
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <linux/limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-efi.h"
-#include "sd-boot-utils.h"
 
 int ki_plugins_efi_update_env(char *root, Array_str *env) {
     /*
@@ -33,7 +33,7 @@ int ki_plugins_efi_update_env(char *root, Array_str *env) {
     /*
      * KERNEL_INSTALL_PLUGINS=
      */
-    const char* var = "KERNEL_INSTALL_PLUGINS=";
+    const char *var = "KERNEL_INSTALL_PLUGINS=";
     const char *pdir = "/usr/lib/kernel/install.d/";
     char entry_1[PATH_MAX] = {};
     char entry_2[PATH_MAX] = {};
@@ -91,4 +91,3 @@ exit:
     }
     return ret;
 }
-

@@ -4,18 +4,17 @@
  * Initialize list of pkginfos each has set:
  * - pkginfo->pkg_name
  * - pkginfo->managed
- * 
+ *
  * The remaining elements can be updated using:
  * - pkginfos_from_pkg_name()
  */
+#include "sd-boot-tool.h"
+#include "sd-boot-utils.h"
+#include "sd-boot.h"
+
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot-utils.h"
-#include "sd-boot-tool.h"
-#include "sd-boot.h"
-
 
 static int init_pkginfo_one(char *pkg_name, Tool *tool) {
     int ret = 0;
@@ -46,7 +45,6 @@ exit:
     return ret;
 }
 
-
 int init_pkginfos_all_managed(Tool *tool) {
     int ret = 0;
     size_t num_pkgs = 0;
@@ -73,8 +71,6 @@ exit:
     return ret;
 }
 
-
-
 int init_pkginfos_from_pkg_name(char *pkg_name, Tool *tool) {
     int ret = 0;
 
@@ -95,10 +91,9 @@ int init_pkginfos_from_pkg_name(char *pkg_name, Tool *tool) {
         ret = init_pkginfo_one(pkg_name, tool);
         if (ret != 0) {
             goto exit;
-         }
+        }
     }
 
 exit:
     return ret;
 }
-

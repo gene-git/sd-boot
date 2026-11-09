@@ -4,19 +4,19 @@
  * Standalone tool to update a bootable efi program.
  *
  * Usage:
- *  sd-boot-update-efi-tool <oper> <packge name> 
+ *  sd-boot-update-efi-tool <oper> <packge name>
  *  - <oper> is one of: add, remove or inspect.
  *  - <package name> is arch package name.
  *
- * The package must be already installed (by pacman) in the usual way. 
+ * The package must be already installed (by pacman) in the usual way.
  * This tool installs the program provided by the package into /boot (or /efi).
  */
 
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-tool.h"
+#include "sd-boot.h"
 
 static void usage() {
     msg(MSG_ERR, "! sd-boot-efi-tool-update: Usage:\n");
@@ -31,18 +31,17 @@ static void usage() {
 static bool operation_supported(Operation oper) {
 
     switch (oper) {
-        case KI_ADD:
-        case KI_INSPECT:
-        case KI_REMOVE:
-            return true;
-            break;
+    case KI_ADD:
+    case KI_INSPECT:
+    case KI_REMOVE:
+        return true;
+        break;
 
-        default:
-            return false;
-            break;
+    default:
+        return false;
+        break;
     }
 }
-
 
 static int initialize(int argc, char *argv[], Tool *tool) {
     int ret = 0;
@@ -65,7 +64,6 @@ exit:
     return ret;
 }
 
-
 /*
  * Installs efi tool (such as efi-shell or memtest86) into efi
  *
@@ -80,7 +78,7 @@ exit:
  *   Add the bootable efi image into the efi using kernel-install.
  *   Boot loader entry will be created following bls layout.
  *   If older items are found they are removed.
- * 
+ *
  * - inspect
  *   Shows install information about the package.
  *
@@ -121,4 +119,3 @@ exit:
     tool_free(&tool);
     return ret;
 }
-

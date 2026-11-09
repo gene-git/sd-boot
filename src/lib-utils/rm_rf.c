@@ -3,12 +3,12 @@
 /**
  * Remove directory and it's contents
  */
+#include "sd-boot-utils.h"
+
 #include <errno.h>
 #include <ftw.h>
 #include <stdio.h>
-#include <sys/stat.h>
-
-#include "sd-boot-utils.h"
+#include <sys/stat.h> // NOLINT(misc-include-cleaner)
 
 enum Sizes {
     OPEN_FDS = 64,
@@ -19,6 +19,7 @@ enum Sizes {
  * remove() is convenient as it deletes files and empty direcrories.
  * Saves doing stat then unlink or rmdir
  */
+// NOLINTNEXTLINE(misc-include-cleaner)
 static int unlink_cb(const char *fpath, const struct stat *stat_buf, int typeflag, struct FTW *ftwbuf) {
     // tell compiler these are unused
     (void)stat_buf;
@@ -50,4 +51,3 @@ int rm_rf(const char *path) {
     }
     return ret;
 }
-

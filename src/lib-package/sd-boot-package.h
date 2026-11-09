@@ -6,10 +6,10 @@
 #ifndef SD_BOOT_PACKAGE_H
 #define SD_BOOT_PACKAGE_H
 
-#include <stddef.h>
-
 #include "sd-boot-config.h"
 #include "sd-boot.h"
+
+#include <stddef.h>
 
 /*
  * Function declarations

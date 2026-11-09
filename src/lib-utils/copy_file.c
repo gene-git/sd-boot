@@ -4,11 +4,11 @@
 /**
  * Copy a file to another location
  */
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
+
+#include <stdio.h>
+#include <stdlib.h>
 
 enum BufferSize {
     CHUNK = 4096,
@@ -21,13 +21,15 @@ int copy_file(const char *src, const char *dst) {
     FILE *fptr_dst = nullptr;
 
     fptr_src = fopen(src, "rb");
-    if (!fptr_src) {;
+    if (!fptr_src) {
+        ;
         perror(nullptr);
         return -1;
     }
 
     fptr_dst = fopen(dst, "wb");
-    if (!fptr_dst) {;
+    if (!fptr_dst) {
+        ;
         perror(nullptr);
         (void)fclose(fptr_src);
         return -1;
@@ -45,7 +47,7 @@ int copy_file(const char *src, const char *dst) {
         bytes_out = fwrite(buf, buf_size, bytes_in, fptr_dst);
 
         /*
-         * read: check for end of file or error 
+         * read: check for end of file or error
          */
         if (bytes_in < buf_bytes) {
             if (ferror(fptr_src)) {
@@ -81,4 +83,3 @@ int copy_file(const char *src, const char *dst) {
 
     return ret;
 }
-

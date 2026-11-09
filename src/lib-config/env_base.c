@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Iniitialize env 
- * - PATH 
+ * Iniitialize env
+ * - PATH
  * In test we need additional env variables. e.g.
  * LD_LIBRARY_PATH - allows tests using shared lib in developement / build area.
  */
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-
-#include "sd-boot-utils.h"
-#include "sd-boot-config.h"
 
 static int add_one_var(const char *name, const char *value, Array_str *env_base) {
     int ret = 0;
@@ -82,7 +81,7 @@ static int config_set_test_env(Array_str *env_base) {
     size_t num_names = sizeof(names) / sizeof(names[0]);
 
     for (size_t i = 0; i < num_names; i++) {
-        value = getenv(names[i]);               // NOLINT(concurrency-mt-unsafe)
+        value = getenv(names[i]); // NOLINT(concurrency-mt-unsafe)
         if (value) {
             ret = add_one_var(names[i], (const char *)value, env_base);
             if (ret != 0) {
@@ -90,7 +89,6 @@ static int config_set_test_env(Array_str *env_base) {
             }
         }
     }
-
 
 exit:
     return ret;
@@ -126,4 +124,3 @@ int config_set_base_env(bool test, Array_str *env_base) {
 exit:
     return ret;
 }
-

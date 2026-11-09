@@ -13,6 +13,7 @@
 
 #include "sd-boot-utils.h"
 #include "sd-boot.h"
+
 #include <stddef.h>
 
 static int t_allocate(size_t num_pkgs, size_t num_paths, TriggerInfo *all) {

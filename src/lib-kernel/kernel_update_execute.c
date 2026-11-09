@@ -8,10 +8,10 @@
  * Sets up and runs "kernel-install" to do the real work.
  * See also man kernel-install.
  */
-#include <string.h>
-
-#include "sd-boot.h"
 #include "sd-boot-kernel.h"
+#include "sd-boot.h"
+
+#include <string.h>
 
 /**
  * Operations:
@@ -53,4 +53,3 @@ int kernel_update_execute(Tool *tool) {
 exit:
     return ret;
 }
-

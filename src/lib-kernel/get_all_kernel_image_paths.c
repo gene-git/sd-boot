@@ -6,9 +6,8 @@
  * "/usr/lib/modules/<kern-vers>/vmlinuz"
  */
 
-#include "sd-boot-utils.h"
 #include "sd-boot-kernel.h"
-
+#include "sd-boot-utils.h"
 
 int get_all_kernel_image_paths(Array_str *image_paths) {
     int ret = 0;
@@ -22,4 +21,3 @@ int get_all_kernel_image_paths(Array_str *image_paths) {
 exit:
     return ret;
 }
-

@@ -16,7 +16,6 @@ typedef enum {
     WRITE_MODE_DEF = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH,
 } FileConstants;
 
-
 /*
  * Array of pointers to strings.
  * Each string has it's own length.
@@ -39,7 +38,6 @@ typedef struct {
     size_t num_alloc;
     char *bytes;
 } Dynamic_str;
-
 
 /*
  * Function declarations

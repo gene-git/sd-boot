@@ -8,6 +8,8 @@
 
 #include "sd-boot-export.h"
 
+#include <stdint.h>
+
 /*
  *
  * Message Options (Verbosity)
@@ -18,16 +20,16 @@ enum MsgVerb {
     MSG_VERB = 2,
 };
 
-
 /*
  * Function declarations
  */
 void set_verb_level(int verb_level);
+int get_verb_level();
 
 /*
  * Public API
  */
 [[gnu::format(printf, 2, 3)]]
 SD_BOOT_EXPORT void msg(int msg_level, const char *fmt, ...);
-
+SD_BOOT_EXPORT void msg_buf(int msg_level, uint16_t margin, int line_len, const char *buffer);
 #endif

@@ -4,8 +4,8 @@
  * Free up the mem for TriggerInfo
  */
 
-#include "sd-boot.h"
 #include "sd-boot-utils.h"
+#include "sd-boot.h"
 
 void triggerinfo_free(TriggerInfo *trig) {
 

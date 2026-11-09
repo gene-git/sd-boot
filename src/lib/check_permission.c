@@ -5,9 +5,8 @@
  * For production root is required.
  * In development testing mode it is not.
  */
-
-#include "sd-boot-msg.h"
 #include "sd-boot-config.h"
+#include "sd-boot-msg.h"
 #include "sd-boot.h"
 
 bool check_permission(SdBoot *conf) {

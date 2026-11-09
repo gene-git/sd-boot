@@ -6,14 +6,14 @@
  * - msut be called after get_active_plugins() has initialized conf->active_plugins;
  * - save result in conf->env_active_plugins
  */
+#include "sd-boot-config.h"
+#include "sd-boot-utils.h"
+#include "sd-boot.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "sd-boot.h"
-#include "sd-boot-config.h"
-#include "sd-boot-utils.h"
 
 int ki_plugin_env_init(SdBoot *conf) {
 
@@ -42,7 +42,7 @@ int ki_plugin_env_init(SdBoot *conf) {
         goto exit;
     }
 
-    for (size_t i=0; i < plugins->num_rows; i++) {
+    for (size_t i = 0; i < plugins->num_rows; i++) {
         if (plugins->rows[i]) {
             strlcat(var, plugins->rows[i], bytes);
             strlcat(var, " ", bytes);
@@ -64,4 +64,3 @@ exit:
     }
     return ret;
 }
-

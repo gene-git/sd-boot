@@ -10,18 +10,18 @@
  *  - uki <efi-file>   => efi <efi-file> (uki layout)
  *  - options          => remove (these are kenel options)
  */
-#include <stddef.h>
-
-#include "sd-boot.h"
 #include "sd-boot-config.h"
 #include "sd-boot-efi.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-tool.h"
 #include "sd-boot-utils.h"
+#include "sd-boot.h"
+
+#include <stddef.h>
 
 int loaderentry_modify_efi(SdBoot *conf, KIplugin *plugin) {
     /*
-     * plugins are always called - each plugin decidws 
+     * plugins are always called - each plugin decidws
      * if input is something to act on or ignore.
      */
     int ret = 0;

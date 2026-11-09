@@ -12,6 +12,9 @@
  * makepath:
  *      Makes all the directories in the provided path.
  */
+#include "sd-boot-msg.h"
+#include "sd-boot-utils.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -19,9 +22,6 @@
 #include <string.h>
 #include <sys/errno.h>
 #include <sys/stat.h>
-
-#include "sd-boot-msg.h"
-#include "sd-boot-utils.h"
 
 /*
  * Make a directory : path
@@ -51,33 +51,29 @@ int makedir(const char *path, mode_t mode) {
         path_copy[len - 1] = '\0';
         len--;
     }
-    
+
     /*
-     * Create dir 
+     * Create dir
      * if path exists:
      * - ok if a directory
      * - error if a file
      */
     int ret = 0;
     if (mkdir(path_copy, mode) != 0) {
-        switch (errno) {
-            case EEXIST:        // NOLINT(misc-include-cleaner)
-                struct stat stp;
-                if (stat(path, &stp) == 0 && S_ISDIR(stp.st_mode)) {
-                    ret = 0;
-                } else {
-                    msg(MSG_ERR, "! mkdir failed - invalid: %s\b", path);
-                    ret = -1;
-                }
-                break;
-
-            default:
-                perror("mkdir failed");
+        if (errno == EEXIST) { // NOLINT(misc-include-cleaner)
+            struct stat stp = {};
+            if (stat(path, &stp) == 0 && S_ISDIR(stp.st_mode)) {
+                ret = 0;
+            } else {
+                msg(MSG_ERR, "! mkdir failed - invalid: %s\b", path);
                 ret = -1;
-                break;
+            }
+        } else {
+            perror("mkdir failed");
+            ret = -1;
         }
     }
+
     free(path_copy);
     return ret;
 }
-

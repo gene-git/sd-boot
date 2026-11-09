@@ -7,15 +7,15 @@
  *
  * Parses output of systemd's bootctl.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "sd-boot-msg.h"
 #include "sd-boot-cmd.h"
 #include "sd-boot-config.h"
 #include "sd-boot-mounts.h"
+#include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*
  * If token matches then strdup() it and return allocated string
@@ -61,7 +61,7 @@ static int extract_efi_xbootldr(char *buf, char **efi_p, char **xbootldr_p) {
     if (!token) {
         return 0;
     }
-    
+
     int ret = 0;
 
     /*
@@ -93,12 +93,13 @@ exit:
  *
  * On success efi->mount is set and efi->current is True
  * Likewise for xbootldr.
- */ 
+ */
 
 int find_boot_mounts_current(SdBoot *conf, MountInfo *efi, MountInfo *xbootldr) {
     int ret = 0;
     int child_ret = 0;
-    Array_str *env_base = &conf->env_base;;
+    Array_str *env_base = &conf->env_base;
+    ;
 
     if (!efi || !xbootldr) {
         return 1;
@@ -116,7 +117,7 @@ int find_boot_mounts_current(SdBoot *conf, MountInfo *efi, MountInfo *xbootldr) 
     /*
      * Run cmd
      */
-    ret = run_cmd_output(argv, env_base->rows, &output, &child_ret) ;
+    ret = run_cmd_output(argv, env_base->rows, &output, &child_ret);
     if (ret != 0) {
         msg(MSG_ERR, "  ! sd-boot: failed get efi from bootctl\n");
         return -1;
@@ -145,7 +146,7 @@ int find_boot_mounts_current(SdBoot *conf, MountInfo *efi, MountInfo *xbootldr) 
             ret = -1;
             goto exit;
         }
-        line_len = (size_t) strlen(line_tmp);
+        line_len = (size_t)strlen(line_tmp);
         cleaned = trim_string(line_tmp, line_len);
 
         extract_efi_xbootldr(cleaned, &efi->mount, &xbootldr->mount);
@@ -174,8 +175,8 @@ exit:
         free((void *)output);
     }
     if (line_tmp) {
-        free((void *) line_tmp);
+        free((void *)line_tmp);
     }
-    
+
     return ret;
 }

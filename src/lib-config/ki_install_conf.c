@@ -9,11 +9,11 @@
  *  - kernel_conf_dir
  *  - kernel_conf_bls_dir
  */
+#include "sd-boot-config.h"
+
 #include <linux/limits.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "sd-boot-config.h"
 
 int ki_install_conf_init(SdBoot *conf) {
     int ret = 0;

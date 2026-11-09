@@ -12,4 +12,5 @@ lib_sources += files(
     'read_child_output.c',
     'run_cmd.c',
     'run_cmd_output.c',
+    'run_cmd_output_show.c',
     )
