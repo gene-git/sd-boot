@@ -16,9 +16,10 @@ sd-boot Documentation
     Dracut-Options
     Efi-Filesystem-Drivers
     Skipping-Kernel-Plugins
-    Efi-Tools.rst
-    Development.rst
-    Appendix.rst
+    Efi-Tools
+    Development
+    Appendix
+    Posix-Spawn
 
 Man Pages
 =========

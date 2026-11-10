@@ -6,14 +6,48 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> 6.8.0 (2026-11-01)
-	96 commits.
+	3.6.2 (2026-04-21) -> HEAD (2026-11-09)
+	99 commits.
 
 Commits
 =======
 
 
-* 2026-11-01  : **6.8.0**
+* 2026-11-09  : **HEAD**
+
+.. code-block:: text
+
+              - **6.11.0**
+            
+                * When using new (but currently unused) timeout option to run an executable, forward parent signals.
+                  A keyboard interrupt, for example, is now passed to the child process group.
+                * Split run_cmd_output.c into smaller files (readability)
+                * Add manual section discussing posix_spawn vs fork/exec
+            
+                **6.10.0**
+            
+                * Improve output format from subprocesses by capture of child process stdout/stderr
+                  and formatting appropriately indented.
+                * Openssl 4.x requires different valgrind suppression rules 3.x
+                  to silence its global allocated cache not being freed.
+                * Tidy ups to keep clang-tidy 23.1.4 happy
+                * clang-format to enforce consistent style.
+
+* 2026-11-09  : **6.11.0**
+
+.. code-block:: text
+
+              - **6.10.0**
+                * Improve output format from subprocesses by capture of child process stdout/stderr
+                and formatting appropriately indented.
+              - **6.9.0**
+                * Improve output format from subprocess (sbctl).
+                * Openssl 4.x requires different valgrind suppression rules 3.x
+                  to silence its global allocated cache not being freed.
+                * Tidy ups to keep clang-tidy 23.1.4 happy
+                * clang-format to enforce consistent style.
+
+* 2026-11-01  : **6.8.0, origin/master**
 
 .. code-block:: text
 
@@ -22,7 +56,7 @@ Commits
                 * Update manual on using sd-boot with Arch kernels
                 * Add a couple more defensive memory checks for find_boot_mounts.
 
-* 2026-10-10  : **6.7.0, origin/master**
+* 2026-10-10  : **6.7.0**
 
 .. code-block:: text
 

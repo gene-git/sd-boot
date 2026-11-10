@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /**
- * Run executable - standard execve() argyments and 
+ * Run executable - standard execve() argyments and
  * child output ignored.
  * Needs _GNU_SOURCE (see meson.build)
  */
 #include "sd-boot-cmd.h"
+
 #include <sched.h>
 #include <spawn.h>
 #include <stdint.h>
@@ -13,17 +14,18 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-
-
+/**
+ * Run command in argv with env envp
+ * If no envp, then chold gets empty env.
+ * e.g. argv ~ {"rsync", "-a", "/path/to/src", "/path/to/dest", nullptr}
+ * Uses posix_spawn.
+ *
+ * :param argv: Command/args to run - standard execve() format. Array of strings
+ *              command is first, then args, end with null.
+ * :param envp: Associated environment. Same format as argv
+ * :param child_ret_p: The child exit code.
+ */
 int run_cmd(char **argv, char **envp, int *child_ret_p) {
-    /*
-     * Run command in argv
-     * - cmd - full path to executable
-     * - argv is null terminated list of strings first arg is "name" of command
-     *   e.g.
-     *   {"rsync", "-a", "/path/to/src", "/path/to/dest", nullptr}
-     * - we pass down empty environment - do not pass current env.
-     */
     pid_t pid = 0;
     int ret = 0;
     int ret_spawn = 0;

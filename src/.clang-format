@@ -1,14 +1,13 @@
 Language: C
-Standard: Latest
 
 # Include sorting and grouping
-SortIncludes: 
+SortIncludes:
   Enabled:         true
   IgnoreCase:      false
   IgnoreExtension: false
 
-# Preserve Or 'Regroup' depending on whether you want blank lines between blocks
-IncludeBlocks: Regroup 
+# Regroup: blank line between "project.h" and <system.h> blocks
+IncludeBlocks: Regroup
 
 # General styling rules
 BasedOnStyle: LLVM
@@ -16,6 +15,7 @@ IndentWidth: 4
 ColumnLimit: 110
 UseTab: Never
 SpacesBeforeTrailingComments: 1
+InsertNewlineAtEOF: true
 
 # Continuation of conditions should be indented to not be confused with
 # the statements that get executed when condition is true.
@@ -23,3 +23,13 @@ AlignAfterOpenBracket: false
 ContinuationIndentWidth: 8
 BracedInitializerIndentWidth: 4
 
+# Wrapping long calls / declarations: keep the first arguments on the
+# opening line - func(a, b, c,
+#                 d, e)
+# rather than breaking right after "func(".
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+
+# Always brace if/else/for/while bodies (matches clang-tidy
+# readability-braces-around-statements).
+InsertBraces: true

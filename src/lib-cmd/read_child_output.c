@@ -27,6 +27,7 @@
 #include "sd-boot-cmd.h"
 #include "sd-boot-msg.h"
 #include "sd-boot-utils.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -40,8 +41,8 @@
 
 enum ReadConstants {
     CHUNK = 4096,
-    NUM_STREAMS = 2,                  /* stdout, stderr */
-    MAX_POLL_FDS = NUM_STREAMS + 1,   /* + pidfd */
+    NUM_STREAMS = 2,                /* stdout, stderr */
+    MAX_POLL_FDS = NUM_STREAMS + 1, /* + pidfd */
     MS_PER_SEC = 1000,
     NS_PER_MS = 1000000,
 };
@@ -247,7 +248,7 @@ static int reader_init(Reader *reader, const int fds[NUM_STREAMS], int pid_fd, i
     bool any = false;
 
     for (size_t i = 0; i < NUM_STREAMS; i++) {
-        reader->streams[i] = (Stream){ .fdes = -1, .done = true };
+        reader->streams[i] = (Stream){.fdes = -1, .done = true};
         if (reader->dest[i]) {
             *reader->dest[i] = nullptr;
         }
@@ -275,7 +276,12 @@ static int reader_init(Reader *reader, const int fds[NUM_STREAMS], int pid_fd, i
 }
 
 static bool reader_active(const Reader *reader) {
-    return (bool)(!reader->streams[0].done || !reader->streams[1].done);
+    for (size_t i = 0; i < NUM_STREAMS; i++) {
+        if (!reader->streams[i].done) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /*
@@ -286,13 +292,13 @@ static nfds_t reader_pollfds(Reader *reader, struct pollfd pfds[MAX_POLL_FDS], S
 
     for (size_t i = 0; i < NUM_STREAMS; i++) {
         if (!reader->streams[i].done) {
-            pfds[nfds] = (struct pollfd){ .fd = reader->streams[i].fdes, .events = POLLIN };
+            pfds[nfds] = (struct pollfd){.fd = reader->streams[i].fdes, .events = POLLIN};
             polled[nfds] = &reader->streams[i];
             nfds++;
         }
     }
     if (reader->pid_fd >= 0) {
-        pfds[nfds] = (struct pollfd){ .fd = reader->pid_fd, .events = POLLIN };
+        pfds[nfds] = (struct pollfd){.fd = reader->pid_fd, .events = POLLIN};
         polled[nfds] = nullptr;
         nfds++;
     }
@@ -304,7 +310,8 @@ static nfds_t reader_pollfds(Reader *reader, struct pollfd pfds[MAX_POLL_FDS], S
  * POLLIN, POLLHUP or POLLERR on a pipe: read() tells us which.
  * POLLHUP may still have buffered data - read until EOF.
  */
-static void reader_handle_ready(Reader *reader, const struct pollfd *pfds, Stream *const *polled, nfds_t nfds) {
+static void reader_handle_ready(Reader *reader, const struct pollfd *pfds, Stream *const *polled,
+        nfds_t nfds) {
     for (nfds_t i = 0; i < nfds; i++) {
         if (pfds[i].revents == 0) {
             continue;
@@ -370,7 +377,8 @@ static int reader_results(Reader *reader) {
         }
     }
     for (size_t i = 0; i < NUM_STREAMS; i++) {
-        if (reader->dest[i] && reader->streams[i].fdes >= 0 && stream_finish(&reader->streams[i], reader->dest[i]) != 0) {
+        if (reader->dest[i] && reader->streams[i].fdes >= 0 &&
+                stream_finish(&reader->streams[i], reader->dest[i]) != 0) {
             return -1;
         }
     }
@@ -381,45 +389,20 @@ static int reader_results(Reader *reader) {
  * On error, free anything already handed to caller.
  */
 static void reader_cleanup(Reader *reader, int ret) {
-    bool discard = (bool)(ret != 0 && ret != RUN_CMD_TIMEOUT);
-
     for (size_t i = 0; i < NUM_STREAMS; i++) {
-        if (discard && reader->dest[i] && *reader->dest[i]) {
+        dynamic_str_free(&reader->streams[i].str);
+    }
+
+    if (ret == 0 || ret == RUN_CMD_TIMEOUT) {
+        return;
+    }
+    for (size_t i = 0; i < NUM_STREAMS; i++) {
+        if (reader->dest[i] && *reader->dest[i]) {
             free(*reader->dest[i]);
             *reader->dest[i] = nullptr;
         }
-        dynamic_str_free(&reader->streams[i].str);
     }
 }
-
-
-/**
- * Read stdout and stderr concurrently via poll()
- *
- * - Read child stdout and stderr concurrently until EOF on both,
- *   or until the child exits (if pid_fd >= 0).
- * - timeout_ms > 0: give up after this long and return RUN_CMD_TIMEOUT.
- *   Output read so far is still returned (useful for logging what hung).
- *   Caller is responsible for killing the child.
- *   timeout_ms <= 0: no timeout.
- * - A stream is read if its fd >= 0 and its char ** is non-null.
- * - pid_fd: optional pidfd for the child (-1 if none). When the child
- *   exits, whatever is in the pipes is drained and reading stops, even
- *   if a grandchild (e.g. a daemon it started) still holds the pipe
- *   open - without this we would wait forever for EOF.
- * - Read fds are set O_NONBLOCK so a read() can never block.
- * - Each requested *xxx_p points to allocated output
- *   (empty string "" if there was none). Caller frees.
- * - fds are not closed - caller owns them.
- *
- * :param out_fd: Stdout file descriptor to read
- * :param err_fd: Stderr file descriptor to read
- * :param pid_fd: Child pidfd (-1 if not provided).
- * :param timeout_ms: If > 0, timeout in ms
- * :param output_p: Address of stdout buffer to allocated and fill (if non-null)
- * :param error_p: Address of stderr buffer to allocated and fill (if non-null)
- * :returns: 0 on success
- */
 
 int read_child_outputs(int out_fd, int err_fd, int pid_fd, int timeout_ms, char **output_p, char **error_p) {
     /*
@@ -427,8 +410,8 @@ int read_child_outputs(int out_fd, int err_fd, int pid_fd, int timeout_ms, char 
      * Reading one to EOF before the other can deadlock: if the child
      * fills the other pipe (~64 KiB) it blocks and never closes the first.
      */
-    const int fds[NUM_STREAMS] = { out_fd, err_fd };
-    Reader reader = { .dest = { output_p, error_p } };
+    const int fds[NUM_STREAMS] = {out_fd, err_fd};
+    Reader reader = {.dest = {output_p, error_p}};
 
     int ret = reader_init(&reader, fds, pid_fd, timeout_ms);
     while (ret == 0 && reader_active(&reader) && !reader.timed_out) {

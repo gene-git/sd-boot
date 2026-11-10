@@ -5,6 +5,13 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
+**6.11.0**
+
+* When using new (but currently unused) timeout option to run an executable, forward parent signals.
+  A keyboard interrupt, for example, is now passed to the child process group.
+* Split run_cmd_output.c into smaller files (readability)
+* Add manual section discussing posix_spawn vs fork/exec
+
 **6.10.0**
 
 * Improve output format from subprocesses by capture of child process stdout/stderr

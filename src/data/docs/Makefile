@@ -20,7 +20,8 @@ SOURCES = conf.py ../../version.txt Makefile index.rst Readme.rst \
 		  Layout.rst \
 		  Loader-Entries.rst \
 		  Signed-Kernels.rst \
-		  Skipping-Kernel-Plugins.rst
+		  Skipping-Kernel-Plugins.rst \
+		  Posix-Spawn.rst
 
 SOURCES_MAN = ../man/sd-boot-efifs-update.8.rst \
 			  ../man/sd-boot-efi-tool-update.8.rst \

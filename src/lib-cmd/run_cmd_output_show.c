@@ -15,12 +15,12 @@
  */
 #include "sd-boot-cmd.h"
 #include "sd-boot-msg.h"
+
 #include <stdint.h>
 #include <stdlib.h>
 
-
-int run_cmd_output_show(char **argv, char **envp, int *child_ret_p, uint16_t margin, 
-        int line_len, int timeout_secs) {
+int run_cmd_output_show(char **argv, char **envp, int *child_ret_p, uint16_t margin, int line_len,
+        int timeout_secs) {
     int ret = 0;
     char *output = nullptr;
     char *error = nullptr;

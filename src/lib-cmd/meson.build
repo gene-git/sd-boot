@@ -13,4 +13,7 @@ lib_sources += files(
     'run_cmd.c',
     'run_cmd_output.c',
     'run_cmd_output_show.c',
+    'run_cmd_sigfwd.c',
+    'run_cmd_spawn.c',
+    'run_cmd_wait.c'
     )

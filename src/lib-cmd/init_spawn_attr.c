@@ -3,17 +3,17 @@
 /**
  * Initilize spawn attributes and reset child signals.
  *
- * Note: caller must clean up with posix_spawnattr_destroy() 
+ * Note: caller must clean up with posix_spawnattr_destroy()
  *       with or withour errors.
  */
 #include "sd-boot-cmd.h"
+
 #include <signal.h>
 #include <spawn.h>
 
-
 int init_spawn_attr(posix_spawnattr_t *attr) {
     int ret = 0;
-    sigset_t sig_mask = {};                 // NOLINT(misc-include-cleaner)
+    sigset_t sig_mask = {}; // NOLINT(misc-include-cleaner)
 
     ret = posix_spawnattr_init(attr);
     if (ret != 0) {
