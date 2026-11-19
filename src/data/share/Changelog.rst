@@ -6,14 +6,27 @@ Tags
 
 .. code-block:: text
 
-	3.6.2 (2026-04-21) -> HEAD (2026-11-09)
-	99 commits.
+	3.6.2 (2026-04-21) -> 6.12.0 (2026-11-19)
+	100 commits.
 
 Commits
 =======
 
 
-* 2026-11-09  : **HEAD**
+* 2026-11-19  : **6.12.0**
+
+.. code-block:: text
+
+              - **6.12.0**
+                * Speed up initrd by changing dracut compression level from 15 to 3.
+                  The bulk of the initrd is already compressed kernel modules. For example
+                  the initrd generation takes less than half the time of the higher compression level
+                  with a UKI size increase of roughly 4%.
+            
+                  You can override dracut configuration settings as usual using, for example,
+                  /etc/dracut.conf.d/90-compress.conf containing: compress_level_zstd="15"
+
+* 2026-11-09  : **6.11.0, origin/master**
 
 .. code-block:: text
 
@@ -32,11 +45,6 @@ Commits
                   to silence its global allocated cache not being freed.
                 * Tidy ups to keep clang-tidy 23.1.4 happy
                 * clang-format to enforce consistent style.
-
-* 2026-11-09  : **6.11.0**
-
-.. code-block:: text
-
               - **6.10.0**
                 * Improve output format from subprocesses by capture of child process stdout/stderr
                 and formatting appropriately indented.
@@ -47,7 +55,7 @@ Commits
                 * Tidy ups to keep clang-tidy 23.1.4 happy
                 * clang-format to enforce consistent style.
 
-* 2026-11-01  : **6.8.0, origin/master**
+* 2026-11-01  : **6.8.0**
 
 .. code-block:: text
 

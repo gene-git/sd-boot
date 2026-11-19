@@ -80,7 +80,7 @@ files directly into */boot* which violates the basic requierments.
 It is also somewhat out of date.
 
 I may provide a compatible version to the AUR at some point if its helpful.
-Note that the latest open source version from memtest.org is 8.x. There is
+Note that the latest open source version from memtest.org is 9.x. There is
 also a non-open source (commercial) version) 11.x in the AUR that installs to /usr/share.
 The latest open source version is v8.10 at this time.
 

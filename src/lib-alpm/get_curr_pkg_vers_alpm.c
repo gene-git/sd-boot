@@ -1,5 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-FileCopyrightText: © 2026-present Gene C <arch@sapience.com>
 /*
- * gcc -O2 version_check.c -o pkg_ver $(pkg-config --cflags --libs libalpm)
+ * Use libalpm to lookup a package version
  */
 #include "sd-boot-alpm.h"
 #include "sd-boot-msg.h"

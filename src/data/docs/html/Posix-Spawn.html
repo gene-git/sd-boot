@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>13. Posix Spawn &mdash; sd-boot 6.11.0
+  <title>13. Posix Spawn &mdash; sd-boot 6.12.0
  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=06de18c4"></script>
+      <script src="_static/documentation_options.js?v=94a1c62f"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
@@ -114,7 +114,7 @@ error to the parent. For example, nonexistent: No such file or directory can sho
 code.</p>
 <p>With fork/exec, the child has to send errno back over a close-on-exec pipe. This means more code to get right.</p>
 <p><strong>Safe when using threads</strong></p>
-<p>sd-boot does not currently use threads, but that option is open wit posix_spawn().</p>
+<p>sd-boot does not currently use threads, but that option is available with posix_spawn().</p>
 <p>After a fork() in a threaded program, the child may only call async-signal-safe functions until it calls exec.
 A malloc or printf there could deadlock on a lock another thread held at fork time for example.</p>
 <p>posix_spawn avoids that all of that and any bugs that come along as a result.</p>
@@ -125,7 +125,7 @@ handlers, or return into parent code by mistake. It is inherently safer.</p>
 <p>sd-boot does not need anything offered by fork/exec that is not currently availably via
 posix_spawn().</p>
 <p>From redirecting stdin/stdout/stderr, a new process group, child process’s signal mask, and resetting
-signals to their defaults. And, those steps are rin in the right order between the clone and the exec,
+signals to their defaults. And, those steps are run in the right order between the clone and the exec,
 without hand-writing anything.</p>
 </section>
 <section id="what-fork-exec-does-that-posix-spawn-does-not">

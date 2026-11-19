@@ -27,7 +27,7 @@ With fork/exec, the child has to send errno back over a close-on-exec pipe. This
 
 **Safe when using threads**
 
-sd-boot does not currently use threads, but that option is open wit posix_spawn().
+sd-boot does not currently use threads, but that option is available with posix_spawn().
 
 After a fork() in a threaded program, the child may only call async-signal-safe functions until it calls exec. 
 A malloc or printf there could deadlock on a lock another thread held at fork time for example.
@@ -45,7 +45,7 @@ sd-boot does not need anything offered by fork/exec that is not currently availa
 posix_spawn().
 
 From redirecting stdin/stdout/stderr, a new process group, child process’s signal mask, and resetting 
-signals to their defaults. And, those steps are rin in the right order between the clone and the exec, 
+signals to their defaults. And, those steps are run in the right order between the clone and the exec, 
 without hand-writing anything.
 
 What fork/exec does that posix_spawn does not

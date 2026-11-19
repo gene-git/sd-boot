@@ -5,6 +5,16 @@ Recent Changes
 
 For the complete changelog please see *src/data/share/Changelog.rst*
 
+**6.12.0**
+
+* Speed up initrd by changing dracut compression level from 15 to 3. 
+  The bulk of the initrd is already compressed kernel modules. For example
+  the initrd generation takes less than half the time of the higher compression level
+  with a UKI size increase of roughly 4%.
+
+  You can override dracut configuration settings as usual using, for example, 
+  /etc/dracut.conf.d/90-compress.conf containing: compress_level_zstd="15"
+
 **6.11.0**
 
 * When using new (but currently unused) timeout option to run an executable, forward parent signals.
